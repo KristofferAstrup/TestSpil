@@ -126,7 +126,8 @@ public class View {
         drawDynamics(gameState.getWorld());
 
         gc.setTransform(new Affine());
-        gc.setGlobalAlpha(1);
+        gc.setStroke(Color.LIGHTBLUE);
+        gc.setGlobalAlpha(0.6);
 
          for(DynamicVector dynamicVector : gameState.getWorld().rain.getParticles())
         {

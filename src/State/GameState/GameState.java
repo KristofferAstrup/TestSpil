@@ -40,7 +40,7 @@ public class GameState implements IState {
         this.world = Controller.getWorld();
         getWorld().endInit(); //COULD PROBABLY BE RELOCATED TO PARTS OF THE CONTROLLER, AS IT IS THE ONE THAT CREATES THE WORLD.
         player = new Player(world,new DynamicVector(world.getPlayerSpawnPoint().getX_dyn(),world.getPlayerSpawnPoint().getY_dyn()));
-        playerController = new PlayerController(player,keyboardController);
+        playerController = new PlayerController(player,world,keyboardController);
         world.addPlayer(player);
     }
 

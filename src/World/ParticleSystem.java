@@ -28,7 +28,15 @@ public class ParticleSystem {
 
     public void update(double delta)
     {
-        if(spawnDelay <=0){particles.add(new DynamicVector(Controller.random.nextDouble()*dist.getX_dyn()+from.getX_dyn(),Controller.random.nextDouble()*dist.getY_dyn()+from.getY_dyn()));}
+        if(spawnDelay <=0)
+        {
+            particles.add(new DynamicVector(Controller.random.nextDouble()*dist.getX_dyn()+from.getX_dyn(),Controller.random.nextDouble()*dist.getY_dyn()+from.getY_dyn()));
+            spawnDelay += spawnRate;
+        }
+        else
+        {
+            spawnDelay -= delta;
+        }
         DynamicVector _speed = new DynamicVector(speed.getX_dyn()*delta,speed.getY_dyn()*delta);
 
         Iterator<DynamicVector> iterator = particles.iterator();

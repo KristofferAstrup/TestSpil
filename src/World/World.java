@@ -51,7 +51,7 @@ public class World implements Serializable {
             add(new BackgroundElement(ImageLibrary.getImage("Ocean.png"), new DynamicVector(0, 0), new DynamicVector(0.1, 0.06), false));
         }};
 
-        rain = new ParticleSystem(new DynamicVector(0,1),new DynamicVector(1,1),20,new DynamicVector(-0.825,-0.75));
+        rain = new ParticleSystem(new DynamicVector(0,1),new DynamicVector(1,1),100,new DynamicVector(-0.125,-0.75));
     }
 
     public void init(){
@@ -65,9 +65,15 @@ public class World implements Serializable {
     public double getWindForce(){return windForce;}
 
     public void reset(){
+        ArrayList<WorldObject> temporaryWorldObjects = new ArrayList<>();
         for(WorldObject obj : getWorldObjects())
         {
+            if(obj.isTemporary()){temporaryWorldObjects.add(obj); continue;}
             obj.reset();
+        }
+        for(WorldObject obj :temporaryWorldObjects)
+        {
+            deleteWorldObject(obj);
         }
         rain.reset();
     }
@@ -114,7 +120,7 @@ public class World implements Serializable {
         }
         else if(worldObject instanceof DynamicObject)
         {
-           addDynamicObject((DynamicObject)worldObject);
+            addDynamicObject((DynamicObject)worldObject);
         }
     }
 
@@ -142,6 +148,16 @@ public class World implements Serializable {
         return succes;
     }
 
+    public void deleteWorldObject(WorldObject worldObject){
+        if(worldObject instanceof Block){
+            deleteBlock((Block)worldObject);
+        }
+        else if(worldObject instanceof DynamicObject)
+        {
+            deleteDynamicObject((DynamicObject)worldObject);
+        }
+    }
+
     public void deleteBlock(Block block){deleteBlock(block.getPos());}
 
     public void deleteBlock(Vector pos){
@@ -162,8 +178,8 @@ public class World implements Serializable {
     public void addDynamicObject(DynamicObject dynamicObject) {
         worldObjects.add(dynamicObject);
         dynamicObjects.add(dynamicObject);
-        dynamicObject.init();
-        dynamicObject.reset();
+        //dynamicObject.init();
+        //dynamicObject.reset();
     }
 
     public void deleteDynamicObjects(Vector pos)
@@ -177,9 +193,14 @@ public class World implements Serializable {
         }
         for(DynamicObject dyn : dyns)
         {
-            dynamicObjects.remove(dyn);
-            worldObjects.remove(dyn);
+            deleteDynamicObject(dyn);
         }
+    }
+
+    public void deleteDynamicObject(DynamicObject dynamicObject)
+    {
+        dynamicObjects.remove(dynamicObject);
+        worldObjects.remove(dynamicObject);
     }
 
     public ArrayList<WorldObject> getWorldObjects(){

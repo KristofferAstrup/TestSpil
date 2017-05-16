@@ -20,6 +20,8 @@ public abstract class WorldObject implements Serializable {
 
     private Vector origin;
 
+    private boolean temporary;
+
     public Vector getOrigin()
     {
         return origin;
@@ -29,8 +31,13 @@ public abstract class WorldObject implements Serializable {
     {
         this.world = world;
         origin = new Vector(pos);
+        init();
     }
 
     public abstract void init();
+
+    public boolean isTemporary(){return temporary;}
+
+    public void setTemporary(boolean temporary){this.temporary = temporary;}
 
 }

@@ -27,7 +27,7 @@ public abstract class Mob extends PhysicObject implements Serializable {
     public void damage(int dmg)
     {
         health -= dmg;
-        if(health <= 0){
+        if(health <= 0 && !alive){
             die();
         }
     }

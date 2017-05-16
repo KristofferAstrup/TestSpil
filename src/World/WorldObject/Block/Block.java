@@ -43,6 +43,7 @@ public abstract class Block extends WorldObject implements Serializable {
     @Override
     public void init()
     {
+
     }
 
     @Override

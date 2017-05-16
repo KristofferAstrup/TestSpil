@@ -28,6 +28,9 @@ public abstract class Projectile extends PhysicObject
     @Override
     public void init()
     {
+        super.init();
+        System.out.println(getBaseSpeed());
+        System.out.println("INIT PROJECTILE");
         speed = new DynamicVector(Math.cos(angle)*getBaseSpeed(),Math.sin(angle)*getBaseSpeed());
     }
 

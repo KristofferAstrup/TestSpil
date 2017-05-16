@@ -1,9 +1,11 @@
 package State.GameState;
 
+import Controller.Controller;
 import Controller.KeyboardController;
 import World.WorldObject.DynamicObject.PhysicObject.Mob.Player;
+import World.WorldObject.DynamicObject.PhysicObject.Projectiles.Dagger;
 import javafx.scene.input.KeyCode;
-import World.Dir;
+import World.*;
 
 /**
  * Created by Kris on 21-02-2017.
@@ -22,10 +24,12 @@ public class PlayerController {
     double jumpTime = 0;
     boolean sprinting;
     private Player player;
+    private World world;
 
-    public PlayerController(Player player, KeyboardController keyboardController)
+    public PlayerController(Player player,World world, KeyboardController keyboardController)
     {
         this.keyboardController = keyboardController;
+        this.world = world;
         this.player = player;
     }
 
@@ -35,6 +39,13 @@ public class PlayerController {
 
         sprinting = keyboardController.getKeyPressed(KeyCode.SHIFT);
         double maxSpeed = sprinting?sprintSpeed:moveSpeed;
+
+        if(keyboardController.getKeyJustPressed(KeyCode.M))
+        {
+            Dagger dagger = new Dagger(world,player.getPos(),0);
+            dagger.setTemporary(true);
+            world.addDynamicObject(dagger);
+        }
 
         if(keyboardController.getKeyPressed(KeyCode.RIGHT) && (player.getSpeed().getX_dyn() <= maxSpeed || !player.getBlockedDirs().get(Dir.Down)))
         {
