@@ -5,6 +5,7 @@ import World.*;
 import World.WorldObject.DynamicObject.DynamicObject;
 
 import java.io.Serializable;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 /**
@@ -13,8 +14,9 @@ import java.util.HashMap;
 public abstract class PhysicObject extends DynamicObject implements Serializable {
 
     protected transient DynamicVector speed;
-    protected transient DynamicVector size;
+    protected boolean blocked = false;
     protected transient HashMap<Dir,Boolean> blockedDirs;
+    protected transient boolean gravityEnabled = true;
 
     public PhysicObject(World world, DynamicVector pos) {
         super(world, pos);
@@ -26,7 +28,6 @@ public abstract class PhysicObject extends DynamicObject implements Serializable
     @Override
     public void init()
     {
-        System.out.println("Init");
         speed = new DynamicVector(0,0);
         blockedDirs = new HashMap<Dir,Boolean>() {{put(Dir.Right,false); put(Dir.Down,false); put(Dir.Left,false); put(Dir.Up,false);}};
     }
@@ -36,13 +37,13 @@ public abstract class PhysicObject extends DynamicObject implements Serializable
     {
         blockCollisionCheck(delta);
 
-        if(!blockedDirs.get(Dir.Down))
+        if(gravityEnabled && !blockedDirs.get(Dir.Down))
         {
             speed.setY_dyn(speed.getY_dyn()-world.getGravity()*delta);
         }
+
         pos.setX_dyn(pos.getX_dyn()+speed.getX_dyn()*delta);
         pos.setY_dyn(pos.getY_dyn()+speed.getY_dyn()*delta);
-
     }
 
     public DynamicVector getSpeed()
@@ -57,14 +58,18 @@ public abstract class PhysicObject extends DynamicObject implements Serializable
 
     protected void blockCollisionCheck(double delta)
     {
+        blocked = false;
+
         //DOWN
-        if(!world.checkIfEmpty((int)Math.round(getPos().getX_dyn()),(int)Math.round(getPos().getY_dyn()-blockedFixConstant-size.getY_dyn()/2.0+speed.getY_dyn()*delta))
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()-size.getX_dyn()/2+hotfixConstant),(int)Math.round(getPos().getY_dyn()+speed.getY_dyn()*delta-0.1-size.getY_dyn()/2.0))
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+size.getX_dyn()/2-hotfixConstant),(int)Math.round(getPos().getY_dyn()+speed.getY_dyn()*delta-0.1-size.getY_dyn()/2.0)))//!world.checkIfEmpty(getPos().getX(),getPos().getY()-1) && getPos().getY_dyn()+speed.getY_dyn()*delta <= getPos().getY())
+        int y = (int)Math.round(getPos().getY_dyn()-blockedFixConstant+speed.getY_dyn()*delta-size.getY_dyn()/2.0);
+        if(!world.checkIfEmpty((int)Math.round(getPos().getX_dyn()),y)
+                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()-size.getX_dyn()/2+hotfixConstant),y)
+                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+size.getX_dyn()/2-hotfixConstant),y))//!world.checkIfEmpty(getPos().getX(),getPos().getY()-1) && getPos().getY_dyn()+speed.getY_dyn()*delta <= getPos().getY())
         {
             blockedDirs.put(Dir.Down,true);
-            getPos().setY_dyn(getPos().getY()-0.5+size.getY_dyn()/2.0);
+            getPos().setY_dyn(y+0.5+size.getY_dyn()/2);
             speed.setY(0);
+            blocked = true;
         }
         else
         {
@@ -72,13 +77,15 @@ public abstract class PhysicObject extends DynamicObject implements Serializable
         }
 
         //UP
-        if(!world.checkIfEmpty((int)Math.round(getPos().getX_dyn()),(int)Math.round(getPos().getY_dyn()+speed.getY_dyn()*delta+size.getY_dyn()/2.0))
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()-size.getX_dyn()/2+hotfixConstant),(int)Math.round(getPos().getY_dyn()+speed.getY_dyn()*delta+size.getY_dyn()/2.0))
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+size.getX_dyn()/2-hotfixConstant),(int)Math.round(getPos().getY_dyn()+speed.getY_dyn()*delta+size.getY_dyn()/2.0)))//!world.checkIfEmpty(getPos().getX(),getPos().getY()-1) && getPos().getY_dyn()+speed.getY_dyn()*delta <= getPos().getY())
+        y = (int)Math.round(getPos().getY_dyn()+speed.getY_dyn()*delta+size.getY_dyn()/2.0);
+        if(!world.checkIfEmpty((int)Math.round(getPos().getX_dyn()),y)
+                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()-size.getX_dyn()/2+hotfixConstant),y)
+                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+size.getX_dyn()/2-hotfixConstant),y))//!world.checkIfEmpty(getPos().getX(),getPos().getY()-1) && getPos().getY_dyn()+speed.getY_dyn()*delta <= getPos().getY())
         {
             blockedDirs.put(Dir.Up,true);
-            getPos().setY_dyn(getPos().getY()+0.5-size.getY_dyn()/2.0);
+            getPos().setY_dyn(y-0.5-size.getY_dyn()/2);
             speed.setY_dyn(-0.1);
+            blocked = true;
         }
         else
         {
@@ -86,13 +93,15 @@ public abstract class PhysicObject extends DynamicObject implements Serializable
         }
 
         //RIGHT
-        if(!world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+blockedFixConstant+speed.getX_dyn()*delta+size.getX_dyn()/2.0),getPos().getY())
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+speed.getX_dyn()*delta+size.getX_dyn()/2.0),(int)Math.round(getPos().getY_dyn()-size.getY_dyn()/2+hotfixConstant))//+speed.getY_dyn()*delta)-1)
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+speed.getX_dyn()*delta+size.getX_dyn()/2.0),(int)Math.round(getPos().getY_dyn()+size.getY_dyn()/2-hotfixConstant)))//!world.checkIfEmpty(getPos().getX(),getPos().getY()-1) && getPos().getY_dyn()+speed.getY_dyn()*delta <= getPos().getY())
+        int x = (int)Math.round(getPos().getX_dyn()+blockedFixConstant+speed.getX_dyn()*delta+(size.getX_dyn()/2.0));
+        if(!world.checkIfEmpty(x,getPos().getY())
+                || !world.checkIfEmpty(x,(int)Math.round(getPos().getY_dyn()-size.getY_dyn()/2+hotfixConstant))//+speed.getY_dyn()*delta)-1)
+                || !world.checkIfEmpty(x,(int)Math.round(getPos().getY_dyn()+size.getY_dyn()/2-hotfixConstant)))//!world.checkIfEmpty(getPos().getX(),getPos().getY()-1) && getPos().getY_dyn()+speed.getY_dyn()*delta <= getPos().getY())
         {
             blockedDirs.put(Dir.Right,true);
-            getPos().setX_dyn(getPos().getX()+0.5-size.getX_dyn()/2.0);
+            getPos().setX_dyn(x-0.5-size.getX_dyn()/2);
             speed.setX_dyn(0);
+            blocked = true;
         }
         else
         {
@@ -100,13 +109,15 @@ public abstract class PhysicObject extends DynamicObject implements Serializable
         }
 
         //LEFT
-        if(!world.checkIfEmpty((int)Math.round(getPos().getX_dyn()-blockedFixConstant+speed.getX_dyn()*delta-size.getX_dyn()/2.0),getPos().getY())
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+speed.getX_dyn()*delta-size.getX_dyn()/2.0),(int)Math.round(getPos().getY_dyn()-size.getY_dyn()/2+hotfixConstant))//+speed.getY_dyn()*delta)-1)
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+speed.getX_dyn()*delta-size.getX_dyn()/2.0),(int)Math.round(getPos().getY_dyn()+size.getY_dyn()/2-hotfixConstant)))//!world.checkIfEmpty(getPos().getX(),getPos().getY()-1) && getPos().getY_dyn()+speed.getY_dyn()*delta <= getPos().getY())
+        x = (int)Math.round(getPos().getX_dyn()-blockedFixConstant+speed.getX_dyn()*delta-(size.getX_dyn()/2.0));
+        if(!world.checkIfEmpty(x,getPos().getY())
+                || !world.checkIfEmpty(x,(int)Math.round(getPos().getY_dyn()-size.getY_dyn()/2+hotfixConstant))//+speed.getY_dyn()*delta)-1)
+                || !world.checkIfEmpty(x,(int)Math.round(getPos().getY_dyn()+size.getY_dyn()/2-hotfixConstant)))//!world.checkIfEmpty(getPos().getX(),getPos().getY()-1) && getPos().getY_dyn()+speed.getY_dyn()*delta <= getPos().getY())
         {
             blockedDirs.put(Dir.Left,true);
-            getPos().setX_dyn(getPos().getX()-0.5+size.getX_dyn()/2.0);
+            getPos().setX_dyn(x+0.5+size.getX_dyn()/2);
             speed.setX_dyn(0);
+            blocked = true;
         }
         else
         {

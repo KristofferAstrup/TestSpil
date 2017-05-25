@@ -11,6 +11,7 @@ public class Dir {
     static public Dir Down = new Dir(1,"Down",new Vector(0,-1));
     static public Dir Left = new Dir(2,"Left", new Vector(-1,0));
     static public Dir Up = new Dir(3,"Up",new Vector(0,1));
+    static private Dir[] values = new Dir[]{Right,Down,Left,Up};
 
     private int i;
     private String name;
@@ -27,7 +28,7 @@ public class Dir {
 
     public static Dir[] getValues()
     {
-        return new Dir[]{Right,Down,Left,Up};
+        return values;
     }
 
     private void setCrossDirs(Dir[] crossDirs)

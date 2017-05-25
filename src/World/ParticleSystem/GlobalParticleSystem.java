@@ -1,31 +1,30 @@
-package World;
+package World.ParticleSystem;
 
 import Controller.Controller;
 import Vectors.DynamicVector;
+import World.World;
 import com.sun.javafx.geom.ConcentricShapePair;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class ParticleSystem {
+public class GlobalParticleSystem extends ParticleSystem implements Serializable {
 
-    ArrayList<DynamicVector> particles = new ArrayList<>();
-    DynamicVector from;
-    DynamicVector dist;
-    double spawnDelay = 0;
-    double spawnRate;
-    DynamicVector speed;
+    private DynamicVector from;
+    private DynamicVector dist;
+    private DynamicVector speed;
 
-    public ParticleSystem(DynamicVector from,DynamicVector to, int frequency,DynamicVector speed)
+    public GlobalParticleSystem(World world,DynamicVector from,DynamicVector to, int frequency,DynamicVector speed)
     {
+        super(world);
         spawnRate = 1.0/frequency;
         this.speed = speed;
         this.from = from;
         dist = new DynamicVector(to.getX_dyn()-from.getX_dyn(),to.getY_dyn()-from.getY_dyn());
     }
 
-    public void reset(){particles = new ArrayList<>();}
-
+    @Override
     public void update(double delta)
     {
         if(spawnDelay <=0)
@@ -43,7 +42,7 @@ public class ParticleSystem {
         while(iterator.hasNext())
         {
             DynamicVector vec = iterator.next();
-            vec.add(_speed);
+            vec.setAdd(_speed);
             if(vec.getX_dyn() < 0)
             {
                 vec.setX(1);

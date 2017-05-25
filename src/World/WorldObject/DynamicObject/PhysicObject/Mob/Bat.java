@@ -16,14 +16,18 @@ public class Bat extends Mob implements Serializable {
 
     public static final ObjType objType = new ObjType("Bat",ImageLibrary.getImage("bat_0.png"), ObjTypeGroup.mobs);
 
-    private transient HashMap<String, Image> imgs;
+    private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
+        put("sleep_0", ImageLibrary.getImage("bat_0.png"));
+        put("fly_0", ImageLibrary.getImage("bat_1.png"));
+        put("fly_1", ImageLibrary.getImage("bat_2.png"));
+    }};
     private static double horSpeed = 2;
     private static double baskDelay = 0.15;
     private static double baskTime = 0.05;
     private static boolean wingsDown = false;
     private static double upwardSpeed = 5;
 
-    private static DynamicVector targetVec = new DynamicVector(7,15);
+    private static DynamicVector targetVec;
 
     public Bat(World world, DynamicVector pos) {
         super(world, pos);
@@ -34,17 +38,12 @@ public class Bat extends Mob implements Serializable {
     {
         super.init();
         healthMax = 1;
-        size = new DynamicVector(0.9,0.6);
-        imgs = new HashMap<String,Image>(){{
-            put("sleep_0", ImageLibrary.getImage("bat_0.png"));
-            put("fly_0", ImageLibrary.getImage("bat_1.png"));
-            put("fly_1", ImageLibrary.getImage("bat_2.png"));
-        }};
+        size = new DynamicVector(0.9,0.3);
     }
 
     @Override
     public Image getImage() {
-        if(!awake){return imgs.get("sleep_0");}
+        if(!awake || !getAlive()){return imgs.get("sleep_0");}
         return imgs.get("fly_" + (wingsDown?0:1));
     }
 
@@ -52,13 +51,15 @@ public class Bat extends Mob implements Serializable {
     public void update(double delta)
     {
         super.update(delta);
+        if(!getAlive())return;
 
-        targetVec = Controller.getWorld().getPlayerTarget(this).getPos();
+        Player player = world.getPlayerTarget(this);
+        targetVec = player.getPos();
         setSpeed();
 
-        if(targetVec.dist(pos) < 1)
+        if(targetVec.dist(pos) < size.getX_dyn()/2+player.getSize().getX_dyn()/2)
         {
-            Controller.getWorld().getPlayerTarget(this).damage(1);
+            world.getPlayerTarget(this).damage(1);
         }
 
         if(GameState.time % (baskDelay+baskTime) < baskDelay)

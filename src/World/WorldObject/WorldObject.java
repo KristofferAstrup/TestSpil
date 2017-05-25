@@ -14,13 +14,15 @@ public abstract class WorldObject implements Serializable {
 
     public abstract Vector getPos();
 
-    public abstract void reset();
+    public void reset(){
+        destroyed = false;
+    }
 
     protected World world;
 
     private Vector origin;
 
-    private boolean temporary;
+    private boolean destroyed;
 
     public Vector getOrigin()
     {
@@ -29,15 +31,18 @@ public abstract class WorldObject implements Serializable {
 
     public WorldObject(World world,Vector pos)
     {
-        this.world = world;
+        setWorld(world);
         origin = new Vector(pos);
-        init();
     }
+
+    public void setWorld(World world){this.world = world;}
 
     public abstract void init();
 
-    public boolean isTemporary(){return temporary;}
+    public void destroy(){world.destroyWorldObject(this);}
 
-    public void setTemporary(boolean temporary){this.temporary = temporary;}
+    public void setDestroyed(boolean destroyed){this.destroyed = destroyed;}
+
+    public boolean isDestroyed(){return destroyed;}
 
 }

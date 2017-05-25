@@ -18,7 +18,8 @@ public class ObjTypeLibrary {
        put(ObjTypeGroup.mobs,new ObjType[]{
                //Player.objType,
                Pig.objType,
-               Bat.objType
+               Bat.objType,
+               Boss.objType
         });
     }};
 

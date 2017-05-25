@@ -67,23 +67,17 @@ public class Vector implements Serializable {
 
     public Vector add(Vector vector)
     {
-        x += vector.getX();
-        y += vector.getY();
-        return new Vector(x,y);
+        return new Vector(x+vector.getX(),y+vector.getY());
     }
 
     public Vector add(int x,int y)
     {
-        this.x += x;
-        this.y += y;
-        return new Vector(x,y);
+        return new Vector(this.x+x,this.y+y);
     }
 
     public Vector mulitply(int d)
     {
-        setX(x*d);
-        setY(y*d);
-        return new Vector(x,y);
+        return new Vector(x*d,y*d);
     }
 
     public double dist(Vector v)
@@ -96,6 +90,21 @@ public class Vector implements Serializable {
     {
         DynamicVector dv = new DynamicVector(v.getX_dyn()-getX(),v.getY_dyn()-getY());
         return Math.sqrt(dv.getX_dyn()*dv.getX_dyn()+dv.getY_dyn()*dv.getY_dyn());
+    }
+
+    public DynamicVector normal()
+    {
+        return new DynamicVector(-y,x);
+    }
+
+    public DynamicVector normalInv() //Should REALLY be rewritten!
+        {
+        return normal().normal().normal();
+    }
+
+    public double length()
+    {
+        return Math.sqrt(x*x+y*y);
     }
 
     public DynamicVector getDynamicVector()

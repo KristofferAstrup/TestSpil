@@ -4,11 +4,13 @@ import Libraries.ImageLibrary;
 import Vectors.DynamicVector;
 import Vectors.Vector;
 import World.Background.BackgroundElement;
+import World.ParticleSystem.GlobalParticleSystem;
 import World.WorldObject.Block.Block;
 import World.WorldObject.Block.BlockedDirs;
 import World.WorldObject.Block.BlockedOrientation;
 import World.WorldObject.Block.DirtBlock;
 import World.WorldObject.DynamicObject.DynamicObject;
+import World.WorldObject.DynamicObject.PhysicObject.Mob.Mob;
 import World.WorldObject.DynamicObject.PhysicObject.Mob.Player;
 import World.WorldObject.WorldObject;
 import javafx.scene.paint.Color;
@@ -22,16 +24,17 @@ import java.util.HashMap;
  */
 public class World implements Serializable {
 
-    private Color skyColor = new Color(0.3,0.6,1,1); //new Color(0.88,0.4,1,1);
+    private ColorWrapper skyColor = new ColorWrapper(0.3,0.6,1,1); //new Color(0.88,0.4,1,1);
     private ArrayList<BackgroundElement> backgroundElements;
     private ArrayList<WorldObject> worldObjects;
     private Block[][] blocks;
     private ArrayList<DynamicObject> dynamicObjects;
+    private ArrayList<Mob> mobs;
     private int worldHeight;
     private int worldWidth;
     private double gravity;
     private DynamicVector playerSpawnPoint;
-    public ParticleSystem rain;
+    private ArrayList<GlobalParticleSystem> globalParticleSystems;
 
     private double windForce = 0.25;
 
@@ -44,23 +47,67 @@ public class World implements Serializable {
         worldObjects = new ArrayList<>();
         blocks = new Block[width][height];
         dynamicObjects = new ArrayList<>();
+        mobs = new ArrayList<>();
         gravity = 9.82*2;
         playerSpawnPoint = new DynamicVector(4,4);
         backgroundElements = new ArrayList<BackgroundElement>(){{
-            add(new BackgroundElement(ImageLibrary.getImage("Hills.png"), new DynamicVector(0, 0), new DynamicVector(0.08, 0.05), false));
-            add(new BackgroundElement(ImageLibrary.getImage("Ocean.png"), new DynamicVector(0, 0), new DynamicVector(0.1, 0.06), false));
+            add(new BackgroundElement("Hills.png", new DynamicVector(0, 0), new DynamicVector(0.08, 0.05), false));
+            add(new BackgroundElement("Ocean.png", new DynamicVector(0, 0), new DynamicVector(0.1, 0.06), false));
         }};
 
-        rain = new ParticleSystem(new DynamicVector(0,1),new DynamicVector(1,1),100,new DynamicVector(-0.125,-0.75));
+        globalParticleSystems = new ArrayList<>();
+        globalParticleSystems.add(new GlobalParticleSystem(this,new DynamicVector(0,1),new DynamicVector(1,1),100,new DynamicVector(-0.125,-0.75)));
+    }
+
+    public World(World world)
+    {
+        worldHeight = world.worldHeight;
+        worldWidth = world.worldWidth;
+        worldObjects = new ArrayList<>(world.worldObjects);
+        blocks = new Block[worldWidth][worldHeight];
+        for(int x=0;x<worldWidth;x++)
+        {
+            for(int y=0;y<worldHeight;y++)
+            {
+                blocks[x][y] = world.blocks[x][y];
+                if(blocks[x][y]!=null)blocks[x][y].setWorld(this);
+            }
+        }
+        dynamicObjects = new ArrayList<>(world.dynamicObjects);
+        for(DynamicObject dynamicObject : dynamicObjects)
+        {
+            dynamicObject.setWorld(this);
+        }
+        mobs = new ArrayList<>(world.mobs);
+        gravity = world.gravity;
+        playerSpawnPoint = world.playerSpawnPoint;
+        backgroundElements = new ArrayList<>(world.backgroundElements);
+        globalParticleSystems = new ArrayList<>(world.getGlobalParticleSystems());
+        for(GlobalParticleSystem globalParticleSystem : globalParticleSystems)
+        {
+            globalParticleSystem.setWorld(this);
+        }
     }
 
     public void init(){
+        skyColor.init();
+        for(BackgroundElement backgroundElement : backgroundElements)
+        {
+            backgroundElement.init();
+        }
         for(WorldObject worldObject : worldObjects)
         {
             worldObject.init();
             worldObject.reset();
         }
+        for(GlobalParticleSystem globalParticleSystem : globalParticleSystems)
+        {
+            globalParticleSystem.init();
+        }
+        System.out.println("WORLD INIT");
     }
+
+    public ArrayList<GlobalParticleSystem> getGlobalParticleSystems(){return globalParticleSystems;}
 
     public double getWindForce(){return windForce;}
 
@@ -68,14 +115,13 @@ public class World implements Serializable {
         ArrayList<WorldObject> temporaryWorldObjects = new ArrayList<>();
         for(WorldObject obj : getWorldObjects())
         {
-            if(obj.isTemporary()){temporaryWorldObjects.add(obj); continue;}
             obj.reset();
         }
-        for(WorldObject obj :temporaryWorldObjects)
+        for(GlobalParticleSystem globalParticleSystem : globalParticleSystems)
         {
-            deleteWorldObject(obj);
+            globalParticleSystem.reset();
         }
-        rain.reset();
+        System.out.println("WORLD RESET");
     }
 
     public void endInit()
@@ -89,7 +135,7 @@ public class World implements Serializable {
 
     public double getGravity(){return gravity;}
 
-    public Color getSkyColor(){return skyColor;}
+    public Color getSkyColor(){return skyColor.getColor();}
 
     public ArrayList<BackgroundElement> getBackgroundElements(){return backgroundElements;}
 
@@ -109,8 +155,8 @@ public class World implements Serializable {
     public boolean checkIfEmpty(Vector pos){return checkIfEmpty(pos.getX(),pos.getY());}
     public boolean checkIfEmpty(int x,int y)
     {
-        if(x < 0 || y < 0 || x > worldWidth-1 || y > worldHeight-1){return true;}
-        return blocks[x][y] == null;
+        if(outsideBoundary(x,y)){return true;}
+        return blocks[x][y] == null || blocks[x][y].isDestroyed();
     }
 
     public void addWorldObject(WorldObject worldObject){
@@ -124,6 +170,14 @@ public class World implements Serializable {
         }
     }
 
+    public boolean outsideBoundary(Vector pos){
+        return outsideBoundary(pos.getX(),pos.getY());
+    }
+
+    public boolean outsideBoundary(int x,int y){
+        return x < 0 || y < 0 || x > worldWidth-1 || y > worldHeight-1;
+    }
+
     public void setPlayerSpawnPoint(DynamicVector vector)
     {
         playerSpawnPoint= new DynamicVector(vector);
@@ -133,6 +187,8 @@ public class World implements Serializable {
         if(checkIfEmpty(block.getPos())) {
             blocks[block.getPos().getX()][block.getPos().getY()] = block;
             worldObjects.add(block);
+            block.init();
+            block.reset();
             return true;
         }
         return false;
@@ -178,8 +234,11 @@ public class World implements Serializable {
     public void addDynamicObject(DynamicObject dynamicObject) {
         worldObjects.add(dynamicObject);
         dynamicObjects.add(dynamicObject);
-        //dynamicObject.init();
-        //dynamicObject.reset();
+        if(dynamicObject instanceof Mob){
+            mobs.add((Mob)dynamicObject);
+        }
+        dynamicObject.init();
+        dynamicObject.reset();
     }
 
     public void deleteDynamicObjects(Vector pos)
@@ -201,6 +260,9 @@ public class World implements Serializable {
     {
         dynamicObjects.remove(dynamicObject);
         worldObjects.remove(dynamicObject);
+        if(dynamicObject instanceof Mob){
+            mobs.remove(dynamicObject);
+        }
     }
 
     public ArrayList<WorldObject> getWorldObjects(){
@@ -268,6 +330,30 @@ public class World implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public void destroyWorldObject(WorldObject worldObject)
+    {
+        worldObject.setDestroyed(true);
+        if(worldObject instanceof Block){
+            deleteBlock((Block)worldObject);
+        }
+    }
+
+    public Mob getClosestMob(DynamicVector pos,double maxDist){
+        double closestDist = Double.POSITIVE_INFINITY;
+        double dist;
+        Mob closestMob = null;
+        for(Mob mob : mobs){
+            if(!mob.getAlive())continue;
+            dist = mob.getPos().dist(pos) - mob.getSize().getX_dyn()/2;
+            if(dist < closestDist){
+                closestDist = dist;
+                closestMob = mob;
+            }
+        }
+        if(closestDist > maxDist){return null;}
+        return closestMob;
     }
 
     public void fillEdges(int depth)

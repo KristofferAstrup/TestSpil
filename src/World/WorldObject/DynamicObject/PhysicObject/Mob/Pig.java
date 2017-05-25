@@ -20,7 +20,13 @@ public class Pig extends Mob implements Serializable {
 
     public static final ObjType objType = new ObjType("Pig",ImageLibrary.getImage("pig_0.png"), ObjTypeGroup.mobs);
 
-    private transient HashMap<String, Image> imgs;
+    private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
+        put("sleep_0", ImageLibrary.getImage("pig_2.png"));
+        put("sleep_1", ImageLibrary.getImage("pig_3.png"));
+        put("walk_0", ImageLibrary.getImage("pig_0.png"));
+        put("walk_1", ImageLibrary.getImage("pig_1.png"));
+        put("dead_0", ImageLibrary.getImage("pig_4.png"));
+    }};
     private static double moveSpeed = 0.75;
 
     public Pig(World world, DynamicVector pos) {
@@ -33,13 +39,6 @@ public class Pig extends Mob implements Serializable {
         super.init();
         healthMax = 1;
         size = new DynamicVector(0.9,0.6);
-        imgs = new HashMap<String,Image>(){{
-            put("sleep_0", ImageLibrary.getImage("pig_2.png"));
-            put("sleep_1", ImageLibrary.getImage("pig_3.png"));
-            put("walk_0", ImageLibrary.getImage("pig_0.png"));
-            put("walk_1", ImageLibrary.getImage("pig_1.png"));
-            put("dead_0", ImageLibrary.getImage("pig_4"));
-        }};
     }
 
     @Override
@@ -53,6 +52,7 @@ public class Pig extends Mob implements Serializable {
     public void update(double delta)
     {
         super.update(delta);
+        if(!getAlive())return;
         if(blockedDirs.get(Dir.Right))
         {
             flip = true;
@@ -72,6 +72,13 @@ public class Pig extends Mob implements Serializable {
         flip = Controller.random.nextBoolean();
         awake = Controller.random.nextBoolean();
         if(awake){setSpeed();}
+    }
+
+    @Override
+    public void die()
+    {
+        super.die();
+        speed.setY_dyn(2.5);
     }
 
     private void setSpeed()

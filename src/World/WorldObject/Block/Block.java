@@ -54,6 +54,7 @@ public abstract class Block extends WorldObject implements Serializable {
 
     @Override
     public void reset(){
+        super.reset();
         pos.set(getOrigin());
     }
 
@@ -79,7 +80,6 @@ public abstract class Block extends WorldObject implements Serializable {
 
     public Block.ORI getORIsetRot(BlockedOrientation orientation)
     {
-        System.out.println(orientation.getBlocks());
         switch(orientation.getBlocks())
         {
             case 4:

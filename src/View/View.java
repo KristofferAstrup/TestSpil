@@ -13,6 +13,7 @@ import State.IState;
 import Vectors.DynamicVector;
 import Vectors.Vector;
 import World.Background.BackgroundElement;
+import World.ParticleSystem.GlobalParticleSystem;
 import World.World;
 import World.WorldObject.DynamicObject.DynamicObject;
 import javafx.scene.*;
@@ -24,6 +25,7 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.FillRule;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Affine;
@@ -56,9 +58,9 @@ public class View {
     {
         theStage.setTitle("TestSpil");
         stage = theStage;
-        //stage.setFullScreen(true);
 
         scene = new Scene( root );
+
         stage.setScene( scene );
 
         canvasDim = new Vector(900,600);
@@ -69,7 +71,6 @@ public class View {
         stage.setHeight(canvasDim.getY()+40);
 
         gc = canvas.getGraphicsContext2D();
-
         //paths = SaveLoadController.getFilePathList();
     }
 
@@ -129,14 +130,15 @@ public class View {
         gc.setStroke(Color.LIGHTBLUE);
         gc.setGlobalAlpha(0.6);
 
-         for(DynamicVector dynamicVector : gameState.getWorld().rain.getParticles())
-        {
-            double x = dynamicVector.getX_dyn()*canvasDim.getX();
-            double y = canvasDim.getY()-dynamicVector.getY_dyn()*canvasDim.getY();
-            gc.strokeLine(x,y,
-                    x-gameState.getWorld().rain.getSpeed().getX_dyn()*25,
-                    y+gameState.getWorld().rain.getSpeed().getY_dyn()*25);
-        }
+        for(GlobalParticleSystem globalParticleSystem : gameState.getWorld().getGlobalParticleSystems())
+            for(DynamicVector dynamicVector : globalParticleSystem.getParticles())
+            {
+                double x = dynamicVector.getX_dyn()*canvasDim.getX();
+                double y = canvasDim.getY()-dynamicVector.getY_dyn()*canvasDim.getY();
+                gc.strokeLine(x,y,
+                        x-globalParticleSystem.getSpeed().getX_dyn()*25,
+                        y+globalParticleSystem.getSpeed().getY_dyn()*25);
+            }
 
     }
 
@@ -149,6 +151,8 @@ public class View {
 
         drawTarget(editorState.getWorld(), editorState.getWorldTarget(),editorState.getObjTypeSelected());
         drawSpawn(editorState.getWorld());
+
+        if(Controller.debugging()){drawDebug();}
 
         if (editorState.getEditorMode() == EditorMode.ObjectSelect) {
             drawTileWindow(10, 4, editorState.getObjectMenuTarget(), editorState.getObjectMenuSelected(),
@@ -165,13 +169,14 @@ public class View {
 
     private void drawBlocks(World world)
     {
+        gc.setFill(Color.BLACK);
         for(int x=0;x<world.getBlocks().length;x++){
             for(int y=0;y<world.getBlocks()[x].length;y++){
                 if(world.getBlocks()[x][y] != null)
                 {
                     Image img = world.getBlocks()[x][y].getImage();
-                    double x_pos = x*objectSize;
-                    double y_pos = (world.getBlocks()[x].length-y-1)*objectSize;
+                    double x_pos = x*objectSize-objectSize/2;
+                    double y_pos = (world.getBlocks()[x].length-y-1)*objectSize-objectSize/2;
                     Affine affine = new Affine();
                     affine.appendTranslation(x_pos + cameraPan.getX_dyn(),y_pos + cameraPan.getY_dyn());
                     affine.appendRotation(world.getBlocks()[x][y].getRot(),objectSize/2.0,objectSize/2.0);
@@ -184,15 +189,29 @@ public class View {
 
     private void drawDynamics(World world)
     {
+        gc.setFill(Color.BLACK);
         for(DynamicObject obj : world.getDynamicObjects())
         {
             Affine affine = new Affine();
+
+            double width = objectSize*obj.getScale().getX_dyn();
+            double height = objectSize*obj.getScale().getY_dyn();
+
             double x_pos = obj.getPos().getX_dyn() * objectSize;
             double y_pos = (world.getWorldHeight() - obj.getPos().getY_dyn() - 1) * objectSize;
-            affine.appendTranslation(x_pos-(obj.getFlipped()?-objectSize:0)+cameraPan.getX_dyn(), y_pos+cameraPan.getY_dyn());
+            affine.appendTranslation(x_pos/*(obj.getFlipped()?-objectSize:0)*/+cameraPan.getX_dyn(), y_pos+cameraPan.getY_dyn());
+            if(obj.getRot()!=0)affine.appendRotation(obj.getRot());
             affine.appendScale((obj.getFlipped()?-1:1),1);
             gc.setTransform(affine);
-            gc.drawImage(obj.getImage(),0,0,objectSize,objectSize);
+
+            //int flip = (obj.getFlipped()?1:0);
+
+            gc.drawImage(obj.getImage(),-width/2,-height/2,width,height);
+            //gc.drawImage(obj.getImage(),-width/2+width*flip,-height/2,width-2*width*flip,height);//objectSizeBase/2-obj.getImage().getWidth()/2,objectSizeBase/2-obj.getImage().getHeight()/2);//objectSize*obj.getScale().getX_dyn(),objectSize*obj.getScale().getY_dyn());
+
+            if(Controller.debugging()){
+                gc.fillRect(-objectSize*obj.getSize().getX_dyn()/2,-objectSize*obj.getSize().getY_dyn()/2,objectSize*obj.getSize().getX_dyn(),objectSize*obj.getSize().getY_dyn());
+            }
         }
     }
 
@@ -242,8 +261,9 @@ public class View {
         double transx = -panTarget.getX_dyn()+canvasDim.getX()/2;
         double transy = -panTarget.getY_dyn()+canvasDim.getY()/2;
 
-        cameraPan.setX_dyn(Math.max(Math.min(0,transx),-cameraPanBoundaries.getX()));
-        cameraPan.setY_dyn(Math.max(Math.min(0,transy),-cameraPanBoundaries.getY()));
+        //Reason for it being objectSize/2 as the min is that blocks are drawed from their center, meaning they would be halfed, if objectSize/2 was not there.
+        cameraPan.setX_dyn(Math.max(Math.min(objectSize/2,transx),-cameraPanBoundaries.getX()+objectSize/2));
+        cameraPan.setY_dyn(Math.max(Math.min(objectSize/2,transy),-cameraPanBoundaries.getY()+objectSize/2));
     }
 
     private DynamicVector getPanTarget(World world, DynamicVector target)
@@ -262,7 +282,7 @@ public class View {
             for(int y=0;y<world.getWorldHeight();y++)
             {
                 gc.setFill(Color.GRAY);
-                gc.strokeRect(x*objectSize,y*objectSize,objectSize,objectSize);
+                gc.strokeRect(x*objectSize-objectSize/2,y*objectSize-objectSize/2,objectSize,objectSize);
             }
         }
     }
@@ -271,7 +291,7 @@ public class View {
     {
         gc.setGlobalAlpha(0.6+0.2*Math.sin(Math.toRadians(EditorState.time*90)));
         Affine affine = new Affine();
-        affine.appendTranslation(target.getX()*objectSize + cameraPan.getX_dyn(),(world.getWorldHeight()-1-target.getY())*objectSize + cameraPan.getY_dyn());
+        affine.appendTranslation(target.getX()*objectSize + cameraPan.getX_dyn() - objectSize/2,(world.getWorldHeight()-1-target.getY())*objectSize + cameraPan.getY_dyn() - objectSize/2);
         gc.setTransform(affine);
         gc.drawImage(objType.getIcon(),0,0,objectSize,objectSize);
     }
@@ -281,7 +301,7 @@ public class View {
         gc.setGlobalAlpha(1);//gc.setGlobalAlpha(0.6+0.2*Math.sin(Math.toRadians(EditorState.time*90)));
         Affine affine = new Affine();
         DynamicVector target = world.getPlayerSpawnPoint();
-        affine.appendTranslation(target.getX()*objectSize + cameraPan.getX_dyn(),(world.getWorldHeight()-1-target.getY())*objectSize + cameraPan.getY_dyn());
+        affine.appendTranslation(target.getX()*objectSize + cameraPan.getX_dyn() - objectSize/2,(world.getWorldHeight()-1-target.getY())*objectSize + cameraPan.getY_dyn()- objectSize/2);
         gc.setTransform(affine);
         gc.drawImage(ImageLibrary.getImage("char_idle.png"),0,0,objectSize,objectSize);
     }
@@ -331,6 +351,11 @@ public class View {
                 elementsDrawn += 1;
             }
         }
+    }
+
+    private void drawDebug()
+    {
+
     }
 
     private DynamicVector getCameraPanInv() {

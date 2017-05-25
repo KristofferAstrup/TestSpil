@@ -19,9 +19,19 @@ import java.util.HashMap;
 public class Player extends Mob implements Serializable {
 
     public static final ObjType objType = new ObjType("Player",ImageLibrary.getImage("char_idle.png"), ObjTypeGroup.mobs);
-
-    private transient HashMap<String, Image> imgs;
     private transient boolean braking = false;
+    private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
+        put("run_0", ImageLibrary.getImage("char_run_0.png"));
+        put("run_1", ImageLibrary.getImage("char_run_1.png"));
+        put("run_2", ImageLibrary.getImage("char_run_2.png"));
+        put("run_3", ImageLibrary.getImage("char_run_3.png"));
+        put("airborne_down", ImageLibrary.getImage("char_airborne_down.png"));
+        put("airborne_stale", ImageLibrary.getImage("char_airborne_stale.png"));
+        put("airborne_up", ImageLibrary.getImage("char_airborne_up.png"));
+        put("brake", ImageLibrary.getImage("char_brake.png"));
+        put("idle", ImageLibrary.getImage("char_idle.png"));
+        put("wallslide", ImageLibrary.getImage("char_wallslide.png"));
+    }};
 
     public Player(World world, DynamicVector _pos) {
         super(world,_pos);
@@ -33,18 +43,6 @@ public class Player extends Mob implements Serializable {
         super.init();
         healthMax = 1;
         size = new DynamicVector(0.65,0.95);
-        imgs = new HashMap<String,Image>(){{
-            put("run_0", ImageLibrary.getImage("char_run_0.png"));
-            put("run_1", ImageLibrary.getImage("char_run_1.png"));
-            put("run_2", ImageLibrary.getImage("char_run_2.png"));
-            put("run_3", ImageLibrary.getImage("char_run_3.png"));
-            put("airborne_down", ImageLibrary.getImage("char_airborne_down.png"));
-            put("airborne_stale", ImageLibrary.getImage("char_airborne_stale.png"));
-            put("airborne_up", ImageLibrary.getImage("char_airborne_up.png"));
-            put("brake", ImageLibrary.getImage("char_brake.png"));
-            put("idle", ImageLibrary.getImage("char_idle.png"));
-            put("wallslide", ImageLibrary.getImage("char_wallslide.png"));
-        }};
     }
 
     public void setBraking(boolean braking)
@@ -60,9 +58,7 @@ public class Player extends Mob implements Serializable {
 
     @Override
     public Image getImage() {
-        if(blockedDirs.get(Dir.Right) && !blockedDirs.get(Dir.Down)){flip = true;}
-        else if(blockedDirs.get(Dir.Left) && !blockedDirs.get(Dir.Down)){flip = false;}
-        else if(speed.getX_dyn() != 0){flip = speed.getX_dyn() < 0?true:false;}
+        if(!getAlive()){return null;}
 
         if(blockedDirs.get(Dir.Down))
         {

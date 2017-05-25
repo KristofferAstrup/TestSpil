@@ -5,15 +5,15 @@ package State;
  */
 public interface IState {
 
-    public void update(double delta);
+    void update(double delta);
 
-    public State getState();
+    State getState();
 
-    public void startState();
+    void startState();
 
-    public void endState();
+    void endState();
 
-    public enum State{
+    enum State{
         None,
         Game,
         Editor

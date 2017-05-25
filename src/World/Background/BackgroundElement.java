@@ -1,21 +1,31 @@
 package World.Background;
 
+import Libraries.ImageLibrary;
 import Vectors.DynamicVector;
 import javafx.scene.image.Image;
 
-public class BackgroundElement {
+import java.io.Serializable;
 
-    private Image image;
+public class BackgroundElement implements Serializable {
+
+    private transient Image image;
+    private String imagePath;
     private DynamicVector pivot; //Pivot per object size
     private DynamicVector moveScale;
     private boolean repeatX;
 
-    public BackgroundElement(Image image, DynamicVector pivot, DynamicVector moveScale, boolean repeatX)
+    public BackgroundElement(String imagePath, DynamicVector pivot, DynamicVector moveScale, boolean repeatX)
     {
-        this.image = image;
+        this.imagePath = imagePath;
         this.pivot = pivot;
         this.moveScale = moveScale;
         this.repeatX = repeatX;
+        init();
+    }
+
+    public void init()
+    {
+        image = ImageLibrary.getImage(imagePath);
     }
 
     public Image getImage(){return image;}

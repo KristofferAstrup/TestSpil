@@ -118,6 +118,21 @@ public class SaveLoadController {
 
     }
 
+    public static void saveTextFileAbsolute(String filename,String s)
+    {
+        try
+        {
+            File file = new File(filename);
+            FileWriter fw = new FileWriter(file);
+            fw.write(s);
+            fw.close();
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     private static String getOSpath(){
         String path = System.getenv("APPDATA") + "\\";
         String os = System.getProperty("os.name").toUpperCase();

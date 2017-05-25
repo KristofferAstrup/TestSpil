@@ -5,10 +5,7 @@ import Vectors.Vector;
 import World.WorldObject.Block.Block;
 import World.WorldObject.Block.BricksBlock;
 import World.WorldObject.Block.DirtBlock;
-import World.WorldObject.DynamicObject.PhysicObject.Mob.Bat;
-import World.WorldObject.DynamicObject.PhysicObject.Mob.Mob;
-import World.WorldObject.DynamicObject.PhysicObject.Mob.Pig;
-import World.WorldObject.DynamicObject.PhysicObject.Mob.Player;
+import World.WorldObject.DynamicObject.PhysicObject.Mob.*;
 import World.WorldObject.WorldObject;
 import World.World;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -59,6 +56,7 @@ public class WorldObjectFactory {
         if(objType.equals(Player.objType)){return new Player(world,vector.getDynamicVector());}
         if(objType.equals(Pig.objType)){return new Pig(world,vector);}
         if(objType.equals(Bat.objType)){return new Bat(world,vector);}
+        if(objType.equals(Boss.objType)){return new Boss(world,vector);}
         throw new NotImplementedException();
     }
 

@@ -27,7 +27,7 @@ public abstract class Mob extends PhysicObject implements Serializable {
     public void damage(int dmg)
     {
         health -= dmg;
-        if(health <= 0 && !alive){
+        if(health <= 0 && alive){
             die();
         }
     }
@@ -35,7 +35,14 @@ public abstract class Mob extends PhysicObject implements Serializable {
     @Override
     public void update(double delta){
         super.update(delta);
-        //if(blockedDirs.get(Dir.Down)){
+        if(!getAlive()) {
+            if (blockedDirs.get(Dir.Down) && speed.getX_dyn() != 0){
+                speed.setX_dyn(speed.getX_dyn() * 0.9);
+                if(speed.getX_dyn() > -0.05 && speed.getX_dyn() < 0.05){
+                    speed.setX_dyn(0);
+                }
+            }
+        }
     }
 
     public void heal(int heal)

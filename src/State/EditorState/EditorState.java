@@ -82,7 +82,6 @@ public class EditorState implements IState {
             {
                 Block block = WorldObjectFactory.createBlock(objType,world,target);
                 world.addBlock(block,true);
-                System.out.println(block.objType);
                 return block;
             }
             case mobs:
@@ -120,6 +119,7 @@ public class EditorState implements IState {
     public void startState()
     {
         this.world = Controller.getWorld();
+        world.endInit();
         worldTarget = new DynamicVector(world.getPlayerSpawnPoint()); //new Vector(world.getPlayerSpawnPoint());//new Vector(2,world.getWorldHeight()-2); //No particular reason for (1,1), just the initial worldTarget point.
     }
 
@@ -195,7 +195,7 @@ public class EditorState implements IState {
 
     private void moveObjectMenuTarget(Vector movement)
     {
-        objectMenuTarget.add(movement.getX(),-movement.getY());
+        objectMenuTarget = objectMenuTarget.add(movement.getX(),-movement.getY());
         int objTypes = (ObjTypeLibrary.getObjTypes(objTypeGroup).length-1);
 
         if(objectMenuTarget.getX() < 0)

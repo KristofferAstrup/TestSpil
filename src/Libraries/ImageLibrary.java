@@ -1,12 +1,26 @@
 package Libraries;
 
+import Controller.SaveLoadController;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+
+import javax.print.URIException;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.*;
+import java.security.CodeSource;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Created by Kris on 28-02-2017.
@@ -77,29 +91,66 @@ public class ImageLibrary {
                 "/Images/Mobs/Pig/pig_3.png#" +
                 "/Images/Mobs/Pig/pig_4.png#" +
 
+                "/Images/Mobs/Boss/BossBody.png#" +
+                "/Images/Mobs/Boss/Eye.png#" +
+                "/Images/Mobs/Boss/EyeCharged.png#" +
+                "/Images/Mobs/Boss/EyeLidsFull.png#" +
+                "/Images/Mobs/Boss/EyeLidsHalf.png#" +
+                "/Images/Mobs/Boss/EyeLidsQuarter.png#" +
+                "/Images/Mobs/Boss/EyeLight.png#" +
+                "/Images/Mobs/Boss/EyeSmallPupil.png#" +
+
                 "/Images/Background/cloud0.png#" +
                 "/Images/Background/cloud1.png#" +
                 "/Images/Background/cloud2.png#" +
                 "/Images/Background/cloud3.png#" +
                 "/Images/Background/cloud4.png#" +
                 "/Images/Background/Hills.png#" +
-                "/Images/Background/Ocean.png"
+                "/Images/Background/Ocean.png#"+
+                "/Images/Projectiles/Dagger.png"
 
         );
-        //loadImages();
-        //File folder = new File("./src/Resources/Images");
-        //File[] listOfFiles = folder.listFiles();
-        //System.out.println(getCollectiveFilePath(listOfFiles,""));
+        /*
+        imageLibrary = new HashMap<>();
+        URL url = ImageLibrary.class.getResource("/Images");
+        File[] files = new File(url.getFile()).listFiles();
+        loadImages(files,"/Images/");
+        */
     }
 
     private static void loadImages(String string)
     {
+
+        //SaveLoadController.saveTextFileAbsolute("C:/Users/kristoffer/Documents/Java/log/test.txt","---");
+
+        /*try {
+            CodeSource src = ImageLibrary.class.getProtectionDomain().getCodeSource();
+            if (src != null) {
+                URL jar = src.getLocation();
+                ZipInputStream zip = new ZipInputStream(jar.openStream());
+                while (true) {
+                    ZipEntry e = zip.getNextEntry();
+                    if (e == null)
+                        break;
+                    String name = e.getName();
+                    //if (name.startsWith(""))
+                    {
+                        System.out.println(name);
+                    }
+                }
+            }
+        }
+        catch(IOException exception){
+            exception.printStackTrace();
+        }*/
+
+
         try {
             ImageLibrary lib = new ImageLibrary();
             String[] paths = string.split("#");
             for(String s : paths)
             {
-                System.out.println(s);
+                //System.out.println(s);
                 URL url = lib.getClass().getResource(s);
                 Image image = new Image(url.toURI().toString());
                 String name = s.substring(s.lastIndexOf("/")+1);
@@ -121,7 +172,7 @@ public class ImageLibrary {
             }
             if (files[i].isFile()) {
                 Image img = new Image(files[i].toURI().toString());
-                imageLibrary.put(files[i].getName(),img);
+                imageLibrary.put(files[i].getName(),getScaledImage(img,imageLoadScale));
             }
         }
     }

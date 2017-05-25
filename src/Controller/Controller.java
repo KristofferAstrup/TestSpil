@@ -162,4 +162,6 @@ public class Controller {
         catch(NumberFormatException e){return false;}
     }
 
+    public static boolean debugging(){return debugging;}
+
 }

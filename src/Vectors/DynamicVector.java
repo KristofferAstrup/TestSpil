@@ -1,5 +1,7 @@
 package Vectors;
 
+import World.WorldObject.DynamicObject.DynamicObject;
+
 import java.awt.geom.Dimension2D;
 import java.io.Serializable;
 
@@ -58,6 +60,12 @@ public class DynamicVector extends Vector implements Serializable {
         y_dyn = y;
     }
 
+    public void setAdd(DynamicVector vec)
+    {
+        setX_dyn(getX_dyn()+vec.getX_dyn());
+        setY_dyn(getY_dyn()+vec.getY_dyn());
+    }
+
     public double getX_dyn()
     {
         return x_dyn;
@@ -70,30 +78,46 @@ public class DynamicVector extends Vector implements Serializable {
 
     public DynamicVector subtract(DynamicVector vec)
     {
-        setX_dyn(x_dyn - vec.getX_dyn());
-        setY_dyn(y_dyn - vec.getY_dyn());
-        return new DynamicVector(x_dyn,y_dyn);
+        return new DynamicVector(x_dyn-vec.getX_dyn(),y_dyn-vec.getY_dyn());
     }
 
     public DynamicVector add(DynamicVector vec)
     {
-        setX_dyn(x_dyn + vec.getX_dyn());
-        setY_dyn(y_dyn + vec.getY_dyn());
-        return new DynamicVector(x_dyn,y_dyn);
+        return new DynamicVector(x_dyn+vec.getX_dyn(),y_dyn+vec.getY_dyn());
     }
 
     public DynamicVector multiply(DynamicVector vec)
     {
-        setX_dyn(x_dyn * vec.getX_dyn());
-        setY_dyn(y_dyn * vec.getY_dyn());
-        return new DynamicVector(x_dyn,y_dyn);
+        return new DynamicVector(x_dyn*vec.getX_dyn(),y_dyn*vec.getY_dyn());
     }
 
     public DynamicVector multiply(double d)
     {
-        setX_dyn(x_dyn * d);
-        setY_dyn(y_dyn * d);
-        return new DynamicVector(x_dyn,y_dyn);
+        return new DynamicVector(x_dyn*d,y_dyn*d);
+    }
+
+    @Override
+    public DynamicVector normal()
+    {
+        return new DynamicVector(-y_dyn,x_dyn);
+    }
+
+    @Override
+    public DynamicVector normalInv()
+    {
+        return new DynamicVector(y_dyn,x_dyn);
+    }
+
+    @Override
+    public double length()
+    {
+        return Math.sqrt(x_dyn*x_dyn+y_dyn*y_dyn);
+    }
+
+    public DynamicVector normalize()
+    {
+        double length = length();
+        return new DynamicVector(x_dyn/length,y_dyn/length);
     }
 
     @Override

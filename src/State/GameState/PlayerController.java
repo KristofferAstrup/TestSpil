@@ -40,10 +40,9 @@ public class PlayerController {
         sprinting = keyboardController.getKeyPressed(KeyCode.SHIFT);
         double maxSpeed = sprinting?sprintSpeed:moveSpeed;
 
-        if(keyboardController.getKeyJustPressed(KeyCode.M))
+        if(keyboardController.getKeyJustPressed(KeyCode.A))
         {
-            Dagger dagger = new Dagger(world,player.getPos(),0);
-            dagger.setTemporary(true);
+            Dagger dagger = new Dagger(world,player.getPos(),player.getFlipped()?180:0);
             world.addDynamicObject(dagger);
         }
 
@@ -81,11 +80,6 @@ public class PlayerController {
             }
         }
 
-        if(keyboardController.getKeyPressed(KeyCode.A))
-        {
-            //player.getSpeed().setX(50*(player.flip?-1:1));
-        }
-
         if(keyboardController.getKeyJustPressed(KeyCode.SPACE) && player.getBlockedDirs().get(Dir.Left) && !player.getBlockedDirs().get(Dir.Down))
         {
             jumpTime = jumpTimeTotal;
@@ -109,6 +103,11 @@ public class PlayerController {
             jumpTime -= delta;
             player.getSpeed().setY_dyn(jumpSpeed);
         }
+
+        if(player.getBlockedDirs().get(Dir.Right) && !player.getBlockedDirs().get(Dir.Down)){player.setFlipped(true);}
+        else if(player.getBlockedDirs().get(Dir.Left) && !player.getBlockedDirs().get(Dir.Down)){player.setFlipped(false);}
+        else if(keyboardController.getKeyPressed(KeyCode.RIGHT)){player.setFlipped(false);}
+        else if(keyboardController.getKeyPressed(KeyCode.LEFT)){player.setFlipped(true);}
 
     }
 
