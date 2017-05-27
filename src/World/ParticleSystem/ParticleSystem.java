@@ -10,26 +10,20 @@ import java.util.ArrayList;
  */
 public abstract class ParticleSystem {
 
-    protected transient ArrayList<DynamicVector> particles = new ArrayList<>();
-    protected double spawnDelay = 0;
-    protected double spawnRate;
     protected World world;
 
     public ParticleSystem(){
-
+        //Empty ctor for reflection in serializing
     }
+
+    public abstract void init();
+
+    public abstract void reset();
 
     public ParticleSystem(World world)
     {
         this.world = world;
     }
-
-    public void init()
-    {
-        particles = new ArrayList<>();
-    }
-
-    public void reset(){particles = new ArrayList<>();}
 
     public void setWorld(World world)
     {

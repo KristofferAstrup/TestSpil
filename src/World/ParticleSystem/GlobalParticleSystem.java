@@ -11,6 +11,9 @@ import java.util.Iterator;
 
 public class GlobalParticleSystem extends ParticleSystem implements Serializable {
 
+    protected double spawnDelay = 0;
+    protected double spawnRate;
+    protected transient ArrayList<DynamicVector> particles = new ArrayList<>();
     private DynamicVector from;
     private DynamicVector dist;
     private DynamicVector speed;
@@ -23,6 +26,15 @@ public class GlobalParticleSystem extends ParticleSystem implements Serializable
         this.from = from;
         dist = new DynamicVector(to.getX_dyn()-from.getX_dyn(),to.getY_dyn()-from.getY_dyn());
     }
+
+    @Override
+    public void init()
+    {
+        particles = new ArrayList<>();
+    }
+
+    @Override
+    public void reset(){particles = new ArrayList<>();}
 
     @Override
     public void update(double delta)
