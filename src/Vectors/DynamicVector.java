@@ -34,6 +34,12 @@ public class DynamicVector extends Vector implements Serializable {
         y_dyn = vec.y_dyn;
     }
 
+    public DynamicVector(Vector vec)
+    {
+        setX(vec.getX());
+        setY(vec.getY());
+    }
+
     @Override
     public void setX(int x)
     {

@@ -29,6 +29,8 @@ public class ImageParticleSystem extends ParticleSystem {
         return force;
     }
 
+    public ArrayList<Particle> getParticles(){return particles;}
+
     @Override
     public void init()
     {
@@ -52,22 +54,26 @@ public class ImageParticleSystem extends ParticleSystem {
                 oldParticles.add(particle);
                 continue;
             }
-            if(particle.gravity)
+            if(particle.gravity) {
                 particle.speed.setAdd(deltaForce);
+            }
+            particle.pos.setAdd(particle.speed.multiply(delta));
         }
         if(oldParticles.size() > 0)
         {
-            for(Particle particle : oldParticles)
-            {
-                particles.remove(particle);
-            }
+            particles.removeAll(oldParticles);
             oldParticles = new ArrayList<>();
         }
     }
 
-    public void addParticle(Particle particle)
+    public void addParticle(DynamicVector pos,DynamicVector speed,Image img,boolean gravity)
     {
-        particles.add(particle);
+        particles.add(new Particle(pos,speed,img,gravity,defaultLifeTime));
+    }
+
+    public void addParticle(DynamicVector pos,DynamicVector speed,Image img,boolean gravity,double lifetime)
+    {
+        particles.add(new Particle(pos,speed,img,gravity,lifetime));
     }
 
     public class Particle
@@ -77,17 +83,22 @@ public class ImageParticleSystem extends ParticleSystem {
         DynamicVector speed;
         double lifetime;
         boolean gravity;
-        public Particle(DynamicVector pos,DynamicVector speed,Image img,boolean gravity)
-        {
-            this.pos = pos;
-            this.img = img;
-            this.gravity = gravity;
-            this.lifetime = defaultLifeTime;
-        }
         public Particle(DynamicVector pos,DynamicVector speed,Image img,boolean gravity,double lifetime)
         {
-            this(pos,speed,img,gravity);
+            this.pos = pos;
+            this.speed = speed;
+            this.img = img;
+            this.gravity = gravity;
             this.lifetime = lifetime;
+        }
+        public Image getImage(){return img;}
+        public DynamicVector getPos(){return pos;}
+        public DynamicVector getSpeed(){return speed;}
+        public double getLifetime(){return lifetime;}
+        @Override
+        public String toString()
+        {
+            return "Pos: " + pos + ", speed: " + speed + ", lifetime: " + lifetime;
         }
     }
 

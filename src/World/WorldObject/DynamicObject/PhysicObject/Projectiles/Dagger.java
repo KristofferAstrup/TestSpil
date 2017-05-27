@@ -1,5 +1,6 @@
 package World.WorldObject.DynamicObject.PhysicObject.Projectiles;
 
+import Controller.Controller;
 import Libraries.ImageLibrary;
 import Vectors.DynamicVector;
 import Vectors.Vector;
@@ -42,6 +43,11 @@ public class Dagger extends Projectile implements Serializable {
         Mob closestMob = world.getClosestMob(getPos(),0.25);
         if(closestMob != null && !(closestMob instanceof Player)){
             closestMob.damage(1);
+
+            Image img = ImageLibrary.getImage("Dirt_O.png");
+            int quantity = Controller.random.nextInt(3)+5;
+
+
             destroy();
         }
     }

@@ -1,8 +1,10 @@
 package World.WorldObject.Block;
 
+import Controller.Controller;
 import Factories.ObjType;
 import Factories.ObjTypeGroup;
 import Libraries.ImageLibrary;
+import Vectors.DynamicVector;
 import Vectors.Vector;
 import World.World;
 import javafx.scene.image.Image;
@@ -41,5 +43,15 @@ public class DirtBlock extends Block implements Serializable {
     @Override
     protected String getTypeName() {
         return "Dirt";
+    }
+
+    @Override
+    public void die()
+    {
+        Image img = ImageLibrary.getImage("DirtChunk_0.png");
+        int quantity = Controller.random.nextInt(3)+5;
+        for(int i=0;i<quantity;i++) {
+            world.getImageParticleSystem().addParticle(new DynamicVector(getPos()), new DynamicVector(Controller.random.nextDouble()*6-3, Controller.random.nextDouble()*6-3), img, true, 0.5);
+        }
     }
 }

@@ -78,6 +78,11 @@ public abstract class Block extends WorldObject implements Serializable {
         O
     }
 
+    public void die()
+    {
+
+    }
+
     public Block.ORI getORIsetRot(BlockedOrientation orientation)
     {
         switch(orientation.getBlocks())
