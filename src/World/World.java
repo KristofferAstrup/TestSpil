@@ -35,6 +35,7 @@ public class World implements Serializable {
     private double gravity;
     private DynamicVector playerSpawnPoint;
     private ArrayList<GlobalParticleSystem> globalParticleSystems;
+    private ArrayList<Detail> details;
 
     private double windForce = 0.25;
 
@@ -49,6 +50,7 @@ public class World implements Serializable {
         dynamicObjects = new ArrayList<>();
         mobs = new ArrayList<>();
         gravity = 9.82*2;
+        details = new ArrayList<>();
         playerSpawnPoint = new DynamicVector(4,4);
         backgroundElements = new ArrayList<BackgroundElement>(){{
             add(new BackgroundElement("Hills.png", new DynamicVector(0, 0), new DynamicVector(0.08, 0.05), false));
@@ -79,6 +81,7 @@ public class World implements Serializable {
             dynamicObject.setWorld(this);
         }
         mobs = new ArrayList<>(world.mobs);
+        details = new ArrayList<>(world.details);
         gravity = world.gravity;
         playerSpawnPoint = world.playerSpawnPoint;
         backgroundElements = new ArrayList<>(world.backgroundElements);
@@ -135,6 +138,8 @@ public class World implements Serializable {
 
     public double getGravity(){return gravity;}
 
+    public ArrayList<Detail> getDetails(){return details;}
+
     public Color getSkyColor(){return skyColor.getColor();}
 
     public ArrayList<BackgroundElement> getBackgroundElements(){return backgroundElements;}
@@ -168,6 +173,12 @@ public class World implements Serializable {
         {
             addDynamicObject((DynamicObject)worldObject);
         }
+    }
+
+    public void addDetail(Detail detail)
+    {
+        details.add(detail);
+        System.out.println("HEYYO");
     }
 
     public boolean outsideBoundary(Vector pos){

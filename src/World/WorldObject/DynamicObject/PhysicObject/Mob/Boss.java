@@ -7,6 +7,7 @@ import Vectors.DynamicVector;
 import Vectors.Vector;
 import World.World;
 import World.Dir;
+import World.Detail;
 import javafx.scene.image.Image;
 
 import java.io.Serializable;
@@ -73,6 +74,8 @@ public class Boss  extends Mob implements Serializable {
         super.init();
         size = new DynamicVector(3,3);
         healthMax = 100;
+        Detail detail = new Detail(pos,"Eye.png");
+        world.addDetail(detail);
     }
 
     @Override

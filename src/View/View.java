@@ -15,6 +15,7 @@ import Vectors.Vector;
 import World.Background.BackgroundElement;
 import World.ParticleSystem.GlobalParticleSystem;
 import World.World;
+import World.Detail;
 import World.WorldObject.DynamicObject.DynamicObject;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
@@ -125,6 +126,7 @@ public class View {
         drawBackground(gameState.getWorld());
         drawBlocks(gameState.getWorld());
         drawDynamics(gameState.getWorld());
+        drawDetails(gameState.getWorld());
 
         gc.setTransform(new Affine());
         gc.setStroke(Color.LIGHTBLUE);
@@ -148,6 +150,7 @@ public class View {
         drawGrid(editorState.getWorld());
         drawBlocks(editorState.getWorld());
         drawDynamics(editorState.getWorld());
+        drawDetails(editorState.getWorld());
 
         drawTarget(editorState.getWorld(), editorState.getWorldTarget(),editorState.getObjTypeSelected());
         drawSpawn(editorState.getWorld());
@@ -199,7 +202,7 @@ public class View {
 
             double x_pos = obj.getPos().getX_dyn() * objectSize;
             double y_pos = (world.getWorldHeight() - obj.getPos().getY_dyn() - 1) * objectSize;
-            affine.appendTranslation(x_pos/*(obj.getFlipped()?-objectSize:0)*/+cameraPan.getX_dyn(), y_pos+cameraPan.getY_dyn());
+            affine.appendTranslation(x_pos+cameraPan.getX_dyn(), y_pos+cameraPan.getY_dyn());
             if(obj.getRot()!=0)affine.appendRotation(obj.getRot());
             affine.appendScale((obj.getFlipped()?-1:1),1);
             gc.setTransform(affine);
@@ -212,6 +215,21 @@ public class View {
             if(Controller.debugging()){
                 gc.fillRect(-objectSize*obj.getSize().getX_dyn()/2,-objectSize*obj.getSize().getY_dyn()/2,objectSize*obj.getSize().getX_dyn(),objectSize*obj.getSize().getY_dyn());
             }
+        }
+    }
+
+    private void drawDetails(World world)
+    {
+        for(Detail detail : world.getDetails())
+        {
+            Affine affine = new Affine();
+            double width = winScale*detail.getImage().getWidth()/ImageLibrary.imageLoadScale;
+            double height = winScale*detail.getImage().getHeight()/ImageLibrary.imageLoadScale;
+            double x_pos = detail.getPos().getX_dyn() * objectSize;
+            double y_pos = (world.getWorldHeight() - detail.getPos().getY_dyn() - 1) * objectSize;
+            affine.appendTranslation(x_pos+cameraPan.getX_dyn(),y_pos+cameraPan.getY_dyn());
+            gc.setTransform(affine);
+            gc.drawImage(detail.getImage(),-width/2d,-height/2d,width,height);
         }
     }
 

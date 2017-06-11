@@ -12,7 +12,7 @@ import java.util.HashMap;
 /**
  * Created by Kris on 21-02-2017.
  */
-public class KeyboardController extends KeyAdapter {
+public class KeyboardController extends KeyAdapter implements IUpdate {
 
     HashMap<KeyCode,Key> keys = new HashMap<>();
     Scene scene;

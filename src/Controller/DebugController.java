@@ -156,12 +156,6 @@ public class DebugController {
             },"input","Lists all input")
     };
 
-
-    public void update(double delta)
-    {
-
-    }
-
     private void listDebugCommands(boolean tooltip)
     {
         output.add("\n" + seperator + "\n");

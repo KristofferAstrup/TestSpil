@@ -1,5 +1,6 @@
 package World.WorldObject.DynamicObject;
 
+import Controller.IUpdate;
 import Vectors.DynamicVector;
 import World.World;
 import World.WorldObject.WorldObject;
@@ -9,7 +10,7 @@ import java.io.Serializable;
 /**
  * Created by Kris on 20-02-2017.
  */
-public abstract class DynamicObject extends WorldObject implements Serializable {
+public abstract class DynamicObject extends WorldObject implements Serializable, IUpdate {
 
     protected DynamicVector pos;
     protected transient boolean flip = false;

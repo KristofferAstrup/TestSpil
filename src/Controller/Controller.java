@@ -119,7 +119,7 @@ public class Controller {
                 toggleDebugging();
             }
 
-            if(debugging){debugController.update(delta);}
+            //if(debugging){debugController.update(delta);}
             states.get(state).update(delta*timescale);
             view.update(states.get(state));
             keyboardController.update(delta);

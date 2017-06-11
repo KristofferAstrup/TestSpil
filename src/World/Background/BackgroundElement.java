@@ -1,5 +1,6 @@
 package World.Background;
 
+import Controller.IUpdate;
 import Libraries.ImageLibrary;
 import Vectors.DynamicVector;
 import javafx.scene.image.Image;
