@@ -10,6 +10,11 @@ public class Vector implements Serializable {
     private int x;
     private int y;
 
+    public Vector()
+    {
+        //Default ctor for reflection in serializing
+    }
+
     public Vector(int _x, int _y){
         x = _x;
         y = _y;

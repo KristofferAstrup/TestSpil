@@ -14,6 +14,7 @@ import Vectors.DynamicVector;
 import Vectors.Vector;
 import World.Background.BackgroundElement;
 import World.ParticleSystem.GlobalParticleSystem;
+import World.ParticleSystem.ImageParticleSystem;
 import World.World;
 import World.Detail;
 import World.WorldObject.DynamicObject.DynamicObject;
@@ -126,6 +127,8 @@ public class View {
         drawBackground(gameState.getWorld());
         drawBlocks(gameState.getWorld());
         drawDynamics(gameState.getWorld());
+        drawGlobalParticleSystem(gameState.getWorld());
+        drawImageParticleSystem(gameState.getWorld());
         drawDetails(gameState.getWorld());
 
         gc.setTransform(new Affine());
@@ -207,14 +210,45 @@ public class View {
             affine.appendScale((obj.getFlipped()?-1:1),1);
             gc.setTransform(affine);
 
-            //int flip = (obj.getFlipped()?1:0);
-
             gc.drawImage(obj.getImage(),-width/2,-height/2,width,height);
-            //gc.drawImage(obj.getImage(),-width/2+width*flip,-height/2,width-2*width*flip,height);//objectSizeBase/2-obj.getImage().getWidth()/2,objectSizeBase/2-obj.getImage().getHeight()/2);//objectSize*obj.getScale().getX_dyn(),objectSize*obj.getScale().getY_dyn());
 
             if(Controller.debugging()){
                 gc.fillRect(-objectSize*obj.getSize().getX_dyn()/2,-objectSize*obj.getSize().getY_dyn()/2,objectSize*obj.getSize().getX_dyn(),objectSize*obj.getSize().getY_dyn());
             }
+        }
+    }
+
+    private void drawGlobalParticleSystem(World world)
+    {
+        gc.setTransform(new Affine());
+        gc.setStroke(Color.LIGHTBLUE);
+        gc.setGlobalAlpha(0.6);
+        double x;
+        double y;
+
+        for(GlobalParticleSystem globalParticleSystem : world.getGlobalParticleSystems())
+            for(DynamicVector dynamicVector : globalParticleSystem.getParticles())
+            {
+                x = dynamicVector.getX_dyn()*canvasDim.getX();
+                y = canvasDim.getY()-dynamicVector.getY_dyn()*canvasDim.getY();
+                gc.strokeLine(x,y,
+                        x-globalParticleSystem.getSpeed().getX_dyn()*25,
+                        y+globalParticleSystem.getSpeed().getY_dyn()*25);
+            }
+    }
+
+    private void drawImageParticleSystem(World world)
+    {
+        gc.setTransform(new Affine());
+        gc.setGlobalAlpha(1);
+
+        for(ImageParticleSystem.Particle particle : world.getImageParticleSystem().getParticles())
+        {
+            double width = particle.getImage().getWidth()/ImageLibrary.imageLoadScale;
+            double height = particle.getImage().getHeight()/ImageLibrary.imageLoadScale;
+            double x_pos = particle.getPos().getX_dyn() * objectSize + cameraPan.getX_dyn()-width/2;
+            double y_pos = (world.getWorldHeight() - particle.getPos().getY_dyn() - 1) * objectSize + cameraPan.getY_dyn()-height/2;
+            gc.drawImage(particle.getImage(),x_pos,y_pos,width,height);
         }
     }
 

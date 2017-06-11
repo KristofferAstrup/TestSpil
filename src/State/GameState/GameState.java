@@ -95,6 +95,7 @@ public class GameState implements IState {
         {
             globalParticleSystem.update(delta);
         }
+        world.getImageParticleSystem().update(delta);
     }
 
 }

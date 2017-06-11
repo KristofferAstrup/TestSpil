@@ -5,6 +5,7 @@ import Vectors.DynamicVector;
 import Vectors.Vector;
 import World.Background.BackgroundElement;
 import World.ParticleSystem.GlobalParticleSystem;
+import World.ParticleSystem.ImageParticleSystem;
 import World.WorldObject.Block.Block;
 import World.WorldObject.Block.BlockedDirs;
 import World.WorldObject.Block.BlockedOrientation;
@@ -35,6 +36,7 @@ public class World implements Serializable {
     private double gravity;
     private DynamicVector playerSpawnPoint;
     private ArrayList<GlobalParticleSystem> globalParticleSystems;
+    private ImageParticleSystem imageParticleSystem;
     private ArrayList<Detail> details;
 
     private double windForce = 0.25;
@@ -59,6 +61,7 @@ public class World implements Serializable {
 
         globalParticleSystems = new ArrayList<>();
         globalParticleSystems.add(new GlobalParticleSystem(this,new DynamicVector(0,1),new DynamicVector(1,1),100,new DynamicVector(-0.125,-0.75)));
+        imageParticleSystem = new ImageParticleSystem(this,new DynamicVector(0,-gravity));
     }
 
     public World(World world)
@@ -90,6 +93,7 @@ public class World implements Serializable {
         {
             globalParticleSystem.setWorld(this);
         }
+        imageParticleSystem = world.getImageParticleSystem();
     }
 
     public void init(){
@@ -112,6 +116,8 @@ public class World implements Serializable {
 
     public ArrayList<GlobalParticleSystem> getGlobalParticleSystems(){return globalParticleSystems;}
 
+    public ImageParticleSystem getImageParticleSystem(){return imageParticleSystem;}
+
     public double getWindForce(){return windForce;}
 
     public void reset(){
@@ -124,6 +130,7 @@ public class World implements Serializable {
         {
             globalParticleSystem.reset();
         }
+        imageParticleSystem.reset();
         System.out.println("WORLD RESET");
     }
 
@@ -230,6 +237,7 @@ public class World implements Serializable {
     public void deleteBlock(Vector pos){
         if(!checkIfEmpty(pos.getX(),pos.getY())){
             worldObjects.remove(blocks[pos.getX()][pos.getY()]);
+            blocks[pos.getX()][pos.getY()].die();
             blocks[pos.getX()][pos.getY()] = null;
             updateImageOnBlockCluster(pos);
             //throw new RuntimeException("A block a was attempted deleted at: " + pos.toString() + ", but was not found in the blocks 2D-array!");

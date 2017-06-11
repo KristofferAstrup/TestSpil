@@ -78,6 +78,7 @@ public class ImageLibrary {
                 "/Images/Blocks/DirtBlock/Dirt_S.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_U.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_Z.png#" +
+                "/Images/Blocks/DirtBlock/DirtChunk_0.png#" +
                 "/Images/Div/Fluff.png#" +
                 "/Images/Div/Fluff2.png#" +
                 "/Images/Div/Black.png#" +
