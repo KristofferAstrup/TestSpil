@@ -13,17 +13,24 @@ import javafx.scene.image.Image;
 import java.io.Serializable;
 import java.util.HashMap;
 
-/**
- * Created by kristoffer on 20-05-2017.
- */
 public class Boss  extends Mob implements Serializable {
 
     public static final ObjType objType = new ObjType("Boss", ImageLibrary.getImage("BossBody.png"), ObjTypeGroup.mobs);
     private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
         put("body", ImageLibrary.getImage("BossBody.png"));
+        put("eyeLidsFull", ImageLibrary.getImage("BossEyeLidsFull.png"));
+        put("eyeLidsHalf", ImageLibrary.getImage("BossEyeLidsHalf.png"));
+        put("eyeLidsQuarter", ImageLibrary.getImage("BossEyeLidsQuarter.png"));
     }};
 
-    private static DynamicVector targetVec;
+    private DynamicVector targetVec;
+
+    private Detail eyeDetail;
+    private Detail eyeLidDetail;
+
+    private double blinkDelay;
+    private static double blinkDelayDuration = 2;
+    private static double blinkDuration = 0.25;
 
     public Boss(World world, DynamicVector pos) {
         super(world, pos);
@@ -34,11 +41,17 @@ public class Boss  extends Mob implements Serializable {
     public void update(double delta)
     {
         super.update(delta);
+
+        eyeLidDetail.setPos(new DynamicVector(pos.add(0,0.56)));
+
         if(!getAlive())return;
 
         Player player = world.getPlayerTarget(this);
         targetVec = player.getPos();
         speed.setAdd(targetVec.subtract(pos).normalize().multiply(delta*4));
+
+        DynamicVector normDir = targetVec.subtract(getPos()).normalize();
+        eyeDetail.setPos(new DynamicVector(pos.add(normDir.multiply(0.30,0.15).add(0,0.56))));
 
         if(targetVec.dist(pos) < size.getX_dyn()/2+player.getSize().getX_dyn()/2)
         {
@@ -66,6 +79,34 @@ public class Boss  extends Mob implements Serializable {
                 }
             }
         }
+
+        blinkDelay -= delta;
+        if(blinkDelay < -blinkDuration)
+        {
+            blinkDelay = blinkDelayDuration;
+            eyeLidDetail.setVisible(false);
+        }
+        else if(blinkDelay < -blinkDuration*4/5.0)
+        {
+            eyeLidDetail.setImage(imgs.get("eyeLidsQuarter"));
+        }
+        else if(blinkDelay < -blinkDuration*3/5.0)
+        {
+            eyeLidDetail.setImage(imgs.get("eyeLidsHalf"));
+        }
+        else if(blinkDelay < -blinkDuration*2/5.0)
+        {
+            eyeLidDetail.setImage(imgs.get("eyeLidsFull"));
+        }
+        else if(blinkDelay < -blinkDuration/5.0)
+        {
+            eyeLidDetail.setImage(imgs.get("eyeLidsHalf"));
+        }
+        else if(blinkDelay < 0)
+        {
+            eyeLidDetail.setImage(imgs.get("eyeLidsQuarter"));
+            eyeLidDetail.setVisible(true);
+        }
     }
 
     @Override
@@ -73,9 +114,18 @@ public class Boss  extends Mob implements Serializable {
     {
         super.init();
         size = new DynamicVector(3,3);
-        healthMax = 100;
-        Detail detail = new Detail(pos,"Eye.png");
-        world.addDetail(detail);
+        healthMax = 30;
+    }
+
+    @Override
+    public void worldStart()
+    {
+        eyeDetail = new Detail(pos,"BossEye.png");
+        eyeLidDetail = new Detail(pos,"BossEyeLidsFull.png");
+        eyeLidDetail.setVisible(false);
+        world.addDetail(eyeDetail);
+        world.addDetail(eyeLidDetail);
+        blinkDelay = blinkDelayDuration;
     }
 
     @Override
@@ -83,6 +133,13 @@ public class Boss  extends Mob implements Serializable {
     {
         super.reset();
         gravityEnabled = false;
+    }
+
+    @Override
+    public void damage(int damage)
+    {
+        super.damage(damage);
+        blinkDelay = -blinkDuration*2.5/5.0;
     }
 
     @Override
@@ -95,7 +152,11 @@ public class Boss  extends Mob implements Serializable {
     {
         super.die();
         System.out.println("Boss died!");
+        world.deleteDetail(eyeDetail);
+        eyeDetail = null;
         gravityEnabled = true;
+        eyeLidDetail.setImage(imgs.get("eyeLidsFull"));
+        eyeLidDetail.setVisible(true);
     }
 
 }

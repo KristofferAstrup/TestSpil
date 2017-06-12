@@ -240,7 +240,6 @@ public class View {
     private void drawImageParticleSystem(World world)
     {
         gc.setTransform(new Affine());
-        gc.setGlobalAlpha(1);
 
         for(ImageParticleSystem.Particle particle : world.getImageParticleSystem().getParticles())
         {
@@ -248,14 +247,17 @@ public class View {
             double height = particle.getImage().getHeight()/ImageLibrary.imageLoadScale;
             double x_pos = particle.getPos().getX_dyn() * objectSize + cameraPan.getX_dyn()-width/2;
             double y_pos = (world.getWorldHeight() - particle.getPos().getY_dyn() - 1) * objectSize + cameraPan.getY_dyn()-height/2;
+            gc.setGlobalAlpha(Math.min(0.20,particle.getLifetime())*5);
             gc.drawImage(particle.getImage(),x_pos,y_pos,width,height);
         }
     }
 
     private void drawDetails(World world)
     {
+        gc.setGlobalAlpha(1);
         for(Detail detail : world.getDetails())
         {
+            if(!detail.getVisible())continue;
             Affine affine = new Affine();
             double width = winScale*detail.getImage().getWidth()/ImageLibrary.imageLoadScale;
             double height = winScale*detail.getImage().getHeight()/ImageLibrary.imageLoadScale;

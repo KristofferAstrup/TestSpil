@@ -39,7 +39,11 @@ public abstract class WorldObject implements Serializable {
 
     public abstract void init();
 
+    public void worldStart(){}
+
     public void destroy(){world.destroyWorldObject(this);}
+
+    public void delete(){}
 
     public void setDestroyed(boolean destroyed){this.destroyed = destroyed;}
 

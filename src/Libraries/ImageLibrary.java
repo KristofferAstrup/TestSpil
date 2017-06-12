@@ -93,13 +93,13 @@ public class ImageLibrary {
                 "/Images/Mobs/Pig/pig_4.png#" +
 
                 "/Images/Mobs/Boss/BossBody.png#" +
-                "/Images/Mobs/Boss/Eye.png#" +
-                "/Images/Mobs/Boss/EyeCharged.png#" +
-                "/Images/Mobs/Boss/EyeLidsFull.png#" +
-                "/Images/Mobs/Boss/EyeLidsHalf.png#" +
-                "/Images/Mobs/Boss/EyeLidsQuarter.png#" +
-                "/Images/Mobs/Boss/EyeLight.png#" +
-                "/Images/Mobs/Boss/EyeSmallPupil.png#" +
+                "/Images/Mobs/Boss/BossEye.png#" +
+                "/Images/Mobs/Boss/BossEyeCharged.png#" +
+                "/Images/Mobs/Boss/BossEyeLidsFull.png#" +
+                "/Images/Mobs/Boss/BossEyeLidsHalf.png#" +
+                "/Images/Mobs/Boss/BossEyeLidsQuarter.png#" +
+                "/Images/Mobs/Boss/BossEyeLight.png#" +
+                "/Images/Mobs/Boss/BossEyeSmallPupil.png#" +
 
                 "/Images/Background/cloud0.png#" +
                 "/Images/Background/cloud1.png#" +

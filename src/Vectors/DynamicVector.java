@@ -92,6 +92,8 @@ public class DynamicVector extends Vector implements Serializable {
         return new DynamicVector(x_dyn+vec.getX_dyn(),y_dyn+vec.getY_dyn());
     }
 
+    public DynamicVector add(double x,double y){return new DynamicVector(x_dyn+x,y_dyn+y);}
+
     public DynamicVector multiply(DynamicVector vec)
     {
         return new DynamicVector(x_dyn*vec.getX_dyn(),y_dyn*vec.getY_dyn());
@@ -101,6 +103,8 @@ public class DynamicVector extends Vector implements Serializable {
     {
         return new DynamicVector(x_dyn*d,y_dyn*d);
     }
+
+    public DynamicVector multiply(double xMultiplier,double yMultiplier){return new DynamicVector(x_dyn*xMultiplier,y_dyn*yMultiplier);}
 
     @Override
     public DynamicVector normal()

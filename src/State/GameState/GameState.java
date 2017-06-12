@@ -3,15 +3,10 @@ package State.GameState;
 import Controller.*;
 import State.IState;
 import Vectors.DynamicVector;
-import Vectors.Vector;
 import World.ParticleSystem.GlobalParticleSystem;
 import World.World;
-import World.WorldObject.Block.DirtBlock;
 import World.WorldObject.DynamicObject.DynamicObject;
-import World.WorldObject.DynamicObject.PhysicObject.Mob.Bat;
-import World.WorldObject.DynamicObject.PhysicObject.Mob.Pig;
 import World.WorldObject.DynamicObject.PhysicObject.Mob.Player;
-import World.WorldObject.WorldObject;
 import javafx.scene.input.KeyCode;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -48,6 +43,7 @@ public class GameState implements IState {
         playerController = new PlayerController(player,world,keyboardController);
         world.addPlayer(player);
         destroyedDynamicObjects = new ArrayList<>();
+        world.worldStart();
     }
 
     public void endState(){

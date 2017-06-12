@@ -1,6 +1,5 @@
 package World;
 
-import Libraries.ImageLibrary;
 import Vectors.DynamicVector;
 import Vectors.Vector;
 import World.Background.BackgroundElement;
@@ -114,6 +113,14 @@ public class World implements Serializable {
         System.out.println("WORLD INIT");
     }
 
+    public void worldStart()
+    {
+        for(WorldObject worldObject : worldObjects)
+        {
+            worldObject.worldStart();
+        }
+    }
+
     public ArrayList<GlobalParticleSystem> getGlobalParticleSystems(){return globalParticleSystems;}
 
     public ImageParticleSystem getImageParticleSystem(){return imageParticleSystem;}
@@ -185,7 +192,11 @@ public class World implements Serializable {
     public void addDetail(Detail detail)
     {
         details.add(detail);
-        System.out.println("HEYYO");
+    }
+
+    public void deleteDetail(Detail detail)
+    {
+        details.remove(detail);
     }
 
     public boolean outsideBoundary(Vector pos){
@@ -357,6 +368,7 @@ public class World implements Serializable {
         if(worldObject instanceof Block){
             deleteBlock((Block)worldObject);
         }
+        worldObject.delete();
     }
 
     public Mob getClosestMob(DynamicVector pos,double maxDist){

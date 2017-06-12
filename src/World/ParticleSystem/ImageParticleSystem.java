@@ -4,9 +4,10 @@ import World.World;
 import Vectors.DynamicVector;
 import javafx.scene.image.Image;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ImageParticleSystem extends ParticleSystem {
+public class ImageParticleSystem extends ParticleSystem implements Serializable {
 
     private double defaultLifeTime = 1;
     private ArrayList<Particle> particles;
