@@ -104,13 +104,13 @@ public class ViewOld extends JPanel {
 
         g2d.scale(zoomScale,zoomScale);
 
-        panCamera(gameState.getPlayer().getPos(),g2d);
+        panCamera(gameState.getPlayer().getWorldPositionFromScreen(),g2d);
 
         setBackground(new Color(222, 255, 253));
         //drawBackground(g2d);
         drawDynamicObjects(g2d);
         drawBlocks(g2d);
-        drawGUI(gameState.getPlayer().getPos(),g2d);
+        drawGUI(gameState.getPlayer().getWorldPositionFromScreen(),g2d);
     }
 
     private void drawBackground(Graphics2D g2d)
@@ -159,8 +159,8 @@ public class ViewOld extends JPanel {
         for(World.WorldObject.DynamicObject.DynamicObject obj : gameState.getWorld().getDynamicObjects())
         {
             trans = new AffineTransform();
-            double x_pos = obj.getPos().getX_dyn() * objectSize - objectSize / 2.0;
-            double y_pos = (gameState.getWorld().getWorldHeight() - obj.getPos().getY_dyn() - 1) * objectSize - objectSize / 2.0;
+            double x_pos = obj.getWorldPositionFromScreen().getX_dyn() * objectSize - objectSize / 2.0;
+            double y_pos = (gameState.getWorld().getWorldHeight() - obj.getWorldPositionFromScreen().getY_dyn() - 1) * objectSize - objectSize / 2.0;
             trans.translate(x_pos-(obj.getFlipped()?-objectSize:0), y_pos);
             trans.scale(tranScale*(obj.getFlipped()?-1:1),tranScale);
             g2d.drawImage(obj.getImage(), trans, this);
@@ -179,8 +179,8 @@ public class ViewOld extends JPanel {
         g2d.setColor(Color.BLACK);
         g2d.fillRect(0,0,window.getContentPane().getWidth(),50);
         g2d.setColor(Color.WHITE);
-        g2d.drawString("player_x = " + gameState.getPlayer().getPos().getX(),25,25);
-        g2d.drawString("player_y = " + gameState.getPlayer().getPos().getY(),25,50);
+        g2d.drawString("player_x = " + gameState.getPlayer().getWorldPositionFromScreen().getX(),25,25);
+        g2d.drawString("player_y = " + gameState.getPlayer().getWorldPositionFromScreen().getY(),25,50);
         //g2d.drawString("fps = " + Controller.Main.globalFps,150,15);
     }
 

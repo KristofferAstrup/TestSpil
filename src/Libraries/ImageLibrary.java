@@ -101,6 +101,9 @@ public class ImageLibrary {
                 "/Images/Mobs/Boss/BossEyeLight.png#" +
                 "/Images/Mobs/Boss/BossEyeSmallPupil.png#" +
 
+                "/Images/Blocks/Dirttop.png#" +
+                "/Images/Blocks/Grasstop.png#" +
+
                 "/Images/Background/cloud0.png#" +
                 "/Images/Background/cloud1.png#" +
                 "/Images/Background/cloud2.png#" +

@@ -18,6 +18,10 @@ public class Boss  extends Mob implements Serializable {
     public static final ObjType objType = new ObjType("Boss", ImageLibrary.getImage("BossBody.png"), ObjTypeGroup.mobs);
     private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
         put("body", ImageLibrary.getImage("BossBody.png"));
+        put("eye", ImageLibrary.getImage("BossEye.png"));
+        put("eyeCharged", ImageLibrary.getImage("BossEyeCharged.png"));
+        put("eyeLight", ImageLibrary.getImage("BossEyeLight.png"));
+        put("eyeSmallPupil", ImageLibrary.getImage("BossEyeSmallPupil.png"));
         put("eyeLidsFull", ImageLibrary.getImage("BossEyeLidsFull.png"));
         put("eyeLidsHalf", ImageLibrary.getImage("BossEyeLidsHalf.png"));
         put("eyeLidsQuarter", ImageLibrary.getImage("BossEyeLidsQuarter.png"));
@@ -27,10 +31,14 @@ public class Boss  extends Mob implements Serializable {
 
     private Detail eyeDetail;
     private Detail eyeLidDetail;
+    private Detail eyeLight;
 
     private double blinkDelay;
     private static double blinkDelayDuration = 2;
     private static double blinkDuration = 0.25;
+
+    private double hitReactionDelay;
+    private static double hitReactionDelayDuration = 0.25;
 
     public Boss(World world, DynamicVector pos) {
         super(world, pos);
@@ -51,7 +59,9 @@ public class Boss  extends Mob implements Serializable {
         speed.setAdd(targetVec.subtract(pos).normalize().multiply(delta*4));
 
         DynamicVector normDir = targetVec.subtract(getPos()).normalize();
-        eyeDetail.setPos(new DynamicVector(pos.add(normDir.multiply(0.30,0.15).add(0,0.56))));
+        eyeDetail.setPos(pos.add(normDir.multiply(0.40,0.10).add(0,0.56)));
+
+        eyeLight.setPos(pos.add(-0.08,0.48));
 
         if(targetVec.dist(pos) < size.getX_dyn()/2+player.getSize().getX_dyn()/2)
         {
@@ -80,32 +90,27 @@ public class Boss  extends Mob implements Serializable {
             }
         }
 
-        blinkDelay -= delta;
-        if(blinkDelay < -blinkDuration)
+        if(hitReactionDelay > 0)
         {
-            blinkDelay = blinkDelayDuration;
-            eyeLidDetail.setVisible(false);
+            hitReactionDelay -= delta;
         }
-        else if(blinkDelay < -blinkDuration*4/5.0)
-        {
-            eyeLidDetail.setImage(imgs.get("eyeLidsQuarter"));
-        }
-        else if(blinkDelay < -blinkDuration*3/5.0)
-        {
-            eyeLidDetail.setImage(imgs.get("eyeLidsHalf"));
-        }
-        else if(blinkDelay < -blinkDuration*2/5.0)
-        {
-            eyeLidDetail.setImage(imgs.get("eyeLidsFull"));
-        }
-        else if(blinkDelay < -blinkDuration/5.0)
-        {
-            eyeLidDetail.setImage(imgs.get("eyeLidsHalf"));
-        }
-        else if(blinkDelay < 0)
-        {
-            eyeLidDetail.setImage(imgs.get("eyeLidsQuarter"));
-            eyeLidDetail.setVisible(true);
+        else {
+            blinkDelay -= delta;
+            if (blinkDelay < -blinkDuration) {
+                blinkDelay = blinkDelayDuration;
+                eyeLidDetail.setVisible(false);
+            } else if (blinkDelay < -blinkDuration * 4 / 5.0) {
+                eyeLidDetail.setImage(imgs.get("eyeLidsQuarter"));
+            } else if (blinkDelay < -blinkDuration * 3 / 5.0) {
+                eyeLidDetail.setImage(imgs.get("eyeLidsHalf"));
+            } else if (blinkDelay < -blinkDuration * 2 / 5.0) {
+                eyeLidDetail.setImage(imgs.get("eyeLidsFull"));
+            } else if (blinkDelay < -blinkDuration / 5.0) {
+                eyeLidDetail.setImage(imgs.get("eyeLidsHalf"));
+            } else if (blinkDelay < 0) {
+                eyeLidDetail.setImage(imgs.get("eyeLidsQuarter"));
+                eyeLidDetail.setVisible(true);
+            }
         }
     }
 
@@ -120,10 +125,12 @@ public class Boss  extends Mob implements Serializable {
     @Override
     public void worldStart()
     {
-        eyeDetail = new Detail(pos,"BossEye.png");
-        eyeLidDetail = new Detail(pos,"BossEyeLidsFull.png");
+        eyeDetail = new Detail(pos,imgs.get("eye"));
+        eyeLight = new Detail(pos,imgs.get("eyeLight"));
+        eyeLidDetail = new Detail(pos);
         eyeLidDetail.setVisible(false);
         world.addDetail(eyeDetail);
+        //world.addDetail(eyeLight);
         world.addDetail(eyeLidDetail);
         blinkDelay = blinkDelayDuration;
     }
@@ -140,6 +147,9 @@ public class Boss  extends Mob implements Serializable {
     {
         super.damage(damage);
         blinkDelay = -blinkDuration*2.5/5.0;
+        eyeLidDetail.setImage(imgs.get("eyeLidsFull"));
+        eyeLidDetail.setVisible(true);
+        hitReactionDelay = hitReactionDelayDuration;
     }
 
     @Override
@@ -154,6 +164,8 @@ public class Boss  extends Mob implements Serializable {
         System.out.println("Boss died!");
         world.deleteDetail(eyeDetail);
         eyeDetail = null;
+        world.deleteDetail(eyeLight);
+        eyeLight = null;
         gravityEnabled = true;
         eyeLidDetail.setImage(imgs.get("eyeLidsFull"));
         eyeLidDetail.setVisible(true);

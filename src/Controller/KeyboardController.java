@@ -20,10 +20,6 @@ public class KeyboardController extends KeyAdapter implements IUpdate {
     public KeyboardController(Scene scene) {
 
         this.scene = scene;
-        /*for(KeyCode keyCode : new KeyCode[]{KeyCode.D,KeyCode.A,KeyCode.S,KeyCode.SHIFT,KeyCode.SPACE})
-        {
-            keys.put(keyCode,new Key());
-        }*/
 
         scene.setOnKeyPressed(e -> {
             if(keys.containsKey(e.getCode())){
@@ -63,11 +59,8 @@ public class KeyboardController extends KeyAdapter implements IUpdate {
 
     public void update(double delta)
     {
-        //if(scene.getOnKeyPressed()<KeyEvent.VK_SHIFT>)
-        //System.out.println(keys.get(KeyEvent.VK_O).getPressed() + " | " + keys.get(KeyEvent.VK_O).getJustPressed());
         for(Key key : keys.values())
         {
-            //System.out.println(key.)
             key.update(delta);
         }
     }

@@ -29,6 +29,11 @@ public class Pig extends Mob implements Serializable {
     }};
     private static double moveSpeed = 0.75;
 
+    public void boi()
+    {
+        System.out.println("boi");
+    }
+
     public Pig(World world, DynamicVector pos) {
         super(world, pos);
     }
@@ -39,6 +44,7 @@ public class Pig extends Mob implements Serializable {
         super.init();
         healthMax = 1;
         size = new DynamicVector(0.9,0.6);
+        System.out.println("HELLO");
     }
 
     @Override

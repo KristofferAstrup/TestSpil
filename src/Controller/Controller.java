@@ -20,6 +20,7 @@ public class Controller {
     private IState.State state;
     private HashMap<IState.State,IState> states;
     private KeyboardController keyboardController;
+    private MouseController mouseController;
     private boolean gameRunning = false;
     private static World world;
     private static boolean debugging = false;
@@ -32,6 +33,7 @@ public class Controller {
         Dir.init();
         this.view = view;
         keyboardController = new KeyboardController(this.view.getScene());
+        mouseController = new MouseController(this.view.getScene());
         debugController = new DebugController(this,keyboardController);
         random = new Random();
 
@@ -40,7 +42,7 @@ public class Controller {
         states = new HashMap<IState.State,IState>(){
         {
             put(IState.State.Game, new GameState(keyboardController));
-            put(IState.State.Editor, new EditorState(keyboardController));
+            put(IState.State.Editor, new EditorState(keyboardController,mouseController,view));
         }};
 
         DebugGroup debugGroup = new DebugGroup();
@@ -123,6 +125,7 @@ public class Controller {
             states.get(state).update(delta*timescale);
             view.update(states.get(state));
             keyboardController.update(delta);
+            mouseController.update(delta);
         }
     }
 

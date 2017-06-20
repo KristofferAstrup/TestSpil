@@ -1,8 +1,6 @@
 package View;
 
 import Controller.Controller;
-import Controller.DebugController;
-import Controller.SaveLoadController;
 import Factories.ObjType;
 import Libraries.ImageLibrary;
 import Libraries.ObjTypeLibrary;
@@ -17,23 +15,16 @@ import World.ParticleSystem.GlobalParticleSystem;
 import World.ParticleSystem.ImageParticleSystem;
 import World.World;
 import World.Detail;
+import World.Dir;
 import World.WorldObject.DynamicObject.DynamicObject;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.FillRule;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Affine;
 import javafx.stage.*;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static javafx.application.Application.launch;
@@ -51,14 +42,14 @@ public class View {
     DynamicVector cameraPanBoundaries;
     double winScale;
     ArrayList<DebugGroup> debugGroups = new ArrayList<>();
-    boolean debugGroupsVisisble = false;
+    boolean debugGroupsVisible = false;
 
     String[] paths;
     Group root = new Group();
 
     public View(Stage theStage)
     {
-        theStage.setTitle("TestSpil");
+        theStage.setTitle("TS");
         stage = theStage;
 
         scene = new Scene( root );
@@ -90,16 +81,24 @@ public class View {
 
     public void setVisibleDebugGroup(boolean visible)
     {
-        debugGroupsVisisble = visible;
+        debugGroupsVisible = visible;
         for(DebugGroup debugGroup : debugGroups) {
-            debugGroup.setVisible(debugGroupsVisisble);
+            debugGroup.setVisible(debugGroupsVisible);
         }
     }
 
-    public boolean getVisibleDebugGroup(){return debugGroupsVisisble;}
+    public boolean getVisibleDebugGroup(){return debugGroupsVisible;}
+
+    public Vector getCanvasDim(){return canvasDim;}
+
+    public Vector getWorldPositionFromScreen(World world, Vector screenPos)
+    {
+        return new DynamicVector(Math.round((-cameraPan.getX_dyn()+screenPos.getX())/objectSize),cameraPan.getY_dyn()/objectSize+world.getWorldHeight()-screenPos.getY()/objectSize-1);
+    }
 
     public void update(IState state)
     {
+
         gc.clearRect(0,0,canvasDim.getX(),canvasDim.getY());
         gc.save();
         if(state.getClass() == GameState.class)
@@ -149,7 +148,8 @@ public class View {
 
     private void drawEditorState(EditorState editorState) {
         setWinScale(2,editorState.getWorld());
-        panCamera(editorState.getWorld(), editorState.getWorldTarget().getDynamicVector());
+        panCamera(editorState.getWorld(), editorState.getCameraPivot());
+        //panCamera(editorState.getWorld(),new DynamicVector(0,-editorState.getWorld().getWorldHeight()));
         drawGrid(editorState.getWorld());
         drawBlocks(editorState.getWorld());
         drawDynamics(editorState.getWorld());
@@ -158,7 +158,9 @@ public class View {
         drawTarget(editorState.getWorld(), editorState.getWorldTarget(),editorState.getObjTypeSelected());
         drawSpawn(editorState.getWorld());
 
-        if(Controller.debugging()){drawDebug();}
+        if(Controller.debugging()){
+            drawDebug();
+        }
 
         if (editorState.getEditorMode() == EditorMode.ObjectSelect) {
             drawTileWindow(10, 4, editorState.getObjectMenuTarget(), editorState.getObjectMenuSelected(),
@@ -171,6 +173,30 @@ public class View {
         this.winScale = winScale;
         objectSize = objectSizeBase * winScale;
         cameraPanBoundaries = new DynamicVector((world.getWorldWidth())*objectSize-canvasDim.getX(),(world.getWorldHeight())*objectSize-canvasDim.getY());
+    }
+
+    public DynamicVector getPanDirectionVector(DynamicVector mousePosition,int horizontalZone,int verticalZone)
+    {
+        DynamicVector dir = new DynamicVector(0,0);
+        if(mousePosition.getX() <= horizontalZone){
+            dir.setX_dyn((mousePosition.getX_dyn()/horizontalZone)-1);
+        }
+        else if(mousePosition.getX() >= canvasDim.getX()-horizontalZone){
+            dir.setX_dyn((mousePosition.getX_dyn()-(canvasDim.getX()-horizontalZone))/horizontalZone);
+        }
+        if(mousePosition.getY() <= verticalZone){
+            dir.setY_dyn(1-mousePosition.getY_dyn()/verticalZone);
+        }
+        else if(mousePosition.getY() >= canvasDim.getY()-verticalZone){
+            dir.setY_dyn(-((mousePosition.getY_dyn()-(canvasDim.getY()-verticalZone))/verticalZone));
+        }
+        return dir;
+    }
+
+    public DynamicVector getMinimumCornerCenterVector(World world,DynamicVector position)
+    {
+        return new DynamicVector(Math.min(world.getWorldWidth()-canvasDim.getX()/(2*objectSize),Math.max(position.getX_dyn(),canvasDim.getX()/(2*objectSize))),
+                Math.min(world.getWorldHeight()-canvasDim.getY()/(2*objectSize),Math.max(position.getY_dyn(),canvasDim.getY()/(2*objectSize))));
     }
 
     private void drawBlocks(World world)
@@ -196,6 +222,7 @@ public class View {
     private void drawDynamics(World world)
     {
         gc.setFill(Color.BLACK);
+
         for(DynamicObject obj : world.getDynamicObjects())
         {
             Affine affine = new Affine();
