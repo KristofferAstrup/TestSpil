@@ -19,6 +19,7 @@ public class MouseController extends MouseAdapter {
     private Scene scene;
     private final DynamicVector lastMousePos = new DynamicVector(0,0);
     private final DynamicVector deltaMousePos = new DynamicVector(0,0);
+    private int scrollDir = 0;
 
     public MouseController(Scene scene) {
 
@@ -49,6 +50,10 @@ public class MouseController extends MouseAdapter {
             trackMouse(e);
         });
 
+        scene.setOnScroll(e -> {
+            scrollDir = (int)(e.getDeltaY()/Math.abs(e.getDeltaY()));
+        });
+
     }
 
     private void trackMouse(MouseEvent e)
@@ -77,6 +82,8 @@ public class MouseController extends MouseAdapter {
         return false;
     }
 
+    public int getMouseScrollDir(){return scrollDir;}
+
     public DynamicVector getMousePosition()
     {
         return lastMousePos;
@@ -94,6 +101,7 @@ public class MouseController extends MouseAdapter {
             btn.update(delta);
         }
         deltaMousePos.set(0,0);
+        scrollDir = 0;
     }
 
     public class Button{

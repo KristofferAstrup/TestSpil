@@ -1,6 +1,6 @@
 package Factories;
 
-public enum ObjTypeGroup {
+public enum EditorClassGroup {
     blocks,
     mobs
 }

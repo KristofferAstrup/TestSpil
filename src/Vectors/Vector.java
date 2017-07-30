@@ -137,5 +137,11 @@ public class Vector implements Serializable {
         return "X: " + x + " Y: " + y;
     }
 
+    @Override
+    public int hashCode()
+    {
+        return (31 * x) + y;
+    }
+
 }
 

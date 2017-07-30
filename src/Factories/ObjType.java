@@ -11,7 +11,7 @@ public class ObjType {
 
     private String value;
     private Image icon;
-    private ObjTypeGroup group;
+    /*private ObjTypeGroup group;
 
     public ObjType(String value,Image icon,ObjTypeGroup group)
     {
@@ -33,6 +33,6 @@ public class ObjType {
     public boolean equals(Object objType)
     {
         return value == ((ObjType)objType).value;
-    }
+    }*/
 
 }

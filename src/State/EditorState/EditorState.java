@@ -1,26 +1,30 @@
 package State.EditorState;
 
 import Controller.*;
-import Factories.ObjType;
-import Factories.ObjTypeGroup;
-import Factories.WorldObjectFactory;
+import Factories.EditorClassGroup;
+import Libraries.EditorClass;
 import Libraries.ImageLibrary;
-import Libraries.ObjTypeLibrary;
+import Libraries.EditorLibrary;
 import State.IState;
 import Vectors.DynamicVector;
 import Vectors.Vector;
 import View.View;
 import World.World;
+import World.Dir;
 import World.Detail;
 import World.WorldObject.Block.Block;
+import World.WorldObject.DynamicObject.DynamicObject;
+import World.WorldObject.DynamicObject.Goal;
 import World.WorldObject.DynamicObject.PhysicObject.Mob.Mob;
 import World.WorldObject.DynamicObject.PhysicObject.Mob.Pig;
 import World.WorldObject.WorldObject;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import org.omg.SendingContext.RunTime;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 
 /**
  * Created by Kris on 02-03-2017.
@@ -43,15 +47,20 @@ public class EditorState implements IState {
     private double mousePanSpeedBase = 14;
     private double mousePanSpeedFast = 28;
 
+    private double gridSize = 1; ****
+
+    private double zoomScale = 2;
+
     private View view;
 
-    private ObjType objTypeSelected;
-    private ObjTypeGroup objTypeGroup;
+    private EditorClass editorClassSelected;
+    private EditorClassGroup editorClassGroup;
 
     private EditorMode mode;
 
     private int ObjTypesPerLine = 10;
 
+    public double getZoomScale(){return zoomScale;}
     public Vector getWorldTarget() {return worldTarget;}
     public Vector getObjectMenuTarget() {return objectMenuTarget;}
     public Vector getObjectMenuSelected(){return objectMenuSelected;}
@@ -67,54 +76,67 @@ public class EditorState implements IState {
         objectMenuTarget = new Vector(0,0);
         objectMenuSelected = new Vector(0,0);
         menuObjectSelect(0,0);
-        changeObjTypeGroup(ObjTypeGroup.blocks);
+        changeObjTypeGroup(EditorClassGroup.blocks);
 
     }
 
-    public void changeObjTypeGroup(ObjTypeGroup objTypeGroup)
+    public void changeObjTypeGroup(EditorClassGroup objTypeGroup)
     {
-        this.objTypeGroup = objTypeGroup;
-        objTypeSelected = ObjTypeLibrary.getObjTypes(objTypeGroup)[0];
+        this.editorClassGroup = objTypeGroup;
+        editorClassSelected = EditorLibrary.getEditorClasses(editorClassGroup)[0];
     }
 
     public void changeObjTypeSelected(int index)
     {
-        if(index > 0 && index < ObjTypeLibrary.getObjTypes(objTypeGroup).length) {
-            objTypeSelected = ObjTypeLibrary.getObjTypes(objTypeGroup)[index];
+        if(index > 0 && index < EditorLibrary.getEditorClasses(editorClassGroup).length) {
+            editorClassSelected = EditorLibrary.getEditorClasses(editorClassGroup)[index];
         }
     }
 
-    public ObjType getObjTypeSelected()
+    public EditorClass getObjTypeSelected()
     {
-        return objTypeSelected;
+        return editorClassSelected;
     }
 
-    public ObjTypeGroup getObjTypeGroup()
+    public EditorClassGroup getObjTypeGroup()
     {
-        return objTypeGroup;
+        return editorClassGroup;
     }
 
-    public static WorldObject createObj(World world, Vector target, ObjType objType)
+    public static WorldObject createWorldObject(Class c,World world,Vector pos)
     {
-        switch(objType.getObjTypeGroup())
+        return createWorldObject(c,world,pos.getDynamicVector());
+    }
+
+    public static WorldObject createWorldObject(Class c,World world,DynamicVector pos)
+    {
+        if(!(WorldObject.class.isAssignableFrom(c)))throw new RuntimeException("Class used in createWorldObject, is not assignable from WorldObject");
+        try{
+
+            WorldObject worldObject = null;
+
+            if(Block.class.isAssignableFrom(c)) {
+                Constructor ctor = c.getDeclaredConstructor(World.class, Vector.class);
+                worldObject = (WorldObject) ctor.newInstance(world, new Vector(pos));
+            }
+            else if(DynamicObject.class.isAssignableFrom(c)) {
+                Constructor ctor = c.getDeclaredConstructor(World.class, DynamicVector.class);
+                worldObject = (WorldObject) ctor.newInstance(world, pos);
+            }
+            if(worldObject == null) throw new RuntimeException("Class is assignable from WorldObject but not supported by the createWorldObject method");
+
+            world.addWorldObject(worldObject);
+            return worldObject;
+
+        }
+        catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e)
         {
-            case blocks:
-            {
-                Block block = WorldObjectFactory.createBlock(objType,world,target);
-                world.addBlock(block,true);
-                return block;
-            }
-            case mobs:
-            {
-                Mob mob = WorldObjectFactory.createMob(objType,world,target.getDynamicVector());
-                world.addDynamicObject(mob);
-                return mob;
-            }
+            e.printStackTrace();
         }
-        return null;
+        throw new RuntimeException("Unexpected occurence in createWorldObject");
     }
 
-    public static void deleteObj(World world, Vector target, ObjTypeGroup objTypeGroup)
+    public static void deleteObj(World world, Vector target, EditorClassGroup objTypeGroup)
     {
         switch(objTypeGroup)
         {
@@ -128,6 +150,36 @@ public class EditorState implements IState {
             }
         }
     }
+
+    public static void fillBlock(World world,Vector target,Class fillClass)
+    {
+        if(!Block.class.isAssignableFrom(fillClass)) throw new IllegalArgumentException("Class used in fillBlock is not an extension Block");
+        HashSet<Vector> collectedVectors = new HashSet<>();
+        Class comparingClass = world.getBlock(target) == null ? null : world.getBlock(target).getClass();
+
+        collectedVectors.add(target);
+        collectEqualBlocks(world,target,comparingClass,collectedVectors);
+
+        for(Vector vector : collectedVectors)
+        {
+            world.deleteBlock(vector);
+            createWorldObject(fillClass,world,vector);
+        }
+    }
+
+    private static void collectEqualBlocks(World world,Vector target,Class c,HashSet<Vector> collectedVectors)
+    {
+        for(Dir dir : Dir.getValues())
+        {
+            Vector transTarget = target.add(dir.getVector());
+            if(!collectedVectors.contains(transTarget) && !world.outsideBoundary(transTarget) && (world.getBlock(transTarget) == null ? c == null : world.getBlock(transTarget).getClass() == c))
+            {
+                collectedVectors.add(transTarget);
+                collectEqualBlocks(world,transTarget,c,collectedVectors);
+            }
+        }
+    }
+
 
     public State getState(){return State.Editor;}
 
@@ -164,17 +216,21 @@ public class EditorState implements IState {
     {
         time += delta;
 
+        zoomScale += 0.25*mouseController.getMouseScrollDir();
+        if(!Controller.debugging()){
+            zoomScale = Math.min(4,Math.max(zoomScale,1));
+        }
+
         Vector movement = getMovement(KeyCode.RIGHT,KeyCode.LEFT,KeyCode.UP,KeyCode.DOWN,keyboardController.getKeyPressed(KeyCode.ALT)?moveDelayFast:moveDelayBase);
         DynamicVector mousePanDir = view.getPanDirectionVector(mouseController.getMousePosition(),200,150);
 
-        System.out.println(panType + " | " + cameraPivot);
-
         if(mode == EditorMode.World)
         {
-            if(!mouseController.getMouseMovement().equals(Vector.ZERO) || !mousePanDir.equals(Vector.ZERO)) {
+            if((!mouseController.getMouseMovement().equals(Vector.ZERO) || !mousePanDir.equals(Vector.ZERO))) {
+
                 worldTarget.set(view.getWorldPositionFromScreen(world,mouseController.getMousePosition()));
                 worldTarget = getVectorInWorldBounds(worldTarget).getDynamicVector();
-                //System.out.println(worldTarget);
+
                 panType = PanType.mouse;
             }
             else if (!movement.equals(Vector.ZERO)){
@@ -182,13 +238,13 @@ public class EditorState implements IState {
                 panType = PanType.keyboard;
             }
 
-            if(((keyboardController.getKeyPressed(KeyCode.SPACE) || mouseController.getButtonPressed(MouseButton.PRIMARY)) && objTypeGroup==ObjTypeGroup.blocks) || keyboardController.getKeyJustPressed(KeyCode.SPACE))
+            if(((keyboardController.getKeyPressed(KeyCode.SPACE) || mouseController.getButtonPressed(MouseButton.PRIMARY)) && editorClassGroup==EditorClassGroup.blocks) || keyboardController.getKeyJustPressed(KeyCode.SPACE))
             {
-                createObj(world,worldTarget,objTypeSelected);
+                createWorldObject(editorClassSelected.getClasss(),world,worldTarget);
             }
             if(keyboardController.getKeyPressed(KeyCode.BACK_SPACE))
             {
-                deleteObj(world,worldTarget,objTypeGroup);
+                deleteObj(world,worldTarget,editorClassGroup);
             }
             if(keyboardController.getKeyPressed(KeyCode.ENTER))
             {
@@ -201,6 +257,16 @@ public class EditorState implements IState {
             if(keyboardController.getKeyJustPressed(KeyCode.S))
             {
                 SaveLoadController.saveFile("MyWorld",world);
+            }
+            if(keyboardController.getKeyJustPressed(KeyCode.F))
+            {
+                if(Block.class.isAssignableFrom(editorClassSelected.getClasss())){
+                    fillBlock(world,worldTarget,editorClassSelected.getClasss());
+                }
+            }
+            if(keyboardController.getKeyJustPressed(KeyCode.G))
+            {
+                createWorldObject(Goal.class,world,worldTarget);
             }
             if(keyboardController.getKeyJustPressed(KeyCode.L))
             {
@@ -225,7 +291,7 @@ public class EditorState implements IState {
             }
             if(keyboardController.getKeyJustPressed(KeyCode.ALT))
             {
-                changeObjTypeGroup(objTypeGroup==ObjTypeGroup.blocks ?ObjTypeGroup.mobs :ObjTypeGroup.blocks);
+                changeObjTypeGroup(editorClassGroup==EditorClassGroup.blocks ?EditorClassGroup.mobs :EditorClassGroup.blocks);
             }
         }
 
@@ -233,10 +299,16 @@ public class EditorState implements IState {
             cameraPivot.setAdd(new DynamicVector(getWorldTarget().getX() - cameraPivot.getX_dyn(), getWorldTarget().getY() - cameraPivot.getY_dyn()).multiply(8 * delta));
         }
         else if(panType == PanType.mouse){
-            double speed = keyboardController.getKeyPressed(KeyCode.ALT)?mousePanSpeedFast:mousePanSpeedBase;
-            DynamicVector cameraPivotAdd = new DynamicVector(mousePanDir.getX_dyn()*delta*speed,mousePanDir.getY_dyn()*delta*speed);
-            cameraPivot.setAdd(cameraPivotAdd);
-            cameraPivot = view.getMinimumCornerCenterVector(world,cameraPivot);
+
+            if(mouseController.getButtonPressed(MouseButton.MIDDLE)) {
+                //cameraPivot.setAdd(new DynamicVector(2*delta,2*delta));
+            }
+            else {
+                double speed = keyboardController.getKeyPressed(KeyCode.ALT) ? mousePanSpeedFast : mousePanSpeedBase;
+                DynamicVector cameraPivotAdd = new DynamicVector(mousePanDir.getX_dyn() * delta * speed, mousePanDir.getY_dyn() * delta * speed);
+                cameraPivot.setAdd(cameraPivotAdd);
+                cameraPivot = view.getMinimumCornerCenterVector(world, cameraPivot);
+            }
         }
 
         if(keyboardController.getKeyJustPressed(KeyCode.SHIFT))
@@ -269,7 +341,7 @@ public class EditorState implements IState {
     private void moveObjectMenuTarget(Vector movement)
     {
         objectMenuTarget = objectMenuTarget.add(movement.getX(),-movement.getY());
-        int objTypes = (ObjTypeLibrary.getObjTypes(objTypeGroup).length-1);
+        int objTypes = (EditorLibrary.getEditorClasses(editorClassGroup).length-1);
 
         if(objectMenuTarget.getX() < 0)
         {

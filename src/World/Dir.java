@@ -7,10 +7,10 @@ import Vectors.Vector;
  */
 public class Dir {
 
-    static public Dir Right = new Dir(0,"Right",new Vector(1,0));
-    static public Dir Down = new Dir(1,"Down",new Vector(0,-1));
-    static public Dir Left = new Dir(2,"Left", new Vector(-1,0));
-    static public Dir Up = new Dir(3,"Up",new Vector(0,1));
+    static public Dir Right = new Dir("Right",new Vector(1,0));
+    static public Dir Down = new Dir("Down",new Vector(0,-1));
+    static public Dir Left = new Dir("Left", new Vector(-1,0));
+    static public Dir Up = new Dir("Up",new Vector(0,1));
     static private Dir[] values = new Dir[]{Right,Down,Left,Up};
 
     private int i;
@@ -36,16 +36,10 @@ public class Dir {
         this.crossDirs = crossDirs;
     }
 
-    private Dir(int i,String name,Vector vector)
+    private Dir(String name,Vector vector)
     {
-        this.i = i;
         this.name = name;
         this.vector = vector;
-    }
-
-    public int getInt()
-    {
-        return i;
     }
 
     public String getName()
@@ -66,7 +60,7 @@ public class Dir {
     @Override
     public boolean equals(Object obj)
     {
-        return i == ((Dir) obj).getInt();
+        return name == ((Dir)obj).name;
     }
 
     @Override

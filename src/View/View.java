@@ -2,8 +2,9 @@ package View;
 
 import Controller.Controller;
 import Factories.ObjType;
+import Libraries.EditorClass;
 import Libraries.ImageLibrary;
-import Libraries.ObjTypeLibrary;
+import Libraries.EditorLibrary;
 import State.EditorState.EditorMode;
 import State.EditorState.EditorState;
 import State.GameState.GameState;
@@ -15,7 +16,6 @@ import World.ParticleSystem.GlobalParticleSystem;
 import World.ParticleSystem.ImageParticleSystem;
 import World.World;
 import World.Detail;
-import World.Dir;
 import World.WorldObject.DynamicObject.DynamicObject;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
@@ -147,7 +147,7 @@ public class View {
     }
 
     private void drawEditorState(EditorState editorState) {
-        setWinScale(2,editorState.getWorld());
+        setWinScale(editorState.getZoomScale(),editorState.getWorld());
         panCamera(editorState.getWorld(), editorState.getCameraPivot());
         //panCamera(editorState.getWorld(),new DynamicVector(0,-editorState.getWorld().getWorldHeight()));
         drawGrid(editorState.getWorld());
@@ -164,7 +164,7 @@ public class View {
 
         if (editorState.getEditorMode() == EditorMode.ObjectSelect) {
             drawTileWindow(10, 4, editorState.getObjectMenuTarget(), editorState.getObjectMenuSelected(),
-                    ObjTypeLibrary.getObjTypes(editorState.getObjTypeGroup()));
+                    EditorLibrary.getEditorClasses(editorState.getObjTypeGroup()));
         }
     }
 
@@ -207,13 +207,15 @@ public class View {
                 if(world.getBlocks()[x][y] != null)
                 {
                     Image img = world.getBlocks()[x][y].getImage();
-                    double x_pos = x*objectSize-objectSize/2;
-                    double y_pos = (world.getBlocks()[x].length-y-1)*objectSize-objectSize/2;
+                    double x_pos = x*objectSize;//-objectSize/2;
+                    double y_pos = (world.getBlocks()[x].length-y-1)*objectSize;//-objectSize/2;
                     Affine affine = new Affine();
                     affine.appendTranslation(x_pos + cameraPan.getX_dyn(),y_pos + cameraPan.getY_dyn());
-                    affine.appendRotation(world.getBlocks()[x][y].getRot(),objectSize/2.0,objectSize/2.0);
+                    affine.appendRotation(world.getBlocks()[x][y].getRot(),0,0);
                     gc.setTransform(affine);
-                    gc.drawImage(img,0,0,objectSize,objectSize);
+                    double width = img.getWidth()*winScale/ImageLibrary.imageLoadScale;
+                    double height = img.getHeight()*winScale/ImageLibrary.imageLoadScale;
+                    gc.drawImage(img,-width/2,-height/2,width,height);
                 }
             }
         }
@@ -368,13 +370,13 @@ public class View {
         }
     }
 
-    private void drawTarget(World world,Vector target,ObjType objType)
+    private void drawTarget(World world,Vector target,EditorClass editorClass)
     {
         gc.setGlobalAlpha(0.6+0.2*Math.sin(Math.toRadians(EditorState.time*90)));
         Affine affine = new Affine();
         affine.appendTranslation(target.getX()*objectSize + cameraPan.getX_dyn() - objectSize/2,(world.getWorldHeight()-1-target.getY())*objectSize + cameraPan.getY_dyn() - objectSize/2);
         gc.setTransform(affine);
-        gc.drawImage(objType.getIcon(),0,0,objectSize,objectSize);
+        gc.drawImage(editorClass.getImage(),0,0,objectSize,objectSize);
     }
 
     private void drawSpawn(World world)
@@ -387,7 +389,7 @@ public class View {
         gc.drawImage(ImageLibrary.getImage("char_idle.png"),0,0,objectSize,objectSize);
     }
 
-    private void drawTileWindow(int elPerLine, int elLines, Vector target, Vector selected, ObjType[] objTypes)
+    private void drawTileWindow(int elPerLine, int elLines, Vector target, Vector selected, EditorClass[] editorClasses)
     {
         gc.setTransform(new Affine());
         gc.setGlobalAlpha(1);
@@ -411,7 +413,7 @@ public class View {
         int elementsDrawn = 0;
         for(int h=0;h<elLines;h++) {
             for (int w = 0; w < elPerLine; w++) {
-                if(elementsDrawn >= objTypes.length){return;}
+                if(elementsDrawn >= editorClasses.length){return;}
 
                 //gc.setFill(colors[w+h*elPerLine]);
                 if(h==selected.getY()&& w==selected.getX()){
@@ -424,7 +426,7 @@ public class View {
                 }
                 gc.setFill(Color.WHITE);
                 gc.fillRect(x+elDist+(elDist+elWidth)*w,y+elDist+(elDist+elHeight)*h,elWidth,elHeight);
-                gc.drawImage(objTypes[elementsDrawn].getIcon(),
+                gc.drawImage(editorClasses[elementsDrawn].getImage(),
                         x+elDist+(elDist+elWidth)*w+elBoxDist,
                         y+elDist+(elDist+elHeight)*h+elBoxDist,
                         elWidth-elBoxDist*2,

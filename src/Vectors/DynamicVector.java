@@ -198,4 +198,10 @@ public class DynamicVector extends Vector implements Serializable {
         return "X: " + x_dyn + " Y: " + y_dyn;
     }
 
+    @Override
+    public int hashCode()
+    {
+        return (31 * Double.hashCode(x_dyn)) + Double.hashCode(y_dyn);
+    }
+
 }

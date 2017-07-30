@@ -1,7 +1,6 @@
 package World.WorldObject.Block;
 
 import Factories.ObjType;
-import Factories.ObjTypeGroup;
 import Libraries.ImageLibrary;
 import Vectors.Vector;
 import World.World;
@@ -13,7 +12,6 @@ import java.util.HashMap;
 public class BricksBlock extends Block implements Serializable {
 
     private transient HashMap<String,Image> images;
-    static final public ObjType objType = new ObjType("BricksBlock", ImageLibrary.getImage("Bricks_O.png"), ObjTypeGroup.blocks);
 
     public BricksBlock(World world, Vector pos)
     {

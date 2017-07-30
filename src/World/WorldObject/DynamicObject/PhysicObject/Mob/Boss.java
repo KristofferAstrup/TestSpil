@@ -1,7 +1,5 @@
 package World.WorldObject.DynamicObject.PhysicObject.Mob;
 
-import Factories.ObjType;
-import Factories.ObjTypeGroup;
 import Libraries.ImageLibrary;
 import Vectors.DynamicVector;
 import Vectors.Vector;
@@ -15,8 +13,7 @@ import java.util.HashMap;
 
 public class Boss  extends Mob implements Serializable {
 
-    public static final ObjType objType = new ObjType("Boss", ImageLibrary.getImage("BossBody.png"), ObjTypeGroup.mobs);
-    private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
+     private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
         put("body", ImageLibrary.getImage("BossBody.png"));
         put("eye", ImageLibrary.getImage("BossEye.png"));
         put("eyeCharged", ImageLibrary.getImage("BossEyeCharged.png"));
