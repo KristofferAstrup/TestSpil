@@ -7,8 +7,11 @@ import java.io.Serializable;
  * Created by Kris on 08-02-2017.
  */
 public class Vector implements Serializable {
+
     private int x;
     private int y;
+
+    public static Vector ZERO = new Vector(0,0);
 
     public Vector()
     {
@@ -80,6 +83,11 @@ public class Vector implements Serializable {
         return new Vector(this.x+x,this.y+y);
     }
 
+    public Vector subtract(int x,int y)
+    {
+        return new Vector(this.x-x,this.y-y);
+    }
+
     public Vector mulitply(int d)
     {
         return new Vector(x*d,y*d);
@@ -127,6 +135,12 @@ public class Vector implements Serializable {
     public String toString()
     {
         return "X: " + x + " Y: " + y;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return (31 * x) + y;
     }
 
 }

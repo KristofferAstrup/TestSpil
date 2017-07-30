@@ -1,8 +1,10 @@
 package Controller;
 
+import Factories.EditorClassGroup;
 import Factories.ObjType;
-import Factories.ObjTypeGroup;
 import Factories.WorldObjectFactory;
+import Libraries.EditorClass;
+import Libraries.EditorLibrary;
 import State.EditorState.EditorState;
 import State.GameState.GameState;
 import State.IState;
@@ -43,22 +45,23 @@ public class DebugController {
 
             //----WORLDOBJECT HANDLING----//
             new DebugCommand("create (?<name>[A-Za-z]*) (?<xpos>[0-9]*) (?<ypos>[0-9]*)", (matcher) -> {
-                ObjType objType = WorldObjectFactory.findObjType(matcher.group("name"));
-                if(objType == null || !Controller.tryParseInt(matcher.group("xpos")) || !Controller.tryParseInt(matcher.group("ypos"))) return false;
-                EditorState.createObj(Controller.getWorld(),new Vector(Integer.parseInt(matcher.group("xpos")),Integer.parseInt(matcher.group("ypos"))),objType);
+                EditorClass editorClass = EditorLibrary.findEditorClass(matcher.group("name"));
+                if(editorClass == null || !Controller.tryParseInt(matcher.group("xpos")) || !Controller.tryParseInt(matcher.group("ypos"))) return false;
+                EditorState.createWorldObject(editorClass.getClasss(),Controller.getWorld(),new Vector(Integer.parseInt(matcher.group("xpos")),Integer.parseInt(matcher.group("ypos"))));
+                ////VIRKER IKKE, MANGLER AT ADDE WORLDOBJECTET TIL WORLD, MEN DEN HER KLASSE KENDER IKKE WORLD I DETTE KONTEKST!!
                 return true;
             },"create [name] [xpos] [ypos]","Creates a given Worldobject at a given position"),
 
             new DebugCommand("create (?<debugname>[A-Za-z0-9]*) (?<objname>[A-Za-z]*) (?<xpos>[0-9]*) (?<ypos>[0-9]*)", (matcher) -> {
-                ObjType objType = WorldObjectFactory.findObjType(matcher.group("objname"));
-                if(objType == null || !Controller.tryParseInt(matcher.group("xpos")) || !Controller.tryParseInt(matcher.group("ypos"))) return false;
-                WorldObject wo = EditorState.createObj(Controller.getWorld(),new Vector(Integer.parseInt(matcher.group("xpos")),Integer.parseInt(matcher.group("ypos"))),objType);
+                EditorClass editorClass = EditorLibrary.findEditorClass(matcher.group("objname"));
+                if(editorClass == null || !Controller.tryParseInt(matcher.group("xpos")) || !Controller.tryParseInt(matcher.group("ypos"))) return false;
+                WorldObject wo = EditorState.createWorldObject(editorClass.getClasss(),Controller.getWorld(),new Vector(Integer.parseInt(matcher.group("xpos")),Integer.parseInt(matcher.group("ypos"))));
                 debugWorldObjects.put(matcher.group("debugname"),wo);
                 return true;
             },"create [debugname] [objname] [xpos] [ypos]","Creates a given Worldobject at a given position and saves it via given name"),
 
             new DebugCommand("delete (?<objgroupname>[A-Za-z]*) (?<xpos>[0-9]*) (?<ypos>[0-9]*)", (matcher) -> {
-                ObjTypeGroup objTypeGroup = WorldObjectFactory.findObjTypeGroup(matcher.group("objgroupname"));
+                EditorClassGroup objTypeGroup = EditorLibrary.findEditorClassGroup(matcher.group("objgroupname"));
                 if(objTypeGroup == null || !Controller.tryParseInt(matcher.group("xpos")) || !Controller.tryParseInt(matcher.group("ypos"))) return false;
                 EditorState.deleteObj(Controller.getWorld(),new Vector(Integer.parseInt(matcher.group("xpos")),Integer.parseInt(matcher.group("ypos"))),objTypeGroup);
                 return true;

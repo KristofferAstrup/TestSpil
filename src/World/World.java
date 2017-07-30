@@ -10,6 +10,7 @@ import World.WorldObject.Block.BlockedDirs;
 import World.WorldObject.Block.BlockedOrientation;
 import World.WorldObject.Block.DirtBlock;
 import World.WorldObject.DynamicObject.DynamicObject;
+import World.WorldObject.DynamicObject.Goal;
 import World.WorldObject.DynamicObject.PhysicObject.Mob.Mob;
 import World.WorldObject.DynamicObject.PhysicObject.Mob.Player;
 import World.WorldObject.WorldObject;
@@ -37,6 +38,7 @@ public class World implements Serializable {
     private ArrayList<GlobalParticleSystem> globalParticleSystems;
     private ImageParticleSystem imageParticleSystem;
     private ArrayList<Detail> details;
+    private Goal goal;
 
     private double windForce = 0.25;
 
@@ -180,12 +182,27 @@ public class World implements Serializable {
 
     public void addWorldObject(WorldObject worldObject){
 
-        if(worldObject instanceof Block){
-            addBlock((Block)worldObject);
+        boolean succes = false;
+
+        if(worldObject instanceof Block)
+        {
+            succes = addBlock((Block)worldObject,true);
         }
         else if(worldObject instanceof DynamicObject)
         {
             addDynamicObject((DynamicObject)worldObject);
+
+            if(worldObject instanceof Goal)
+            {
+                if(goal != null){deleteDynamicObject(goal);}
+                goal = (Goal)worldObject;
+            }
+
+            succes = true;
+        }
+
+        if(succes){
+            System.out.println("Added WorldObject of type: " + worldObject.getClass().getName());
         }
     }
 
@@ -240,6 +257,10 @@ public class World implements Serializable {
         else if(worldObject instanceof DynamicObject)
         {
             deleteDynamicObject((DynamicObject)worldObject);
+        }
+        else
+        {
+            throw new RuntimeException("The attempted deleted WorldObject is instance of any recognized class!");
         }
     }
 
@@ -301,6 +322,14 @@ public class World implements Serializable {
 
     public Block[][] getBlocks(){
         return blocks;
+    }
+
+    public Block getBlock(Vector v){
+        return getBlock(v.getX(),v.getY());
+    }
+
+    public Block getBlock(int x,int y){
+        return blocks[x][y];
     }
 
     public ArrayList<DynamicObject> getDynamicObjects(){return dynamicObjects;}

@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 public class WorldObjectFactory {
 
-    private static ObjType[] objTypes = new ObjType[]{
+    /*private static ObjType[] objTypes = new ObjType[]{
             DirtBlock.objType,
             BricksBlock.objType,
             Player.objType,
@@ -31,20 +31,20 @@ public class WorldObjectFactory {
             }
         }
         return null;
-    }
+    }*/
 
-    public static ObjTypeGroup findObjTypeGroup(String value){
+    /*public static EditorClassGroup findObjTypeGroup(String value){
         try{
-            ObjTypeGroup objTypeGroup = ObjTypeGroup.valueOf(value.toLowerCase());
+            EditorClassGroup objTypeGroup = EditorClassGroup.valueOf(value.toLowerCase());
             return objTypeGroup;
         }
         catch(IllegalArgumentException e)
         {
             return null;
         }
-    }
+    }*/
 
-    public static Block createBlock(ObjType objType, World world, Vector vector)
+    /*public static Block createBlock(ObjType objType, World world, Vector vector)
     {
         if(objType.equals(DirtBlock.objType)){return new DirtBlock(world,vector);}
         if(objType.equals(BricksBlock.objType)){return new BricksBlock(world,vector);}
@@ -58,6 +58,7 @@ public class WorldObjectFactory {
         if(objType.equals(Bat.objType)){return new Bat(world,vector);}
         if(objType.equals(Boss.objType)){return new Boss(world,vector);}
         throw new NotImplementedException();
-    }
+    }*/
+    
 
 }

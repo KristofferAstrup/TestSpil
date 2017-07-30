@@ -1,11 +1,10 @@
 package View;
 
 import Controller.Controller;
-import Controller.DebugController;
-import Controller.SaveLoadController;
 import Factories.ObjType;
+import Libraries.EditorClass;
 import Libraries.ImageLibrary;
-import Libraries.ObjTypeLibrary;
+import Libraries.EditorLibrary;
 import State.EditorState.EditorMode;
 import State.EditorState.EditorState;
 import State.GameState.GameState;
@@ -21,19 +20,11 @@ import World.WorldObject.DynamicObject.DynamicObject;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.FillRule;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Affine;
 import javafx.stage.*;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static javafx.application.Application.launch;
@@ -51,14 +42,14 @@ public class View {
     DynamicVector cameraPanBoundaries;
     double winScale;
     ArrayList<DebugGroup> debugGroups = new ArrayList<>();
-    boolean debugGroupsVisisble = false;
+    boolean debugGroupsVisible = false;
 
     String[] paths;
     Group root = new Group();
 
     public View(Stage theStage)
     {
-        theStage.setTitle("TestSpil");
+        theStage.setTitle("TS");
         stage = theStage;
 
         scene = new Scene( root );
@@ -90,16 +81,24 @@ public class View {
 
     public void setVisibleDebugGroup(boolean visible)
     {
-        debugGroupsVisisble = visible;
+        debugGroupsVisible = visible;
         for(DebugGroup debugGroup : debugGroups) {
-            debugGroup.setVisible(debugGroupsVisisble);
+            debugGroup.setVisible(debugGroupsVisible);
         }
     }
 
-    public boolean getVisibleDebugGroup(){return debugGroupsVisisble;}
+    public boolean getVisibleDebugGroup(){return debugGroupsVisible;}
+
+    public Vector getCanvasDim(){return canvasDim;}
+
+    public Vector getWorldPositionFromScreen(World world, Vector screenPos)
+    {
+        return new DynamicVector(Math.round((-cameraPan.getX_dyn()+screenPos.getX())/objectSize),cameraPan.getY_dyn()/objectSize+world.getWorldHeight()-screenPos.getY()/objectSize-1);
+    }
 
     public void update(IState state)
     {
+
         gc.clearRect(0,0,canvasDim.getX(),canvasDim.getY());
         gc.save();
         if(state.getClass() == GameState.class)
@@ -148,8 +147,9 @@ public class View {
     }
 
     private void drawEditorState(EditorState editorState) {
-        setWinScale(2,editorState.getWorld());
-        panCamera(editorState.getWorld(), editorState.getWorldTarget().getDynamicVector());
+        setWinScale(editorState.getZoomScale(),editorState.getWorld());
+        panCamera(editorState.getWorld(), editorState.getCameraPivot());
+        //panCamera(editorState.getWorld(),new DynamicVector(0,-editorState.getWorld().getWorldHeight()));
         drawGrid(editorState.getWorld());
         drawBlocks(editorState.getWorld());
         drawDynamics(editorState.getWorld());
@@ -158,11 +158,13 @@ public class View {
         drawTarget(editorState.getWorld(), editorState.getWorldTarget(),editorState.getObjTypeSelected());
         drawSpawn(editorState.getWorld());
 
-        if(Controller.debugging()){drawDebug();}
+        if(Controller.debugging()){
+            drawDebug();
+        }
 
         if (editorState.getEditorMode() == EditorMode.ObjectSelect) {
             drawTileWindow(10, 4, editorState.getObjectMenuTarget(), editorState.getObjectMenuSelected(),
-                    ObjTypeLibrary.getObjTypes(editorState.getObjTypeGroup()));
+                    EditorLibrary.getEditorClasses(editorState.getObjTypeGroup()));
         }
     }
 
@@ -173,6 +175,30 @@ public class View {
         cameraPanBoundaries = new DynamicVector((world.getWorldWidth())*objectSize-canvasDim.getX(),(world.getWorldHeight())*objectSize-canvasDim.getY());
     }
 
+    public DynamicVector getPanDirectionVector(DynamicVector mousePosition,int horizontalZone,int verticalZone)
+    {
+        DynamicVector dir = new DynamicVector(0,0);
+        if(mousePosition.getX() <= horizontalZone){
+            dir.setX_dyn((mousePosition.getX_dyn()/horizontalZone)-1);
+        }
+        else if(mousePosition.getX() >= canvasDim.getX()-horizontalZone){
+            dir.setX_dyn((mousePosition.getX_dyn()-(canvasDim.getX()-horizontalZone))/horizontalZone);
+        }
+        if(mousePosition.getY() <= verticalZone){
+            dir.setY_dyn(1-mousePosition.getY_dyn()/verticalZone);
+        }
+        else if(mousePosition.getY() >= canvasDim.getY()-verticalZone){
+            dir.setY_dyn(-((mousePosition.getY_dyn()-(canvasDim.getY()-verticalZone))/verticalZone));
+        }
+        return dir;
+    }
+
+    public DynamicVector getMinimumCornerCenterVector(World world,DynamicVector position)
+    {
+        return new DynamicVector(Math.min(world.getWorldWidth()-canvasDim.getX()/(2*objectSize),Math.max(position.getX_dyn(),canvasDim.getX()/(2*objectSize))),
+                Math.min(world.getWorldHeight()-canvasDim.getY()/(2*objectSize),Math.max(position.getY_dyn(),canvasDim.getY()/(2*objectSize))));
+    }
+
     private void drawBlocks(World world)
     {
         gc.setFill(Color.BLACK);
@@ -181,13 +207,15 @@ public class View {
                 if(world.getBlocks()[x][y] != null)
                 {
                     Image img = world.getBlocks()[x][y].getImage();
-                    double x_pos = x*objectSize-objectSize/2;
-                    double y_pos = (world.getBlocks()[x].length-y-1)*objectSize-objectSize/2;
+                    double x_pos = x*objectSize;//-objectSize/2;
+                    double y_pos = (world.getBlocks()[x].length-y-1)*objectSize;//-objectSize/2;
                     Affine affine = new Affine();
                     affine.appendTranslation(x_pos + cameraPan.getX_dyn(),y_pos + cameraPan.getY_dyn());
-                    affine.appendRotation(world.getBlocks()[x][y].getRot(),objectSize/2.0,objectSize/2.0);
+                    affine.appendRotation(world.getBlocks()[x][y].getRot(),0,0);
                     gc.setTransform(affine);
-                    gc.drawImage(img,0,0,objectSize,objectSize);
+                    double width = img.getWidth()*winScale/ImageLibrary.imageLoadScale;
+                    double height = img.getHeight()*winScale/ImageLibrary.imageLoadScale;
+                    gc.drawImage(img,-width/2,-height/2,width,height);
                 }
             }
         }
@@ -196,6 +224,7 @@ public class View {
     private void drawDynamics(World world)
     {
         gc.setFill(Color.BLACK);
+
         for(DynamicObject obj : world.getDynamicObjects())
         {
             Affine affine = new Affine();
@@ -341,13 +370,13 @@ public class View {
         }
     }
 
-    private void drawTarget(World world,Vector target,ObjType objType)
+    private void drawTarget(World world,Vector target,EditorClass editorClass)
     {
         gc.setGlobalAlpha(0.6+0.2*Math.sin(Math.toRadians(EditorState.time*90)));
         Affine affine = new Affine();
         affine.appendTranslation(target.getX()*objectSize + cameraPan.getX_dyn() - objectSize/2,(world.getWorldHeight()-1-target.getY())*objectSize + cameraPan.getY_dyn() - objectSize/2);
         gc.setTransform(affine);
-        gc.drawImage(objType.getIcon(),0,0,objectSize,objectSize);
+        gc.drawImage(editorClass.getImage(),0,0,objectSize,objectSize);
     }
 
     private void drawSpawn(World world)
@@ -360,7 +389,7 @@ public class View {
         gc.drawImage(ImageLibrary.getImage("char_idle.png"),0,0,objectSize,objectSize);
     }
 
-    private void drawTileWindow(int elPerLine, int elLines, Vector target, Vector selected, ObjType[] objTypes)
+    private void drawTileWindow(int elPerLine, int elLines, Vector target, Vector selected, EditorClass[] editorClasses)
     {
         gc.setTransform(new Affine());
         gc.setGlobalAlpha(1);
@@ -384,7 +413,7 @@ public class View {
         int elementsDrawn = 0;
         for(int h=0;h<elLines;h++) {
             for (int w = 0; w < elPerLine; w++) {
-                if(elementsDrawn >= objTypes.length){return;}
+                if(elementsDrawn >= editorClasses.length){return;}
 
                 //gc.setFill(colors[w+h*elPerLine]);
                 if(h==selected.getY()&& w==selected.getX()){
@@ -397,7 +426,7 @@ public class View {
                 }
                 gc.setFill(Color.WHITE);
                 gc.fillRect(x+elDist+(elDist+elWidth)*w,y+elDist+(elDist+elHeight)*h,elWidth,elHeight);
-                gc.drawImage(objTypes[elementsDrawn].getIcon(),
+                gc.drawImage(editorClasses[elementsDrawn].getImage(),
                         x+elDist+(elDist+elWidth)*w+elBoxDist,
                         y+elDist+(elDist+elHeight)*h+elBoxDist,
                         elWidth-elBoxDist*2,

@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -32,25 +33,17 @@ import static javafx.application.Application.launch;
  */
 public class Main extends Application {
 
-    private Stage stage;
-
     public static void main(String[] args) {
         launch(args);
     }
 
-    public void start(Stage theStage)
+    public void start(final Stage theStage)
     {
         ImageLibrary.init();
-        stage = theStage;
         View view = new View(theStage);
         Controller controller = new Controller(view);
         controller.changeState(IState.State.Editor);
-
-        theStage.setOnCloseRequest(event -> {
-            System.out.println("Stage is closing");
-        });
-
-        new AnimationTimer()
+        AnimationTimer timer = new AnimationTimer()
         {
             long lastNanoTime = 0;
             public void handle(long currentNanoTime)
@@ -61,7 +54,13 @@ public class Main extends Application {
                 }
                 lastNanoTime = currentNanoTime;
             }
-        }.start();
+        };
+
+        theStage.setOnCloseRequest(event -> {
+            timer.stop();
+        });
+
+        timer.start();
 
         theStage.close();
     }
@@ -154,11 +153,6 @@ public class Main extends Application {
         }
 
         throw new UnsupportedOperationException("Cannot list files for URL "+dirURL);
-    }
-
-    @FXML
-    public void exitApplication(ActionEvent event) {
-        stage.close();
     }
 
 }

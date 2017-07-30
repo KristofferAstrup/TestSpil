@@ -1,7 +1,5 @@
 package World.WorldObject.DynamicObject.PhysicObject.Mob;
 
-import Factories.ObjType;
-import Factories.ObjTypeGroup;
 import Libraries.ImageLibrary;
 import Vectors.DynamicVector;
 import World.World;
@@ -18,7 +16,7 @@ import java.util.HashMap;
  */
 public class Pig extends Mob implements Serializable {
 
-    public static final ObjType objType = new ObjType("Pig",ImageLibrary.getImage("pig_0.png"), ObjTypeGroup.mobs);
+    //public static final ObjType objType = new ObjType("Pig",ImageLibrary.getImage("pig_0.png"), ObjTypeGroup.mobs);
 
     private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
         put("sleep_0", ImageLibrary.getImage("pig_2.png"));
@@ -28,6 +26,11 @@ public class Pig extends Mob implements Serializable {
         put("dead_0", ImageLibrary.getImage("pig_4.png"));
     }};
     private static double moveSpeed = 0.75;
+
+    public void boi()
+    {
+        System.out.println("boi");
+    }
 
     public Pig(World world, DynamicVector pos) {
         super(world, pos);

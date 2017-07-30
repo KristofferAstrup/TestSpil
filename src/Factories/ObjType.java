@@ -1,14 +1,17 @@
 package Factories;
 
 import World.World;
+import World.WorldObject.DynamicObject.PhysicObject.Mob.Mob;
 import World.WorldObject.WorldObject;
 import javafx.scene.image.Image;
+
+import java.lang.reflect.Type;
 
 public class ObjType {
 
     private String value;
     private Image icon;
-    private ObjTypeGroup group;
+    /*private ObjTypeGroup group;
 
     public ObjType(String value,Image icon,ObjTypeGroup group)
     {
@@ -30,6 +33,6 @@ public class ObjType {
     public boolean equals(Object objType)
     {
         return value == ((ObjType)objType).value;
-    }
+    }*/
 
 }

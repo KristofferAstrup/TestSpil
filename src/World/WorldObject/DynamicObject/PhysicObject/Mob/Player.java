@@ -1,8 +1,5 @@
 package World.WorldObject.DynamicObject.PhysicObject.Mob;
 
-
-import Factories.ObjType;
-import Factories.ObjTypeGroup;
 import Libraries.ImageLibrary;
 import Vectors.DynamicVector;
 import World.World;
@@ -18,7 +15,6 @@ import java.util.HashMap;
  */
 public class Player extends Mob implements Serializable {
 
-    public static final ObjType objType = new ObjType("Player",ImageLibrary.getImage("char_idle.png"), ObjTypeGroup.mobs);
     private transient boolean braking = false;
     private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
         put("run_0", ImageLibrary.getImage("char_run_0.png"));

@@ -71,13 +71,13 @@ public class ImageLibrary {
                 "/Images/Mobs/Char/char_run_3.png#" +
                 "/Images/Mobs/Char/char_wallslide.png#" +
                 "/Images/DirtBgn.png#" +
-                "/Images/Blocks/DirtBlock/Dirt_C.png#" +
+                "/Images/Blocks/DirtBlock/Dirt_Z.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_E.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_O.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_Q.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_S.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_U.png#" +
-                "/Images/Blocks/DirtBlock/Dirt_Z.png#" +
+                "/Images/Blocks/DirtBlock/Dirt_C.png#" +
                 "/Images/Blocks/DirtBlock/DirtChunk_0.png#" +
                 "/Images/Div/Fluff.png#" +
                 "/Images/Div/Fluff2.png#" +
@@ -101,6 +101,9 @@ public class ImageLibrary {
                 "/Images/Mobs/Boss/BossEyeLight.png#" +
                 "/Images/Mobs/Boss/BossEyeSmallPupil.png#" +
 
+                "/Images/Blocks/Dirttop.png#" +
+                "/Images/Blocks/Grasstop.png#" +
+
                 "/Images/Background/cloud0.png#" +
                 "/Images/Background/cloud1.png#" +
                 "/Images/Background/cloud2.png#" +
@@ -108,7 +111,9 @@ public class ImageLibrary {
                 "/Images/Background/cloud4.png#" +
                 "/Images/Background/Hills.png#" +
                 "/Images/Background/Ocean.png#"+
-                "/Images/Projectiles/Dagger.png"
+                "/Images/Projectiles/Dagger.png#"+
+
+                "/Images/Gate.png"
 
         );
         /*

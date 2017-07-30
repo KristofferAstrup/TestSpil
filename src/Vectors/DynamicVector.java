@@ -66,10 +66,22 @@ public class DynamicVector extends Vector implements Serializable {
         y_dyn = y;
     }
 
+    public void set(double x,double y)
+    {
+        setX_dyn(x);
+        setY_dyn(y);
+    }
+
     public void setAdd(DynamicVector vec)
     {
         setX_dyn(getX_dyn()+vec.getX_dyn());
         setY_dyn(getY_dyn()+vec.getY_dyn());
+    }
+
+    public void setAdd(double x, double y)
+    {
+        setX_dyn(getX_dyn()+x);
+        setY_dyn(getY_dyn()+y);
     }
 
     public double getX_dyn()
@@ -184,6 +196,12 @@ public class DynamicVector extends Vector implements Serializable {
     public String toString()
     {
         return "X: " + x_dyn + " Y: " + y_dyn;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return (31 * Double.hashCode(x_dyn)) + Double.hashCode(y_dyn);
     }
 
 }

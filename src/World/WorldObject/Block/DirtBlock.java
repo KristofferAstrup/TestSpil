@@ -1,8 +1,6 @@
 package World.WorldObject.Block;
 
 import Controller.Controller;
-import Factories.ObjType;
-import Factories.ObjTypeGroup;
 import Libraries.ImageLibrary;
 import Vectors.DynamicVector;
 import Vectors.Vector;
@@ -18,7 +16,6 @@ import java.util.HashMap;
 public class DirtBlock extends Block implements Serializable {
 
     private transient HashMap<ORI,Image> images;
-    static final public ObjType objType = new ObjType("DirtBlock", ImageLibrary.getImage("Dirt_O.png"), ObjTypeGroup.blocks);
 
     public DirtBlock(World world, Vector pos)
     {

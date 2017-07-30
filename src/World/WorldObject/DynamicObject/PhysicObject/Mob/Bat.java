@@ -1,7 +1,5 @@
 package World.WorldObject.DynamicObject.PhysicObject.Mob;
 
-import Factories.ObjType;
-import Factories.ObjTypeGroup;
 import Libraries.ImageLibrary;
 import Vectors.DynamicVector;
 import Controller.Controller;
@@ -13,8 +11,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 public class Bat extends Mob implements Serializable {
-
-    public static final ObjType objType = new ObjType("Bat",ImageLibrary.getImage("bat_0.png"), ObjTypeGroup.mobs);
 
     private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
         put("sleep_0", ImageLibrary.getImage("bat_0.png"));
