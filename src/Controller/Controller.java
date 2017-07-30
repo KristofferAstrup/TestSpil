@@ -22,6 +22,7 @@ public class Controller {
     private KeyboardController keyboardController;
     private boolean gameRunning = false;
     private static World world;
+    private static boolean editing = true;
     private static boolean debugging = false;
     private static boolean consoleOpen = false;
     private static DebugController debugController;
@@ -105,7 +106,7 @@ public class Controller {
     {
         if(gameRunning) {
 
-            if(keyboardController.getKeyJustPressed(KeyCode.TAB))
+            if(keyboardController.getKeyJustPressed(KeyCode.TAB) && editing)
             {
                 changeState(state==IState.State.Game?IState.State.Editor:IState.State.Game);
             }
@@ -135,6 +136,10 @@ public class Controller {
             view.setVisibleDebugGroup(consoleOpen);
         }
     }
+
+    public static boolean getEditing(){return editing;}
+
+    public static void setEditing(boolean _editing){editing = _editing;}
 
     public static void setTimeScale(double _timeScale){timescale = _timeScale;}
 

@@ -73,7 +73,7 @@ public class View {
         stage.setHeight(canvasDim.getY()+40);
 
         gc = canvas.getGraphicsContext2D();
-        //paths = SaveLoadController.getFilePathList();
+        paths = SaveLoadController.getFilePathList();
     }
 
     public Scene getScene()
@@ -113,10 +113,10 @@ public class View {
         gc.restore();
         stage.show();
 
-        /*for(int i=0;i<paths.length;i++)
+        for(int i=0;i<paths.length;i++)
         {
             gc.fillText(paths[i],25,25+i*25);
-        }*/
+        }
     }
 
     private void drawGameState(GameState gameState)

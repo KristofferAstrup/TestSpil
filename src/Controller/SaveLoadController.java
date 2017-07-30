@@ -1,9 +1,6 @@
 package Controller;
 
-import Vectors.Vector;
-
 import java.io.*;
-import java.util.ArrayList;
 
 public class SaveLoadController {
 
@@ -11,7 +8,7 @@ public class SaveLoadController {
 
     private static String rootFolder = "TestSpil";
     
-    private static String suffix = ".boi";
+    private static String worldSuffix = ".boi";
 
     public static void saveFile(String filename,Object obj)
     {
@@ -22,7 +19,7 @@ public class SaveLoadController {
         }
 
         try{
-            FileOutputStream fileOut = new FileOutputStream( path + "/" + filename + suffix);
+            FileOutputStream fileOut = new FileOutputStream( path + "/" + filename + worldSuffix);
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(obj);
             out.close();
@@ -35,7 +32,7 @@ public class SaveLoadController {
 
     public static boolean checkFileExists(String filename)
     {
-        String path = getOSpath() + rootFolder + "/" + filename + suffix;
+        String path = getOSpath() + rootFolder + "/" + filename + worldSuffix;
         File file = new File(path);
         return file.exists();
     }
@@ -65,7 +62,7 @@ public class SaveLoadController {
 
         Object obj = null;
         try{
-            FileInputStream fileIn = new FileInputStream(path + "/" + filename + suffix);
+            FileInputStream fileIn = new FileInputStream(path + "/" + filename + worldSuffix);
             ObjectInputStream in = new ObjectInputStream(fileIn);
             obj = in.readObject();
             in.close();
@@ -86,7 +83,7 @@ public class SaveLoadController {
         File directory = new File(path);
         if (directory.exists()) {
             try {
-                File file = new File(path + "/" + filename + suffix);
+                File file = new File(path + "/" + filename + worldSuffix);
                 boolean success = file.delete();
                 return success;
             } catch (Exception e) {
