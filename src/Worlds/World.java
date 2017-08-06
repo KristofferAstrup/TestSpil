@@ -9,6 +9,7 @@ import Worlds.WorldObjects.Blocks.Block;
 import Worlds.WorldObjects.Blocks.BlockedDirs;
 import Worlds.WorldObjects.Blocks.BlockedOrientation;
 import Worlds.WorldObjects.Blocks.DirtBlock;
+import Worlds.WorldObjects.Decorations.Decoration;
 import Worlds.WorldObjects.DynamicObjects.DynamicObject;
 import Worlds.WorldObjects.DynamicObjects.Goal;
 import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Mobs.Mob;
@@ -29,6 +30,7 @@ public class World implements Serializable {
     private ArrayList<BackgroundElement> backgroundElements;
     private ArrayList<WorldObject> worldObjects;
     private Block[][] blocks;
+    private Decoration[][] decorations;
     private ArrayList<DynamicObject> dynamicObjects;
     private ArrayList<Mob> mobs;
     private int worldHeight;
@@ -50,6 +52,7 @@ public class World implements Serializable {
         worldWidth = width;
         worldObjects = new ArrayList<>();
         blocks = new Block[width][height];
+        decorations = new Decoration[width+1][height*2+1];
         dynamicObjects = new ArrayList<>();
         mobs = new ArrayList<>();
         gravity = 9.82*2;
@@ -77,6 +80,15 @@ public class World implements Serializable {
             {
                 blocks[x][y] = world.blocks[x][y];
                 if(blocks[x][y]!=null)blocks[x][y].setWorld(this);
+            }
+        }
+        decorations = new Decoration[worldWidth+1][worldHeight*2+1];
+        for(int x=0;x<worldWidth+1;x++)
+        {
+            for(int y=0;y<worldHeight*2+1;y++)
+            {
+                decorations[x][y] = world.decorations[x][y];
+                if(decorations[x][y]!=null)decorations[x][y].setWorld(this);
             }
         }
         dynamicObjects = new ArrayList<>(world.dynamicObjects);
@@ -173,11 +185,18 @@ public class World implements Serializable {
         return worldWidth;
     }
 
-    public boolean checkIfEmpty(Vector pos){return checkIfEmpty(pos.getX(),pos.getY());}
-    public boolean checkIfEmpty(int x,int y)
+    public boolean checkIfEmptyBlock(Vector pos){return checkIfEmptyBlock(pos.getX(),pos.getY());} //FEJL HER, NULLPOINTER
+    public boolean checkIfEmptyBlock(int x, int y)
     {
-        if(outsideBoundary(x,y)){return true;}
+        if(outsideBlockBoundary(x,y)){return true;}
         return blocks[x][y] == null || blocks[x][y].isDestroyed();
+    }
+
+    public boolean checkIfEmptyDecoration(Vector pos){return checkIfEmptyDecoration(pos.getX(),pos.getY());}
+    public boolean checkIfEmptyDecoration(int x, int y)
+    {
+        if(outsideDecorationBoundary(x,y)){return true;}
+        return decorations[x][y] == null || decorations[x][y].isDestroyed();
     }
 
     public void addWorldObject(WorldObject worldObject){
@@ -187,6 +206,10 @@ public class World implements Serializable {
         if(worldObject instanceof Block)
         {
             succes = addBlock((Block)worldObject,true);
+        }
+        else if(worldObject instanceof Decoration)
+        {
+            succes = addDecoration((Decoration)worldObject);
         }
         else if(worldObject instanceof DynamicObject)
         {
@@ -216,12 +239,16 @@ public class World implements Serializable {
         details.remove(detail);
     }
 
-    public boolean outsideBoundary(Vector pos){
-        return outsideBoundary(pos.getX(),pos.getY());
+    public boolean outsideBlockBoundary(Vector pos){
+        return outsideBlockBoundary(pos.getX(),pos.getY());
     }
 
-    public boolean outsideBoundary(int x,int y){
+    public boolean outsideBlockBoundary(int x, int y){
         return x < 0 || y < 0 || x > worldWidth-1 || y > worldHeight-1;
+    }
+
+    public boolean outsideDecorationBoundary(int x,int y){
+        return x < 0 || y < 0 || x > worldWidth+1-1 || y > worldHeight*2+1-1;
     }
 
     public void setPlayerSpawnPoint(DynamicVector vector)
@@ -230,7 +257,7 @@ public class World implements Serializable {
     }
 
     public boolean addBlock(Block block){
-        if(checkIfEmpty(block.getPos())) {
+        if(checkIfEmptyBlock(block.getPos())) {
             blocks[block.getPos().getX()][block.getPos().getY()] = block;
             worldObjects.add(block);
             block.init();
@@ -248,6 +275,17 @@ public class World implements Serializable {
             updateImageOnBlockCluster(block.getPos());
         }
         return succes;
+    }
+
+    public boolean addDecoration(Decoration decoration){
+        if(checkIfEmptyBlock(decoration.getPos())) {
+            decorations[decoration.getPos().getX()][decoration.getPos().getY()] = decoration;
+            worldObjects.add(decoration);
+            decoration.init();
+            decoration.reset();
+            return true;
+        }
+        return false;
     }
 
     public void deleteWorldObject(WorldObject worldObject){
@@ -273,7 +311,7 @@ public class World implements Serializable {
     }
 
     public void deleteBlock(Vector pos,boolean updateImage){
-        if(!checkIfEmpty(pos.getX(),pos.getY())){
+        if(!checkIfEmptyBlock(pos.getX(),pos.getY())){
             worldObjects.remove(blocks[pos.getX()][pos.getY()]);
             blocks[pos.getX()][pos.getY()].die();
             blocks[pos.getX()][pos.getY()] = null;
@@ -330,6 +368,8 @@ public class World implements Serializable {
         return blocks;
     }
 
+    public Decoration[][] getDecorations(){return decorations;}
+
     public Block getBlock(Vector v){
         return getBlock(v.getX(),v.getY());
     }
@@ -344,7 +384,7 @@ public class World implements Serializable {
         HashMap<Dir,Block> blockedDirs = new HashMap<Dir, Block>();
         for(Dir dir : Dir.getValues()) {
             Vector target = new Vector(pos.getX()+dir.getVector().getX(),pos.getY()+dir.getVector().getY());
-            blockedDirs.put(dir,checkIfEmpty(target)?null:blocks[target.getX()][target.getY()]);
+            blockedDirs.put(dir, checkIfEmptyBlock(target)?null:blocks[target.getX()][target.getY()]);
         }
         return new BlockedDirs(blockedDirs);
     }
@@ -359,14 +399,14 @@ public class World implements Serializable {
 
     public void updateImageOnBlockCluster(Vector blockPos)
     {
-        if(!checkIfEmpty(blockPos)) {
+        if(!checkIfEmptyBlock(blockPos)) {
             blocks[blockPos.getX()][blockPos.getY()].updateImage();
         }
         for(Dir dir : Dir.getValues())
         {
             int x = blockPos.getX()+dir.getVector().getX();
             int y = blockPos.getY()+dir.getVector().getY();
-            if(!checkIfEmpty(x,y))
+            if(!checkIfEmptyBlock(x,y))
             {
                 blocks[x][y].updateImage();
             }

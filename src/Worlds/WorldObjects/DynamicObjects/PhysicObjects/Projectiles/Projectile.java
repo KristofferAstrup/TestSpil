@@ -27,7 +27,7 @@ public abstract class Projectile extends PhysicObject implements Serializable
         pos.setX_dyn(pos.getX_dyn()+speed.getX_dyn()*delta);
         pos.setY_dyn(pos.getY_dyn()+speed.getY_dyn()*delta);
 
-        if(world.outsideBoundary(pos)){destroy();}
+        if(world.outsideBlockBoundary(pos)){destroy();}
     }
 
     @Override

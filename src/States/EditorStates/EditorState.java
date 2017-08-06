@@ -13,6 +13,8 @@ import Worlds.World;
 import Worlds.Dir;
 import Worlds.Detail;
 import Worlds.WorldObjects.Blocks.Block;
+import Worlds.WorldObjects.Decorations.Decoration;
+import Worlds.WorldObjects.Decorations.Grass;
 import Worlds.WorldObjects.DynamicObjects.DynamicObject;
 import Worlds.WorldObjects.DynamicObjects.Goal;
 import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Mobs.Pig;
@@ -117,6 +119,10 @@ public class EditorState implements IState {
                 Constructor ctor = c.getDeclaredConstructor(World.class, Vector.class);
                 worldObject = (WorldObject) ctor.newInstance(world, new Vector(pos));
             }
+            else if(Decoration.class.isAssignableFrom(c)) {
+                Constructor ctor = c.getDeclaredConstructor(World.class, Vector.class);
+                worldObject = (WorldObject) ctor.newInstance(world, new Vector(pos));
+            }
             else if(DynamicObject.class.isAssignableFrom(c)) {
                 Constructor ctor = c.getDeclaredConstructor(World.class, DynamicVector.class);
                 worldObject = (WorldObject) ctor.newInstance(world, pos);
@@ -131,7 +137,7 @@ public class EditorState implements IState {
         {
             e.printStackTrace();
         }
-        throw new RuntimeException("Unexpected occurence in createWorldObject");
+        throw new RuntimeException("Unexpected occurrence in createWorldObject");
     }
 
     public static void deleteObj(World world, Vector target, EditorClassGroup objTypeGroup)
@@ -170,7 +176,7 @@ public class EditorState implements IState {
         for(Dir dir : Dir.getValues())
         {
             Vector transTarget = target.add(dir.getVector());
-            if(!collectedVectors.contains(transTarget) && !world.outsideBoundary(transTarget) && (world.getBlock(transTarget) == null ? c == null : world.getBlock(transTarget).getClass() == c))
+            if(!collectedVectors.contains(transTarget) && !world.outsideBlockBoundary(transTarget) && (world.getBlock(transTarget) == null ? c == null : world.getBlock(transTarget).getClass() == c))
             {
                 collectedVectors.add(transTarget);
                 collectEqualBlocks(world,transTarget,c,collectedVectors);
@@ -193,16 +199,6 @@ public class EditorState implements IState {
         worldTarget = new DynamicVector(world.getPlayerSpawnPoint()); //new Vector(world.getPlayerSpawnPoint());//new Vector(2,world.getWorldHeight()-2); //No particular reason for (1,1), just the initial worldTarget point.
         cameraPivot = new DynamicVector(worldTarget);
         mousePanCameraPivot = new DynamicVector(worldTarget);
-
-        /*try {
-            Constructor<Pig> ctor = Pig.class.getDeclaredConstructor(Worlds.class,DynamicVector.class);
-            Pig pig = ctor.newInstance(world,new DynamicVector(10,10));
-            world.addDynamicObject(pig);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }*/
     }
 
     public void endState()
@@ -240,6 +236,11 @@ public class EditorState implements IState {
             else if (!movement.equals(Vector.ZERO)){
                 moveWorldTarget(movement);
                 panType = PanType.keyboard;
+            }
+
+            if(keyboardController.getKeyJustPressed(KeyCode.Y))
+            {
+                createWorldObject(Grass.class,world,worldTarget);
             }
 
             if(((keyboardController.getKeyPressed(KeyCode.SPACE) || mouseController.getButtonPressed(MouseButton.PRIMARY)) && editorClassGroup==EditorClassGroup.blocks) || keyboardController.getKeyJustPressed(KeyCode.SPACE))

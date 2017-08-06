@@ -16,18 +16,6 @@ import java.util.HashMap;
 public class Player extends Mob implements Serializable {
 
     private transient boolean braking = false;
-    private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
-        put("run_0", ImageLibrary.getImage("char_run_0.png"));
-        put("run_1", ImageLibrary.getImage("char_run_1.png"));
-        put("run_2", ImageLibrary.getImage("char_run_2.png"));
-        put("run_3", ImageLibrary.getImage("char_run_3.png"));
-        put("airborne_down", ImageLibrary.getImage("char_airborne_down.png"));
-        put("airborne_stale", ImageLibrary.getImage("char_airborne_stale.png"));
-        put("airborne_up", ImageLibrary.getImage("char_airborne_up.png"));
-        put("brake", ImageLibrary.getImage("char_brake.png"));
-        put("idle", ImageLibrary.getImage("char_idle.png"));
-        put("wallslide", ImageLibrary.getImage("char_wallslide.png"));
-    }};
 
     public Player(World world, DynamicVector _pos) {
         super(world,_pos);
@@ -60,31 +48,31 @@ public class Player extends Mob implements Serializable {
         {
             if(speed.getX_dyn() != 0) {
                 if(braking) {
-                    return imgs.get("brake");
+                    return ImageLibrary.getImage("char_brake");
                 }else {
-                    return imgs.get("run_" + (int)((GameState.time*8)%4));
+                    return ImageLibrary.getImage("char_run_" + (int)((GameState.time*8)%4));
                 }
             }else{
-                return imgs.get("idle");
+                return ImageLibrary.getImage("char_idle");
             }
         }
         else
         {
             if(blockedDirs.get(Dir.Left))
             {
-                return imgs.get("wallslide");
+                return ImageLibrary.getImage("char_wallslide");
             }
             else if(blockedDirs.get(Dir.Right)) {
-                return imgs.get("wallslide");
+                return ImageLibrary.getImage("char_wallslide");
             }
             else if(speed.getY_dyn() > 1)
             {
-                return imgs.get("airborne_up");
+                return ImageLibrary.getImage("char_airborne_up");
             } else if(speed.getY_dyn() < -1)
             {
-                return imgs.get("airborne_down");
+                return ImageLibrary.getImage("char_airborne_down");
             } else {
-                return imgs.get("airborne_stale");
+                return ImageLibrary.getImage("char_airborne_stale");
             }
         }
     }

@@ -12,11 +12,6 @@ import java.util.HashMap;
 
 public class Bat extends Mob implements Serializable {
 
-    private static HashMap<String, Image> imgs = new HashMap<String,Image>(){{
-        put("sleep_0", ImageLibrary.getImage("bat_0.png"));
-        put("fly_0", ImageLibrary.getImage("bat_1.png"));
-        put("fly_1", ImageLibrary.getImage("bat_2.png"));
-    }};
     private static double horSpeed = 2;
     private static double baskDelay = 0.15;
     private static double baskTime = 0.05;
@@ -39,8 +34,8 @@ public class Bat extends Mob implements Serializable {
 
     @Override
     public Image getImage() {
-        if(!awake || !getAlive()){return imgs.get("sleep_0");}
-        return imgs.get("fly_" + (wingsDown?0:1));
+        if(!awake || !getAlive()){return ImageLibrary.getImage("bat_0");}
+        return ImageLibrary.getImage("bat_" + (wingsDown?1:2));
     }
 
     @Override

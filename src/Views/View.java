@@ -20,8 +20,14 @@ import Controllers.SaveLoadController;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Affine;
 import javafx.stage.*;
 
@@ -65,6 +71,44 @@ public class View {
 
         gc = canvas.getGraphicsContext2D();
         paths = SaveLoadController.getFilePathList();
+
+        /*RadialGradient radialGradient = new RadialGradient(0,
+                .0,
+                150,
+                150,
+                100,
+                false,
+                CycleMethod.NO_CYCLE,
+                new Stop(0, new Color(1, 0.5725, 0.5961, 1)),
+                new Stop(1, new Color(1,1,1,0)));
+
+        Circle circle = new Circle(150,150,100);
+        circle.setFill(radialGradient);
+
+        RadialGradient radialGradient2 = new RadialGradient(0,
+                .0,
+                450,
+                300,
+                150,
+                false,
+                CycleMethod.NO_CYCLE,
+                new Stop(0, Color.WHITE),
+                new Stop(0.1, Color.WHITE),
+                new Stop(1, new Color(1,1,1,0)));
+
+        Circle circle2 = new Circle(450,300,150);
+        circle2.setFill(radialGradient2);
+
+        Rectangle rectangle = new Rectangle(0,0,900,900);
+        rectangle.setFill(new Color(0, 0, 0, 0.95));
+
+        Group g = new Group();
+        g.setBlendMode(BlendMode.MULTIPLY);
+        g.getChildren().add(rectangle);
+        g.getChildren().add(circle);
+        g.getChildren().add(circle2);
+
+        root.getChildren().add( g );*/
     }
 
     public Scene getScene()
@@ -98,6 +142,7 @@ public class View {
 
     public void update(IState state)
     {
+        gc.setTransform(new Affine());
 
         gc.clearRect(0,0,canvasDim.getX(),canvasDim.getY());
         gc.save();
@@ -125,6 +170,7 @@ public class View {
         drawSky(gameState.getWorld());
         drawBackground(gameState.getWorld());
         drawBlocks(gameState.getWorld());
+        drawDecorations(gameState.getWorld());
         drawDynamics(gameState.getWorld());
         drawGlobalParticleSystem(gameState.getWorld());
         drawImageParticleSystem(gameState.getWorld());
@@ -152,6 +198,7 @@ public class View {
         //panCamera(editorState.getWorld(),new DynamicVector(0,-editorState.getWorld().getWorldHeight()));
         drawGrid(editorState.getWorld());
         drawBlocks(editorState.getWorld());
+        drawDecorations(editorState.getWorld());
         drawDynamics(editorState.getWorld());
         drawDetails(editorState.getWorld());
 
@@ -212,6 +259,28 @@ public class View {
                     Affine affine = new Affine();
                     affine.appendTranslation(x_pos + cameraPan.getX_dyn(),y_pos + cameraPan.getY_dyn());
                     affine.appendRotation(world.getBlocks()[x][y].getRot(),0,0);
+                    gc.setTransform(affine);
+                    double width = img.getWidth()*winScale/ImageLibrary.imageLoadScale;
+                    double height = img.getHeight()*winScale/ImageLibrary.imageLoadScale;
+                    gc.drawImage(img,-width/2,-height/2,width,height);
+                }
+            }
+        }
+    }
+
+    private void drawDecorations(World world)
+    {
+        gc.setFill(Color.BLACK);
+        for(int x=0;x<world.getDecorations().length;x++){
+            for(int y=0;y<world.getDecorations()[x].length;y++){
+                if(world.getDecorations()[x][y] != null)
+                {
+                    Image img = world.getDecorations()[x][y].getImage();
+                    double x_pos = x*objectSize-(y&2)*0.5;
+                    double y_pos = (world.getBlocks()[x].length-y-1)*objectSize*0.5;
+                    Affine affine = new Affine();
+                    affine.appendTranslation(x_pos + cameraPan.getX_dyn(),y_pos + cameraPan.getY_dyn());
+                    affine.appendScale(world.getDecorations()[x][y].getFlipped()?-1:1,1);
                     gc.setTransform(affine);
                     double width = img.getWidth()*winScale/ImageLibrary.imageLoadScale;
                     double height = img.getHeight()*winScale/ImageLibrary.imageLoadScale;

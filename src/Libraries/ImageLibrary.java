@@ -75,10 +75,10 @@ public class ImageLibrary {
 
                 "/Images/Blocks/Woodlog.png#" +
 
-                "/Images/Decoration/Grass/Grass0.png#" +
-                "/Images/Decoration/Grass/Grass1.png#" +
-                "/Images/Decoration/Grass/Grass2.png#" +
-                "/Images/Decoration/Grass/Grass3.png#" +
+                "/Images/Decoration/Grass/grass_up_center0.png#" +
+                "/Images/Decoration/Grass/grass_up_center1.png#" +
+                "/Images/Decoration/Grass/grass_up_center2.png#" +
+                "/Images/Decoration/Grass/grass_up_center3.png#" +
 
                 "/Images/Div/Fluff.png#" +
                 "/Images/Div/Fluff2.png#" +
@@ -128,9 +128,9 @@ public class ImageLibrary {
             for(String s : paths)
             {
                 URL url = lib.getClass().getResource(s);
-                System.out.println(s + " | " + url);
                 Image image = new Image(url.toURI().toString());
-                String name = s.substring(s.lastIndexOf("/")+1);
+                String name = s.substring(s.lastIndexOf("/")+1,s.length()-4);
+                System.out.println(name + " | " + url);
                 imageLibrary.put(name,getScaledImage(image,imageLoadScale));
             }
         }
@@ -188,6 +188,7 @@ public class ImageLibrary {
 
     public static Image getImage(String name)
     {
+        if(name.endsWith(".png"))name = name.substring(0,name.length()-4);
         return imageLibrary.get(name);
     }
 

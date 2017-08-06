@@ -61,9 +61,9 @@ public abstract class PhysicObject extends DynamicObject implements Serializable
 
         //DOWN
         int y = (int)Math.round(getPos().getY_dyn()-blockedFixConstant+speed.getY_dyn()*delta-size.getY_dyn()/2.0);
-        if(!world.checkIfEmpty((int)Math.round(getPos().getX_dyn()),y)
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()-size.getX_dyn()/2+hotfixConstant),y)
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+size.getX_dyn()/2-hotfixConstant),y))//!world.checkIfEmpty(getWorldPositionFromScreen().getX(),getWorldPositionFromScreen().getY()-1) && getWorldPositionFromScreen().getY_dyn()+speed.getY_dyn()*delta <= getWorldPositionFromScreen().getY())
+        if(!world.checkIfEmptyBlock((int)Math.round(getPos().getX_dyn()),y)
+                || !world.checkIfEmptyBlock((int)Math.round(getPos().getX_dyn()-size.getX_dyn()/2+hotfixConstant),y)
+                || !world.checkIfEmptyBlock((int)Math.round(getPos().getX_dyn()+size.getX_dyn()/2-hotfixConstant),y))//!world.checkIfEmptyBlock(getWorldPositionFromScreen().getX(),getWorldPositionFromScreen().getY()-1) && getWorldPositionFromScreen().getY_dyn()+speed.getY_dyn()*delta <= getWorldPositionFromScreen().getY())
         {
             blockedDirs.put(Dir.Down,true);
             getPos().setY_dyn(y+0.5+size.getY_dyn()/2);
@@ -77,9 +77,9 @@ public abstract class PhysicObject extends DynamicObject implements Serializable
 
         //UP
         y = (int)Math.round(getPos().getY_dyn()+speed.getY_dyn()*delta+size.getY_dyn()/2.0);
-        if(!world.checkIfEmpty((int)Math.round(getPos().getX_dyn()),y)
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()-size.getX_dyn()/2+hotfixConstant),y)
-                || !world.checkIfEmpty((int)Math.round(getPos().getX_dyn()+size.getX_dyn()/2-hotfixConstant),y))//!world.checkIfEmpty(getWorldPositionFromScreen().getX(),getWorldPositionFromScreen().getY()-1) && getWorldPositionFromScreen().getY_dyn()+speed.getY_dyn()*delta <= getWorldPositionFromScreen().getY())
+        if(!world.checkIfEmptyBlock((int)Math.round(getPos().getX_dyn()),y)
+                || !world.checkIfEmptyBlock((int)Math.round(getPos().getX_dyn()-size.getX_dyn()/2+hotfixConstant),y)
+                || !world.checkIfEmptyBlock((int)Math.round(getPos().getX_dyn()+size.getX_dyn()/2-hotfixConstant),y))//!world.checkIfEmptyBlock(getWorldPositionFromScreen().getX(),getWorldPositionFromScreen().getY()-1) && getWorldPositionFromScreen().getY_dyn()+speed.getY_dyn()*delta <= getWorldPositionFromScreen().getY())
         {
             blockedDirs.put(Dir.Up,true);
             getPos().setY_dyn(y-0.5-size.getY_dyn()/2);
@@ -93,9 +93,9 @@ public abstract class PhysicObject extends DynamicObject implements Serializable
 
         //RIGHT
         int x = (int)Math.round(getPos().getX_dyn()+blockedFixConstant+speed.getX_dyn()*delta+(size.getX_dyn()/2.0));
-        if(!world.checkIfEmpty(x,getPos().getY())
-                || !world.checkIfEmpty(x,(int)Math.round(getPos().getY_dyn()-size.getY_dyn()/2+hotfixConstant))//+speed.getY_dyn()*delta)-1)
-                || !world.checkIfEmpty(x,(int)Math.round(getPos().getY_dyn()+size.getY_dyn()/2-hotfixConstant)))//!world.checkIfEmpty(getWorldPositionFromScreen().getX(),getWorldPositionFromScreen().getY()-1) && getWorldPositionFromScreen().getY_dyn()+speed.getY_dyn()*delta <= getWorldPositionFromScreen().getY())
+        if(!world.checkIfEmptyBlock(x,getPos().getY())
+                || !world.checkIfEmptyBlock(x,(int)Math.round(getPos().getY_dyn()-size.getY_dyn()/2+hotfixConstant))//+speed.getY_dyn()*delta)-1)
+                || !world.checkIfEmptyBlock(x,(int)Math.round(getPos().getY_dyn()+size.getY_dyn()/2-hotfixConstant)))//!world.checkIfEmptyBlock(getWorldPositionFromScreen().getX(),getWorldPositionFromScreen().getY()-1) && getWorldPositionFromScreen().getY_dyn()+speed.getY_dyn()*delta <= getWorldPositionFromScreen().getY())
         {
             blockedDirs.put(Dir.Right,true);
             getPos().setX_dyn(x-0.5-size.getX_dyn()/2);
@@ -109,9 +109,9 @@ public abstract class PhysicObject extends DynamicObject implements Serializable
 
         //LEFT
         x = (int)Math.round(getPos().getX_dyn()-blockedFixConstant+speed.getX_dyn()*delta-(size.getX_dyn()/2.0));
-        if(!world.checkIfEmpty(x,getPos().getY())
-                || !world.checkIfEmpty(x,(int)Math.round(getPos().getY_dyn()-size.getY_dyn()/2+hotfixConstant))//+speed.getY_dyn()*delta)-1)
-                || !world.checkIfEmpty(x,(int)Math.round(getPos().getY_dyn()+size.getY_dyn()/2-hotfixConstant)))//!world.checkIfEmpty(getWorldPositionFromScreen().getX(),getWorldPositionFromScreen().getY()-1) && getWorldPositionFromScreen().getY_dyn()+speed.getY_dyn()*delta <= getWorldPositionFromScreen().getY())
+        if(!world.checkIfEmptyBlock(x,getPos().getY())
+                || !world.checkIfEmptyBlock(x,(int)Math.round(getPos().getY_dyn()-size.getY_dyn()/2+hotfixConstant))//+speed.getY_dyn()*delta)-1)
+                || !world.checkIfEmptyBlock(x,(int)Math.round(getPos().getY_dyn()+size.getY_dyn()/2-hotfixConstant)))//!world.checkIfEmptyBlock(getWorldPositionFromScreen().getX(),getWorldPositionFromScreen().getY()-1) && getWorldPositionFromScreen().getY_dyn()+speed.getY_dyn()*delta <= getWorldPositionFromScreen().getY())
         {
             blockedDirs.put(Dir.Left,true);
             getPos().setX_dyn(x+0.5+size.getX_dyn()/2);
