@@ -20,8 +20,6 @@ public abstract class Block extends WorldObject implements Serializable {
     protected transient int rot;
     protected transient Image lastImage;
 
-    public static ObjType objType;
-
     @Override
     public Image getImage() {
         return lastImage;

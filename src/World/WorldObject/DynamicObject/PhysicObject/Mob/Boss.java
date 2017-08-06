@@ -71,17 +71,17 @@ public class Boss  extends Mob implements Serializable {
                 if (blockedDirs.get(dir)) {
                     Vector vDir = dir.getVector();
                     Vector v = pos.add(vDir.mulitply(2));
-                    world.deleteBlock(v);
+                    world.deleteBlock(v,false);
                     //System.out.println("Pos:" + pos);
                     //System.out.println("v:" + v);
                     Vector vDirN = vDir.normal();
-                    world.deleteBlock(v.add(vDirN));
-                    world.deleteBlock(v.add(vDirN.mulitply(2)));
+                    world.deleteBlock(v.add(vDirN),false);
+                    world.deleteBlock(v.add(vDirN.mulitply(2)),false);
                     //System.out.println("vN:" + v.add(vDir.normal()));
 
                     Vector vDirNI = vDir.normalInv();
-                    world.deleteBlock(v.add(vDirNI));
-                    world.deleteBlock(v.add(vDirNI.mulitply(2)));
+                    world.deleteBlock(v.add(vDirNI),false);
+                    world.deleteBlock(v.add(vDirNI.mulitply(2)),false);
                     //System.out.println("vNI:" + v.add(vDir.normalInv()));
                 }
             }

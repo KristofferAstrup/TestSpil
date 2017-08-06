@@ -1,7 +1,9 @@
 package World.WorldObject.Block;
 
+import Controller.Controller;
 import Factories.ObjType;
 import Libraries.ImageLibrary;
+import Vectors.DynamicVector;
 import Vectors.Vector;
 import World.World;
 import javafx.scene.image.Image;
@@ -37,4 +39,15 @@ public class BricksBlock extends Block implements Serializable {
     protected String getTypeName() {
         return "Bricks";
     }
+
+    @Override
+    public void die()
+    {
+        int quantity = Controller.random.nextInt(3)+5;
+        for(int i=0;i<quantity;i++) {
+            Image img = ImageLibrary.getImage("BrickChunk_" + Controller.random.nextInt(2) + ".png");
+            world.getImageParticleSystem().addParticle(new DynamicVector(getPos()), new DynamicVector(Controller.random.nextDouble()*6-3, Controller.random.nextDouble()*6-3),Controller.random.nextInt(120)-60, img, true, 0.5);
+        }
+    }
+
 }

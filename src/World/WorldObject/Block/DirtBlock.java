@@ -46,9 +46,9 @@ public class DirtBlock extends Block implements Serializable {
     public void die()
     {
         Image img = ImageLibrary.getImage("DirtChunk_0.png");
-        int quantity = Controller.random.nextInt(3)+5;
+        int quantity = Controller.random.nextInt(10)+5;
         for(int i=0;i<quantity;i++) {
-            world.getImageParticleSystem().addParticle(new DynamicVector(getPos()), new DynamicVector(Controller.random.nextDouble()*6-3, Controller.random.nextDouble()*6-3), img, true, 0.5);
+            world.getImageParticleSystem().addParticle(new DynamicVector(getPos()), new DynamicVector(Controller.random.nextDouble()*6-3, Controller.random.nextDouble()*6-3),0, img, true, 0.5);
         }
     }
 }

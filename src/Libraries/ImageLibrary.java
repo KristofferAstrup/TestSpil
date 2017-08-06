@@ -40,26 +40,16 @@ public class ImageLibrary {
 
     private static void initImageLibrary()
     {
-       /*try {
-            File file = new File("resources/Images");
-            for(String s : file.list()){
-                System.out.println(s);
-            }
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }*/
-
         imageLibrary = new HashMap<>();
         loadImages("/Images/Mobs/Bat/bat_0.png#" +
                 "/Images/Mobs/Bat/bat_1.png#" +
                 "/Images/Mobs/Bat/bat_2.png#" +
                 "/Images/Mobs/Bat/bat_3.png#" +
-                //"/Images/Bricks/Bricks_E.png#" +
-                // /Images/Bricks/Bricks_I.png#" +
+
                 "/Images/Blocks/Bricks/Bricks_O.png#" +
-                // /Images/Bricks/Bricks_Z.png#" +
+                "/Images/Blocks/Bricks/BrickChunk_0.png#" +
+                "/Images/Blocks/Bricks/BrickChunk_1.png#" +
+
                 "/Images/Mobs/Char/char_airborne_down.png#" +
                 "/Images/Mobs/Char/char_airborne_stale.png#" +
                 "/Images/Mobs/Char/char_airborne_up.png#" +
@@ -79,6 +69,30 @@ public class ImageLibrary {
                 "/Images/Blocks/DirtBlock/Dirt_U.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_C.png#" +
                 "/Images/Blocks/DirtBlock/DirtChunk_0.png#" +
+
+                "/Images/Blocks/Plankwall/Plankwall_C.png#" +
+                "/Images/Blocks/Plankwall/Plankwall_E.png#" +
+                "/Images/Blocks/Plankwall/Plankwall_O.png#" +
+                "/Images/Blocks/Plankwall/Plankwall_S.png#" +
+                "/Images/Blocks/Plankwall/Plankwall_U.png#" +
+                "/Images/Blocks/Plankwall/Plankwall_Z.png#" +
+                "/Images/Blocks/Plankwall/Plankwall_Z_1.png#" +
+                "/Images/Blocks/Plankwall/Plankwall_Z_2.png#" +
+
+                "/Images/Blocks/Stone/Stone0.png#" +
+                "/Images/Blocks/Stone/Stone1.png#" +
+                "/Images/Blocks/Stone/Stone2.png#" +
+                "/Images/Blocks/Stone/Stone3.png#" +
+                "/Images/Blocks/Stone/Stone4.png#" +
+                "/Images/Blocks/Stone/Stone5.png#" +
+
+                "/Images/Blocks/Woodlog.png#" +
+
+                "/Images/Decoration/Grass/Grass0.png#" +
+                "/Images/Decoration/Grass/Grass1.png#" +
+                "/Images/Decoration/Grass/Grass2.png#" +
+                "/Images/Decoration/Grass/Grass3.png#" +
+
                 "/Images/Div/Fluff.png#" +
                 "/Images/Div/Fluff2.png#" +
                 "/Images/Div/Black.png#" +
@@ -116,48 +130,18 @@ public class ImageLibrary {
                 "/Images/Gate.png"
 
         );
-        /*
-        imageLibrary = new HashMap<>();
-        URL url = ImageLibrary.class.getResource("/Images");
-        File[] files = new File(url.getFile()).listFiles();
-        loadImages(files,"/Images/");
-        */
+
     }
 
     private static void loadImages(String string)
     {
-
-        //SaveLoadController.saveTextFileAbsolute("C:/Users/kristoffer/Documents/Java/log/test.txt","---");
-
-        /*try {
-            CodeSource src = ImageLibrary.class.getProtectionDomain().getCodeSource();
-            if (src != null) {
-                URL jar = src.getLocation();
-                ZipInputStream zip = new ZipInputStream(jar.openStream());
-                while (true) {
-                    ZipEntry e = zip.getNextEntry();
-                    if (e == null)
-                        break;
-                    String name = e.getName();
-                    //if (name.startsWith(""))
-                    {
-                        System.out.println(name);
-                    }
-                }
-            }
-        }
-        catch(IOException exception){
-            exception.printStackTrace();
-        }*/
-
-
         try {
             ImageLibrary lib = new ImageLibrary();
             String[] paths = string.split("#");
             for(String s : paths)
             {
-                //System.out.println(s);
                 URL url = lib.getClass().getResource(s);
+                System.out.println(s + " | " + url);
                 Image image = new Image(url.toURI().toString());
                 String name = s.substring(s.lastIndexOf("/")+1);
                 imageLibrary.put(name,getScaledImage(image,imageLoadScale));

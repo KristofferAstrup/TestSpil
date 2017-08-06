@@ -17,6 +17,7 @@ import World.ParticleSystem.ImageParticleSystem;
 import World.World;
 import World.Detail;
 import World.WorldObject.DynamicObject.DynamicObject;
+import Controller.SaveLoadController;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -25,6 +26,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 import javafx.stage.*;
 
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
 import static javafx.application.Application.launch;
@@ -268,16 +270,19 @@ public class View {
 
     private void drawImageParticleSystem(World world)
     {
-        gc.setTransform(new Affine());
-
         for(ImageParticleSystem.Particle particle : world.getImageParticleSystem().getParticles())
         {
-            double width = particle.getImage().getWidth()/ImageLibrary.imageLoadScale;
-            double height = particle.getImage().getHeight()/ImageLibrary.imageLoadScale;
-            double x_pos = particle.getPos().getX_dyn() * objectSize + cameraPan.getX_dyn()-width/2;
-            double y_pos = (world.getWorldHeight() - particle.getPos().getY_dyn() - 1) * objectSize + cameraPan.getY_dyn()-height/2;
+            double width = winScale*(particle.getImage().getWidth()/ImageLibrary.imageLoadScale)/2;
+            double height = winScale*(particle.getImage().getHeight()/ImageLibrary.imageLoadScale)/2;
+            double x_pos = particle.getPos().getX_dyn() * objectSize;
+            double y_pos = (world.getWorldHeight() - particle.getPos().getY_dyn() - 1) * objectSize;
             gc.setGlobalAlpha(Math.min(0.20,particle.getLifetime())*5);
-            gc.drawImage(particle.getImage(),x_pos,y_pos,width,height);
+            Affine affine = new Affine();
+            affine.appendTranslation(x_pos+cameraPan.getX_dyn(),y_pos+cameraPan.getY_dyn());
+            affine.appendRotation(particle.getRot());
+            gc.setTransform(affine);
+            System.out.println(width);
+            gc.drawImage(particle.getImage(),-width,-height,width,height);
         }
     }
 

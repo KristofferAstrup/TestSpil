@@ -2,30 +2,19 @@ package Libraries;
 
 import Factories.ObjType;
 import Factories.EditorClassGroup;
-import World.WorldObject.Block.BricksBlock;
-import World.WorldObject.Block.DirtBlock;
+import World.WorldObject.Block.*;
 import World.WorldObject.DynamicObject.PhysicObject.Mob.*;
 import javafx.scene.image.Image;
 import java.util.HashMap;
 
 public class EditorLibrary {
 
-    /*private final static HashMap<EditorClassGroup, ObjType[]> objTypes = new HashMap<EditorClassGroup,ObjType[]>(){{
-       put(EditorClassGroup.blocks,new ObjType[]{
-               DirtBlock.objType,
-               BricksBlock.objType
-       });
-       put(EditorClassGroup.mobs,new ObjType[]{
-               //Player.objType,
-               Pig.objType,
-               Bat.objType,
-               Boss.objType
-        });
-    }};*/
-
     private static HashMap<EditorClassGroup,EditorClass[]> editorClassGroups = new HashMap<EditorClassGroup,EditorClass[]>(){{
         put(EditorClassGroup.blocks,new EditorClass[]{
                 new EditorClass(DirtBlock.class,ImageLibrary.getImage("Dirt_O.png")),
+                new EditorClass(PlankwallBlock.class,ImageLibrary.getImage("Plankwall_E.png")),
+                new EditorClass(StoneBlock.class,ImageLibrary.getImage("Stone0.png")),
+                new EditorClass(WoodlogBlock.class,ImageLibrary.getImage("Woodlog.png")),
                 new EditorClass(BricksBlock.class,ImageLibrary.getImage("Bricks_O.png")),
         });
         put(EditorClassGroup.mobs,new EditorClass[]{
@@ -34,11 +23,6 @@ public class EditorLibrary {
                 new EditorClass(Boss.class,ImageLibrary.getImage("BossBody.png")),
         });
     }};
-
-    /*public static ObjType[] getObjTypes(EditorClassGroup group)
-    {
-        return objTypes.get(group);
-    }*/
 
     public static EditorClass[] getEditorClasses(EditorClassGroup group)
     {

@@ -264,14 +264,20 @@ public class World implements Serializable {
         }
     }
 
-    public void deleteBlock(Block block){deleteBlock(block.getPos());}
+    public void deleteBlock(Block block){deleteBlock(block,false);}
+
+    public void deleteBlock(Block block,boolean updateImage){deleteBlock(block.getPos(),updateImage);}
 
     public void deleteBlock(Vector pos){
+        deleteBlock(pos,false);
+    }
+
+    public void deleteBlock(Vector pos,boolean updateImage){
         if(!checkIfEmpty(pos.getX(),pos.getY())){
             worldObjects.remove(blocks[pos.getX()][pos.getY()]);
             blocks[pos.getX()][pos.getY()].die();
             blocks[pos.getX()][pos.getY()] = null;
-            updateImageOnBlockCluster(pos);
+            if(updateImage)updateImageOnBlockCluster(pos);
             //throw new RuntimeException("A block a was attempted deleted at: " + pos.toString() + ", but was not found in the blocks 2D-array!");
         }
     }

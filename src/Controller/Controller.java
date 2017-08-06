@@ -52,7 +52,8 @@ public class Controller {
             public void handle(KeyEvent event) {
                 if(event.getCode() == KeyCode.F5)
                 {
-                    view.setVisibleDebugGroup(!view.getVisibleDebugGroup());
+                    consoleOpen = !consoleOpen;
+                    view.setVisibleDebugGroup(consoleOpen);
                 }
                 if(event.getCode() == KeyCode.F12)
                 {
@@ -171,5 +172,7 @@ public class Controller {
     }
 
     public static boolean debugging(){return debugging;}
+
+    public static boolean consoleOpen(){return consoleOpen;}
 
 }

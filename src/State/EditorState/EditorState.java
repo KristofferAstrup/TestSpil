@@ -44,10 +44,10 @@ public class EditorState implements IState {
     private double moveDelayFast = 0.05;
     private double[] moveDelays = new double[4];
     private PanType panType = PanType.keyboard;
-    private double mousePanSpeedBase = 14;
-    private double mousePanSpeedFast = 28;
+    private double mousePanSpeedBase = 20;
+    private double mousePanSpeedFast = 40;
 
-    private double gridSize = 1; ****
+    private double gridSize = 1;
 
     private double zoomScale = 2;
 
@@ -216,6 +216,12 @@ public class EditorState implements IState {
     {
         time += delta;
 
+        if(!Controller.consoleOpen())
+        control(delta);
+    }
+
+    private void control(double delta)
+    {
         zoomScale += 0.25*mouseController.getMouseScrollDir();
         if(!Controller.debugging()){
             zoomScale = Math.min(4,Math.max(zoomScale,1));
@@ -316,8 +322,6 @@ public class EditorState implements IState {
             mode = mode==EditorMode.ObjectSelect?EditorMode.World:EditorMode.ObjectSelect;
         }
     }
-
-    //private void fill(Vector pos,)
 
     private Vector getVectorInWorldBounds(Vector vector)
     {

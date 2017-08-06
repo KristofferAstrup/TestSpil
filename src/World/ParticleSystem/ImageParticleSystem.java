@@ -58,6 +58,7 @@ public class ImageParticleSystem extends ParticleSystem implements Serializable 
             if(particle.gravity) {
                 particle.speed.setAdd(deltaForce);
             }
+            particle.rot += particle.getRotSpeed()*delta;
             particle.pos.setAdd(particle.speed.multiply(delta));
         }
         if(oldParticles.size() > 0)
@@ -67,14 +68,14 @@ public class ImageParticleSystem extends ParticleSystem implements Serializable 
         }
     }
 
-    public void addParticle(DynamicVector pos,DynamicVector speed,Image img,boolean gravity)
+    public void addParticle(DynamicVector pos,DynamicVector speed,double rotSpeed,Image img,boolean gravity)
     {
-        particles.add(new Particle(pos,speed,img,gravity,defaultLifeTime));
+        particles.add(new Particle(pos,speed,rotSpeed,img,gravity,defaultLifeTime));
     }
 
-    public void addParticle(DynamicVector pos,DynamicVector speed,Image img,boolean gravity,double lifetime)
+    public void addParticle(DynamicVector pos,DynamicVector speed,double rotSpeed,Image img,boolean gravity,double lifetime)
     {
-        particles.add(new Particle(pos,speed,img,gravity,lifetime));
+        particles.add(new Particle(pos,speed,rotSpeed,img,gravity,lifetime));
     }
 
     public class Particle
@@ -82,19 +83,25 @@ public class ImageParticleSystem extends ParticleSystem implements Serializable 
         Image img;
         DynamicVector pos;
         DynamicVector speed;
+        double rot;
+        double rotSpeed;
         double lifetime;
         boolean gravity;
-        public Particle(DynamicVector pos,DynamicVector speed,Image img,boolean gravity,double lifetime)
+        public Particle(DynamicVector pos,DynamicVector speed,double rotSpeed,Image img,boolean gravity,double lifetime)
         {
             this.pos = pos;
             this.speed = speed;
             this.img = img;
             this.gravity = gravity;
             this.lifetime = lifetime;
+            this.rotSpeed = rotSpeed;
+            this.rot = 0;
         }
         public Image getImage(){return img;}
         public DynamicVector getPos(){return pos;}
         public DynamicVector getSpeed(){return speed;}
+        public double getRot(){return rot;}
+        public double getRotSpeed(){return rotSpeed;}
         public double getLifetime(){return lifetime;}
         @Override
         public String toString()

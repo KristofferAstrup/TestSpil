@@ -119,7 +119,7 @@ public class DebugController {
                 if(!SaveLoadController.validateFilename(matcher.group("filename"))){return false;}
                 SaveLoadController.saveFile(matcher.group("filename"),Controller.getWorld());
                 return true;
-            },"save [filename]","Saves the current world via a given filename"),
+            },"save [filename]","Saves the current world to a file with a given filename"),
 
             new DebugCommand("load (?<filename>[A-Za-z0-9.]*)", (matcher) -> {
                 if(!SaveLoadController.validateFilename(matcher.group("filename"))){return false;}
