@@ -1,7 +1,5 @@
 package Vectors;
 
-import World.WorldObject.DynamicObject.DynamicObject;
-
 import java.awt.geom.Dimension2D;
 import java.io.Serializable;
 

@@ -1,17 +1,5 @@
 package Factories;
 
-import Vectors.DynamicVector;
-import Vectors.Vector;
-import World.WorldObject.Block.Block;
-import World.WorldObject.Block.BricksBlock;
-import World.WorldObject.Block.DirtBlock;
-import World.WorldObject.DynamicObject.PhysicObject.Mob.*;
-import World.WorldObject.WorldObject;
-import World.World;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import java.util.Arrays;
-
 public class WorldObjectFactory {
 
     /*private static ObjType[] objTypes = new ObjType[]{
@@ -44,14 +32,14 @@ public class WorldObjectFactory {
         }
     }*/
 
-    /*public static Block createBlock(ObjType objType, World world, Vector vector)
+    /*public static Blocks createBlock(ObjType objType, Worlds world, Vector vector)
     {
         if(objType.equals(DirtBlock.objType)){return new DirtBlock(world,vector);}
         if(objType.equals(BricksBlock.objType)){return new BricksBlock(world,vector);}
         throw new NotImplementedException();
     }
 
-    public static Mob createMob(ObjType objType, World world, DynamicVector vector)
+    public static Mobs createMob(ObjType objType, Worlds world, DynamicVector vector)
     {
         if(objType.equals(Player.objType)){return new Player(world,vector.getDynamicVector());}
         if(objType.equals(Pig.objType)){return new Pig(world,vector);}

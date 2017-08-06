@@ -1,26 +1,13 @@
 package Libraries;
 
-import Controller.SaveLoadController;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
-import javax.print.URIException;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.*;
-import java.security.CodeSource;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * Created by Kris on 28-02-2017.

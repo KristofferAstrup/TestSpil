@@ -1,10 +1,9 @@
 package Libraries;
 
-import Factories.ObjType;
 import Factories.EditorClassGroup;
-import World.WorldObject.Block.*;
-import World.WorldObject.DynamicObject.PhysicObject.Mob.*;
-import javafx.scene.image.Image;
+import Worlds.WorldObjects.Blocks.*;
+import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Mobs.*;
+
 import java.util.HashMap;
 
 public class EditorLibrary {
