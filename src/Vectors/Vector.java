@@ -39,6 +39,10 @@ public class Vector implements Serializable {
         return y;
     }
 
+    public double getX_dyn(){return x;}
+
+    public double getY_dyn(){return y;}
+
     public void setX(int x)
     {
         this.x = x;
@@ -141,6 +145,10 @@ public class Vector implements Serializable {
     public int hashCode()
     {
         return (31 * x) + y;
+    }
+
+    public Vector duplicate(){
+        return new Vector(getX(),getY());
     }
 
 }

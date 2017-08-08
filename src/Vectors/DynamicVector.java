@@ -82,11 +82,13 @@ public class DynamicVector extends Vector implements Serializable {
         setY_dyn(getY_dyn()+y);
     }
 
+    @Override
     public double getX_dyn()
     {
         return x_dyn;
     }
 
+    @Override
     public double getY_dyn()
     {
         return y_dyn;
@@ -200,6 +202,11 @@ public class DynamicVector extends Vector implements Serializable {
     public int hashCode()
     {
         return (31 * Double.hashCode(x_dyn)) + Double.hashCode(y_dyn);
+    }
+
+    @Override
+    public Vector duplicate(){
+        return new DynamicVector(getX_dyn(),getY_dyn());
     }
 
 }

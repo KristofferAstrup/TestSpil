@@ -30,6 +30,14 @@ public class DecorationFace
         Left,
         Right,
         Horizontal,
-        Vertical
+        Vertical,
+        None
     }
+
+    @Override
+    public String toString()
+    {
+        return "Position: " + position + ", Face: " + face;
+    }
+
 }

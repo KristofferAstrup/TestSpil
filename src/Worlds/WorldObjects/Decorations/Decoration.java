@@ -14,7 +14,6 @@ public abstract class Decoration extends WorldObject {
     public Decoration(World world, Vector pos) {
         super(world,pos);
         this.pos = new Vector(pos);
-        System.out.println(this.pos);
         init();
         reset();
     }
@@ -27,6 +26,11 @@ public abstract class Decoration extends WorldObject {
 
     public boolean getFlipped(){return flipped;}
 
+    @Override
+    public Image getImage() {
+        return lastImage;
+    }
+
     public abstract void updateImage();
 
     protected final DecorationFace getFace(){
@@ -36,12 +40,10 @@ public abstract class Decoration extends WorldObject {
         if(pos.getY()%2==0) //Horizontal
         {
             if(world.checkIfEmptyBlock(pos.getX(),pos.getY()/2)){
-                if(world.checkIfEmptyBlock(pos.getX(),pos.getY()/2+1)) {
+                if(world.checkIfEmptyBlock(pos.getX(),pos.getY()/2-1)) {
 
-                    decorationFace.face = DecorationFace.Face.Vertical;
-                    DecorationFace.Position posUpper = getDecorationFacePosition(1,1,XY.x); //Ordinalet (nr) i Position Enumet svarer til hvor mange blokke der er nær decorationen, dvs. den vælger den med færrest hvilket oversætter til en prioritering af Solo>Left>Right>Center
-                    DecorationFace.Position posLower = getDecorationFacePosition(1,0,XY.x);
-                    decorationFace.position = posUpper.ordinal() > posLower.ordinal() ? posUpper : posLower;
+                    decorationFace.face = DecorationFace.Face.None;
+                    decorationFace.position = null;
 
                 } else {
 
@@ -49,11 +51,18 @@ public abstract class Decoration extends WorldObject {
                     decorationFace.position = getDecorationFacePosition(1,0,XY.x);
                 }
             }
-            else if(world.checkIfEmptyBlock(pos.getX(),pos.getY()/2+1)){
+            else if(world.checkIfEmptyBlock(pos.getX(),pos.getY()/2-1)){
 
                 decorationFace.face = DecorationFace.Face.Down;
                 decorationFace.position = getDecorationFacePosition(1,1,XY.x);
 
+            }
+            else
+            {
+                decorationFace.face = DecorationFace.Face.Vertical;
+                DecorationFace.Position posUpper = getDecorationFacePosition(1,1,XY.x); //Ordinalet (nr) i Position Enumet svarer til hvor mange blokke der er nær decorationen, dvs. den vælger den med færrest hvilket oversætter til en prioritering af Solo>Left>Right>Center
+                DecorationFace.Position posLower = getDecorationFacePosition(1,0,XY.x);
+                decorationFace.position = posUpper.ordinal() > posLower.ordinal() ? posUpper : posLower;
             }
         }
         else                //Vertical
@@ -61,22 +70,27 @@ public abstract class Decoration extends WorldObject {
             if(world.checkIfEmptyBlock(pos.getX(),(pos.getY()-1)/2)){
                 if(world.checkIfEmptyBlock(pos.getX()-1,(pos.getY()-1)/2)) {
 
-                    decorationFace.face = DecorationFace.Face.Horizontal;
-                    DecorationFace.Position posUpper = getDecorationFacePosition(-1,1,XY.y); //Ordinalet (nr) i Position Enumet svarer til hvor mange blokke der er nær decorationen, dvs. den vælger den med færrest hvilket oversætter til en prioritering af Solo>Left>Right>Center
-                    DecorationFace.Position posLower = getDecorationFacePosition(0,1,XY.y);
-                    decorationFace.position = posUpper.ordinal() > posLower.ordinal() ? posUpper : posLower;
+                    decorationFace.face = DecorationFace.Face.None;
+                    decorationFace.position = null;
 
                 } else {
 
-                    decorationFace.face = DecorationFace.Face.Left;
+                    decorationFace.face = DecorationFace.Face.Right;
                     decorationFace.position = getDecorationFacePosition(0,1,XY.y);
                 }
             }
             else if(world.checkIfEmptyBlock(pos.getX()-1,(pos.getY()-1)/2)){
 
-                decorationFace.face = DecorationFace.Face.Right;
+                decorationFace.face = DecorationFace.Face.Left;
                 decorationFace.position = getDecorationFacePosition(-1,1,XY.x);
 
+            }
+            else
+            {
+                decorationFace.face = DecorationFace.Face.Horizontal;
+                DecorationFace.Position posUpper = getDecorationFacePosition(-1,1,XY.y); //Ordinalet (nr) i Position Enumet svarer til hvor mange blokke der er nær decorationen, dvs. den vælger den med færrest hvilket oversætter til en prioritering af Solo>Left>Right>Center
+                DecorationFace.Position posLower = getDecorationFacePosition(0,1,XY.y);
+                decorationFace.position = posUpper.ordinal() > posLower.ordinal() ? posUpper : posLower;
             }
         }
 

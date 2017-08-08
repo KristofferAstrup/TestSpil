@@ -34,7 +34,7 @@ public class EditorState implements IState {
     private KeyboardController keyboardController;
     private MouseController mouseController;
     private World world;
-    public static double time = 0;
+    public double time = 0;
     private DynamicVector worldTarget;
     private DynamicVector cameraPivot;
     private DynamicVector mousePanCameraPivot;
@@ -47,7 +47,7 @@ public class EditorState implements IState {
     private double mousePanSpeedBase = 20;
     private double mousePanSpeedFast = 40;
 
-    private double gridSize = 1;
+    private DynamicVector gridSize = new DynamicVector(1,1);
 
     private double zoomScale = 2;
 
@@ -61,11 +61,14 @@ public class EditorState implements IState {
     private int ObjTypesPerLine = 10;
 
     public double getZoomScale(){return zoomScale;}
-    public Vector getWorldTarget() {return worldTarget;}
+    public DynamicVector getWorldTarget() {return worldTarget;}
+    public double getTime() {return time;}
+    public DynamicVector getGridSize() {return gridSize;}
     public Vector getObjectMenuTarget() {return objectMenuTarget;}
     public Vector getObjectMenuSelected(){return objectMenuSelected;}
     public DynamicVector getCameraPivot(){return cameraPivot;}
     public EditorMode getEditorMode(){return mode;}
+
 
     public EditorState(KeyboardController keyboardController,MouseController mouseController,View view)
     {
@@ -147,7 +150,7 @@ public class EditorState implements IState {
         {
             case blocks:
             {
-                world.deleteBlock(target);
+                world.deleteBlock(target,true);
             }
             case mobs:
             {
@@ -241,20 +244,39 @@ public class EditorState implements IState {
 
             if(keyboardController.getKeyJustPressed(KeyCode.Y))
             {
-                createWorldObject(Grass.class,world,worldTarget);
+                DynamicVector t = worldTarget.multiply(1,2);
+                System.out.println("TARGET : " + t + " | " + worldTarget);
+                createWorldObject(Grass.class,world,t);
+            }
+            if(keyboardController.getKeyJustPressed(KeyCode.U))
+            {
+                DynamicVector t = worldTarget.multiply(1,2).add(0,0.5);
+                System.out.println("TARGET : " + t + " | " + worldTarget);
+                createWorldObject(Grass.class,world,t);
             }
 
-            if(((keyboardController.getKeyPressed(KeyCode.SPACE) || mouseController.getButtonPressed(MouseButton.PRIMARY)) && editorClassGroup==EditorClassGroup.blocks) || keyboardController.getKeyJustPressed(KeyCode.SPACE))
-            {
-                createWorldObject(editorClassSelected.getClasss(),world,worldTarget);
-            }
-            if(keyboardController.getKeyPressed(KeyCode.BACK_SPACE))
+            if(keyboardController.getKeyPressed(KeyCode.BACK_SPACE) || mouseController.getButtonPressed(MouseButton.MIDDLE))
             {
                 deleteObj(world,worldTarget,editorClassGroup);
+                view.setTargetEffect(true);
             }
+            else if(((keyboardController.getKeyPressed(KeyCode.SPACE) || mouseController.getButtonPressed(MouseButton.PRIMARY)) && editorClassGroup==EditorClassGroup.blocks) || keyboardController.getKeyJustPressed(KeyCode.SPACE))
+            {
+                view.setTargetEffect(false);
+                createWorldObject(editorClassSelected.getClasss(),world,worldTarget);
+            }
+            else
+            {
+                view.setTargetEffect(false);
+            }
+
             if(keyboardController.getKeyPressed(KeyCode.ENTER))
             {
                 world.setPlayerSpawnPoint(worldTarget.getDynamicVector());
+            }
+            if(keyboardController.getKeyJustPressed(KeyCode.P))
+            {
+                System.out.println(worldTarget);
             }
             if(keyboardController.getKeyJustPressed(KeyCode.M))
             {
@@ -323,23 +345,28 @@ public class EditorState implements IState {
         }
     }
 
-    private Vector getVectorInWorldBounds(Vector vector)
+    private DynamicVector getVectorInWorldBounds(DynamicVector dynamicVector)
     {
-        vector = new Vector(vector);
+        dynamicVector = new DynamicVector(dynamicVector);
 
-        if(vector.getX() < 0){vector.setX(0);}
-        else if(vector.getX() >= world.getWorldWidth()){vector.setX(world.getWorldWidth()-1);}
+        if(dynamicVector.getX_dyn() < 0){dynamicVector.setX_dyn(0);}
+        else if(dynamicVector.getX_dyn() >= world.getWorldWidth()){dynamicVector.setX_dyn(world.getWorldWidth()-1);}
 
-        if(vector.getY() < 0){vector.setY(0);}
-        else if(vector.getY() >= world.getWorldHeight()){vector.setY(world.getWorldHeight()-1);}
+        if(dynamicVector.getY() < 0){dynamicVector.setY(0);}
+        else if(dynamicVector.getY_dyn() >= world.getWorldHeight()){dynamicVector.setY_dyn(world.getWorldHeight()-1);}
 
-        return vector;
+        return dynamicVector;
     }
 
     private void moveWorldTarget(Vector movement)
     {
-        worldTarget.set(Math.min(world.getWorldWidth()-1,Math.max(0,worldTarget.getX()+movement.getX())),
-                Math.min(world.getWorldHeight()-1,Math.max(0,worldTarget.getY()+movement.getY())));
+        worldTarget.set(Math.min(world.getWorldWidth()-1,Math.max(0,roundScaled(worldTarget.getX_dyn()+gridSize.getX_dyn()*movement.getX(),gridSize.getX_dyn()))),
+                Math.min(world.getWorldHeight()-1,Math.max(0,roundScaled(worldTarget.getY_dyn()+gridSize.getY_dyn()*movement.getY(),gridSize.getY_dyn()))));
+    }
+
+    private double roundScaled(double value,double scale)
+    {
+        return Math.round(value*(1/scale))*scale;
     }
 
     private void moveObjectMenuTarget(Vector movement)

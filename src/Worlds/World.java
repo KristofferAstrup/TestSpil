@@ -284,6 +284,7 @@ public class World implements Serializable {
         if(checkIfEmptyDecoration(decoration.getPos())) {
             decorations[decoration.getPos().getX()][decoration.getPos().getY()] = decoration;
             worldObjects.add(decoration);
+            decoration.updateImage();
             decoration.init();
             decoration.reset();
             return true;

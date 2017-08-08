@@ -79,6 +79,8 @@ public class ImageLibrary {
                 "/Images/Decoration/Grass/grass_up_center1.png#" +
                 "/Images/Decoration/Grass/grass_up_center2.png#" +
                 "/Images/Decoration/Grass/grass_up_center3.png#" +
+                "/Images/Decoration/Grass/grass_left.png#" +
+                "/Images/Decoration/Grass/grass_down.png#" +
 
                 "/Images/Div/Fluff.png#" +
                 "/Images/Div/Fluff2.png#" +

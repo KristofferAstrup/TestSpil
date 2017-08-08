@@ -1,5 +1,6 @@
 package Worlds.WorldObjects;
 
+import Vectors.DynamicVector;
 import Vectors.Vector;
 import Worlds.World;
 import javafx.scene.image.Image;
@@ -30,7 +31,7 @@ public abstract class WorldObject implements Serializable {
     public WorldObject(World world,Vector pos)
     {
         setWorld(world);
-        origin = new Vector(pos);
+        origin = pos.duplicate();
     }
 
     public void setWorld(World world){this.world = world;}

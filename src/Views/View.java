@@ -26,8 +26,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 import javafx.scene.transform.Affine;
 import javafx.stage.*;
 
@@ -52,6 +51,8 @@ public class View {
 
     String[] paths;
     Group root = new Group();
+
+    boolean targetEffect = false;
 
     public View(Stage theStage)
     {
@@ -116,6 +117,8 @@ public class View {
         return scene;
     }
 
+    public void setTargetEffect(boolean effectActive) {targetEffect = effectActive;}
+
     public void addDebugGroup(DebugGroup debugGroup)
     {
         debugGroup.updateLayout(canvasDim);
@@ -135,9 +138,9 @@ public class View {
 
     public Vector getCanvasDim(){return canvasDim;}
 
-    public Vector getWorldPositionFromScreen(World world, Vector screenPos)
+    public DynamicVector getWorldPositionFromScreen(World world, DynamicVector screenPos)
     {
-        return new DynamicVector(Math.round((-cameraPan.getX_dyn()+screenPos.getX())/objectSize),cameraPan.getY_dyn()/objectSize+world.getWorldHeight()-screenPos.getY()/objectSize-1);
+        return new DynamicVector(Math.round((-cameraPan.getX_dyn()+screenPos.getX_dyn())/objectSize),cameraPan.getY_dyn()/objectSize+world.getWorldHeight()-screenPos.getY_dyn()/objectSize-1);
     }
 
     public void update(IState state)
@@ -196,13 +199,13 @@ public class View {
         setWinScale(editorState.getZoomScale(),editorState.getWorld());
         panCamera(editorState.getWorld(), editorState.getCameraPivot());
         //panCamera(editorState.getWorld(),new DynamicVector(0,-editorState.getWorld().getWorldHeight()));
-        drawGrid(editorState.getWorld());
+        drawGrid(editorState.getWorld(),editorState.getGridSize());
         drawBlocks(editorState.getWorld());
         drawDecorations(editorState.getWorld());
         drawDynamics(editorState.getWorld());
         drawDetails(editorState.getWorld());
 
-        drawTarget(editorState.getWorld(), editorState.getWorldTarget(),editorState.getObjTypeSelected());
+        drawTarget(editorState.getWorld(), editorState.getWorldTarget(),editorState.getTime(),editorState.getObjTypeSelected());
         drawSpawn(editorState.getWorld());
 
         if(Controller.debugging()){
@@ -249,6 +252,7 @@ public class View {
     private void drawBlocks(World world)
     {
         gc.setFill(Color.BLACK);
+        gc.setGlobalAlpha(1);
         for(int x=0;x<world.getBlocks().length;x++){
             for(int y=0;y<world.getBlocks()[x].length;y++){
                 if(world.getBlocks()[x][y] != null)
@@ -276,8 +280,9 @@ public class View {
                 if(world.getDecorations()[x][y] != null)
                 {
                     Image img = world.getDecorations()[x][y].getImage();
-                    double x_pos = x*objectSize-(y&2)*0.5;
-                    double y_pos = (world.getBlocks()[x].length-y-1)*objectSize*0.5;
+                    double x_pos = (x-(y%2)*0.5)*objectSize;
+                    double y_pos = (world.getDecorations()[x].length-y-1)*objectSize*0.5-0.5*objectSize;
+                    //System.out.println("DRAW: " + (world.getDecorations()[x].length-y-1));
                     Affine affine = new Affine();
                     affine.appendTranslation(x_pos + cameraPan.getX_dyn(),y_pos + cameraPan.getY_dyn());
                     affine.appendScale(world.getDecorations()[x][y].getFlipped()?-1:1,1);
@@ -416,9 +421,9 @@ public class View {
         double transx = -panTarget.getX_dyn()+canvasDim.getX()/2;
         double transy = -panTarget.getY_dyn()+canvasDim.getY()/2;
 
-        //Reason for it being objectSize/2 as the min is that blocks are drawed from their center, meaning they would be halfed, if objectSize/2 was not there.
-        cameraPan.setX_dyn(Math.max(Math.min(objectSize/2,transx),-cameraPanBoundaries.getX()+objectSize/2));
-        cameraPan.setY_dyn(Math.max(Math.min(objectSize/2,transy),-cameraPanBoundaries.getY()+objectSize/2));
+        //Reason for it being objectSize/2 as the min is that blocks are drawn from their center, meaning they would be halfed, if objectSize/2 was not there.
+        cameraPan.setX_dyn(Math.max(Math.min(objectSize/2,transx),-cameraPanBoundaries.getX()+objectSize/2+objectSize));
+        cameraPan.setY_dyn(Math.max(Math.min(objectSize/2,transy-objectSize),-cameraPanBoundaries.getY()+objectSize/2));
     }
 
     private DynamicVector getPanTarget(World world, DynamicVector target)
@@ -427,28 +432,62 @@ public class View {
                 (world.getWorldHeight() - target.getY_dyn() - 1) * objectSize - objectSize / 2.0);
     }
 
-    private void drawGrid(World world)
+    private void drawGrid(World world,DynamicVector gridSize)
     {
         Affine affine = new Affine();
         affine.appendTranslation(cameraPan.getX_dyn(),cameraPan.getY_dyn());
         gc.setTransform(affine);
-        for(int x=0;x<world.getWorldWidth();x++)
+        gc.setGlobalAlpha(0.25);
+        double gridsPerUnitX = (1/gridSize.getX_dyn());
+        double gridsPerUnitY = (1/gridSize.getY_dyn());
+        for(int x=0;x<world.getWorldWidth()*gridsPerUnitX;x++)
         {
-            for(int y=0;y<world.getWorldHeight();y++)
+            for(int y=0;y<world.getWorldHeight()*gridsPerUnitY;y++)
             {
+                //gc.setGlobalAlpha((x%gridsPerUnitX==0 && y%gridsPerUnitY==0)?1:0.2);
                 gc.setFill(Color.GRAY);
-                gc.strokeRect(x*objectSize-objectSize/2,y*objectSize-objectSize/2,objectSize,objectSize);
+                gc.strokeRect((x*objectSize)*gridSize.getX_dyn()-objectSize/2,(y*objectSize)*gridSize.getY_dyn()-objectSize/2,objectSize*gridSize.getX_dyn(),objectSize*gridSize.getY_dyn());
             }
         }
     }
 
-    private void drawTarget(World world,Vector target,EditorClass editorClass)
+    private void drawTarget(World world,DynamicVector target,double time,EditorClass editorClass)
     {
-        gc.setGlobalAlpha(0.6+0.2*Math.sin(Math.toRadians(EditorState.time*90)));
+        gc.setGlobalAlpha(0.6+0.2*Math.sin(Math.toRadians(time*90)));
         Affine affine = new Affine();
-        affine.appendTranslation(target.getX()*objectSize + cameraPan.getX_dyn() - objectSize/2,(world.getWorldHeight()-1-target.getY())*objectSize + cameraPan.getY_dyn() - objectSize/2);
+        double x = target.getX_dyn()*objectSize + cameraPan.getX_dyn();
+        double y = (world.getWorldHeight()-1-target.getY_dyn())*objectSize + cameraPan.getY_dyn();
+        affine.appendTranslation(x,y);
         gc.setTransform(affine);
-        gc.drawImage(editorClass.getImage(),0,0,objectSize,objectSize);
+
+        if(targetEffect)
+        {
+            gc.setFill(Color.GREY);
+            double width = 2.5;
+            gc.setLineWidth(width*2);
+
+            int frame = ((int)(time*8)) % 4;
+            System.out.println(frame);
+            switch(frame)
+            {
+                case 0:
+                    gc.strokeLine(-objectSize*0.5,-objectSize*0.5+width,-objectSize*0.5,objectSize*0.5-width);
+                    break;
+                case 1:
+                    gc.strokeLine(-objectSize*0.5+width,objectSize*0.5,objectSize*0.5-width,objectSize*0.5);
+                    break;
+                case 2:
+                    gc.strokeLine(objectSize*0.5,objectSize*0.5-width,objectSize*0.5,-objectSize*0.5+width);
+                    break;
+                case 3:
+                    gc.strokeLine(objectSize*0.5-width,-objectSize*0.5,-objectSize*0.5+width,-objectSize*0.5);
+                    break;
+            }
+        }
+        else
+        {
+            gc.drawImage(editorClass.getImage(),-objectSize/2.0,-objectSize/2.0,objectSize,objectSize);
+        }
     }
 
     private void drawSpawn(World world)
