@@ -117,15 +117,16 @@ public class EditorState implements IState {
 
             if(Block.class.isAssignableFrom(c)) {
                 Constructor ctor = c.getDeclaredConstructor(World.class, Vector.class);
-                worldObject = (WorldObject) ctor.newInstance(world, new Vector(pos));
+                worldObject = (Block) ctor.newInstance(world, new Vector(pos));
             }
             else if(Decoration.class.isAssignableFrom(c)) {
                 Constructor ctor = c.getDeclaredConstructor(World.class, Vector.class);
-                worldObject = (WorldObject) ctor.newInstance(world, new Vector(pos));
+                worldObject = (Decoration) ctor.newInstance(world, new Vector(pos));
+                System.out.println(((Decoration)worldObject).getPos().getX());
             }
             else if(DynamicObject.class.isAssignableFrom(c)) {
                 Constructor ctor = c.getDeclaredConstructor(World.class, DynamicVector.class);
-                worldObject = (WorldObject) ctor.newInstance(world, pos);
+                worldObject = (DynamicObject) ctor.newInstance(world, pos);
             }
             if(worldObject == null) throw new RuntimeException("Class is assignable from WorldObjects but not supported by the createWorldObject method");
 

@@ -14,8 +14,15 @@ public abstract class Decoration extends WorldObject {
     public Decoration(World world, Vector pos) {
         super(world,pos);
         this.pos = new Vector(pos);
+        System.out.println(this.pos);
         init();
         reset();
+    }
+
+    @Override
+    public Vector getPos()
+    {
+        return pos;
     }
 
     public boolean getFlipped(){return flipped;}

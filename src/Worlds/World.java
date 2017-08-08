@@ -192,7 +192,10 @@ public class World implements Serializable {
         return blocks[x][y] == null || blocks[x][y].isDestroyed();
     }
 
-    public boolean checkIfEmptyDecoration(Vector pos){return checkIfEmptyDecoration(pos.getX(),pos.getY());}
+    public boolean checkIfEmptyDecoration(Vector pos){
+        System.out.println(decorations.length + ":" + decorations[0].length);
+        return checkIfEmptyDecoration(pos.getX(),pos.getY());
+    }
     public boolean checkIfEmptyDecoration(int x, int y)
     {
         if(outsideDecorationBoundary(x,y)){return true;}
@@ -201,15 +204,15 @@ public class World implements Serializable {
 
     public void addWorldObject(WorldObject worldObject){
 
-        boolean succes = false;
+        boolean success = false;
 
         if(worldObject instanceof Block)
         {
-            succes = addBlock((Block)worldObject,true);
+            success = addBlock((Block)worldObject,true);
         }
         else if(worldObject instanceof Decoration)
         {
-            succes = addDecoration((Decoration)worldObject);
+            success = addDecoration((Decoration)worldObject);
         }
         else if(worldObject instanceof DynamicObject)
         {
@@ -221,10 +224,10 @@ public class World implements Serializable {
                 goal = (Goal)worldObject;
             }
 
-            succes = true;
+            success = true;
         }
 
-        if(succes){
+        if(success){
             System.out.println("Added WorldObjects of type: " + worldObject.getClass().getName());
         }
     }
@@ -278,7 +281,7 @@ public class World implements Serializable {
     }
 
     public boolean addDecoration(Decoration decoration){
-        if(checkIfEmptyBlock(decoration.getPos())) {
+        if(checkIfEmptyDecoration(decoration.getPos())) {
             decorations[decoration.getPos().getX()][decoration.getPos().getY()] = decoration;
             worldObjects.add(decoration);
             decoration.init();
