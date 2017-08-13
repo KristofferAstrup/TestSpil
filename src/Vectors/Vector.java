@@ -92,10 +92,12 @@ public class Vector implements Serializable {
         return new Vector(this.x-x,this.y-y);
     }
 
-    public Vector mulitply(int d)
+    public Vector multiply(int i)
     {
-        return new Vector(x*d,y*d);
+        return new Vector(x*i,y*i);
     }
+
+    public Vector multiply(int xi,int yi) {return new Vector(x*xi,y*yi);}
 
     public double dist(Vector v)
     {

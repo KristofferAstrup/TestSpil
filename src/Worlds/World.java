@@ -10,6 +10,7 @@ import Worlds.WorldObjects.Blocks.BlockedDirs;
 import Worlds.WorldObjects.Blocks.BlockedOrientation;
 import Worlds.WorldObjects.Blocks.DirtBlock;
 import Worlds.WorldObjects.Decorations.Decoration;
+import Worlds.WorldObjects.Decorations.DecorationFace;
 import Worlds.WorldObjects.DynamicObjects.DynamicObject;
 import Worlds.WorldObjects.DynamicObjects.Goal;
 import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Mobs.Mob;
@@ -263,6 +264,9 @@ public class World implements Serializable {
         if(checkIfEmptyBlock(block.getPos())) {
             blocks[block.getPos().getX()][block.getPos().getY()] = block;
             worldObjects.add(block);
+
+            updateDecorations(block.getPos());
+
             block.init();
             block.reset();
             return true;
@@ -281,7 +285,7 @@ public class World implements Serializable {
     }
 
     public boolean addDecoration(Decoration decoration){
-        if(checkIfEmptyDecoration(decoration.getPos())) {
+        if(checkIfEmptyDecoration(decoration.getPos()) && getFace(decoration.getPos().getDynamicVector()).face != DecorationFace.Face.None) {
             decorations[decoration.getPos().getX()][decoration.getPos().getY()] = decoration;
             worldObjects.add(decoration);
             decoration.updateImage();
@@ -290,6 +294,30 @@ public class World implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public void deleteDecoration(Vector pos)
+    {
+        deleteDecoration(pos,true);
+    }
+
+    public void deleteDecoration(Decoration decoration)
+    {
+        deleteDecoration(decoration.getPos(),true);
+    }
+
+    public void deleteDecoration(Decoration decoration,boolean updateImages)
+    {
+        deleteDecoration(decoration.getPos(),updateImages);
+    }
+
+    public void deleteDecoration(Vector pos,boolean updateImages)
+    {
+        if(!checkIfEmptyDecoration(pos.getX(),pos.getY())){
+            worldObjects.remove(decorations[pos.getX()][pos.getY()]);
+            decorations[pos.getX()][pos.getY()].die();
+            decorations[pos.getX()][pos.getY()] = null;
+        }
     }
 
     public void deleteWorldObject(WorldObject worldObject){
@@ -319,8 +347,37 @@ public class World implements Serializable {
             worldObjects.remove(blocks[pos.getX()][pos.getY()]);
             blocks[pos.getX()][pos.getY()].die();
             blocks[pos.getX()][pos.getY()] = null;
+
+            updateDecorations(pos);
+
             if(updateImage)updateImageOnBlockCluster(pos);
             //throw new RuntimeException("A block a was attempted deleted at: " + pos.toString() + ", but was not found in the blocks 2D-array!");
+        }
+    }
+
+    public void updateDecorations(Vector blockPos)
+    {
+        Vector decorationPos = blockPos.multiply(1,2);
+        updateDecoration(decorationPos); //Down
+        updateDecoration(decorationPos.add(0,2)); //Up
+        updateDecoration(decorationPos.add(0,1)); //Left
+        updateDecoration(decorationPos.add(1,1)); //Right
+    }
+
+    private void updateDecoration(Vector decorationPos)
+    {
+        Decoration decoration = decorations[decorationPos.getX()][decorationPos.getY()];
+        if(decoration == null)return;
+        updateDecoration(decoration);
+    }
+
+    private void updateDecoration(Decoration decoration)
+    {
+        DecorationFace decorationFace = getFace(decoration.getPos());
+        if(decorationFace.face == DecorationFace.Face.None){
+            deleteDecoration(decoration);
+        } else {
+            decoration.updateImage();
         }
     }
 
@@ -428,6 +485,108 @@ public class World implements Serializable {
                 }
             }
         }
+    }
+
+    public DecorationFace getFace(Vector pos){
+
+        DecorationFace decorationFace = new DecorationFace();
+
+        if(pos.getY()%2==0) //Horizontal
+        {
+            if(checkIfEmptyBlock(pos.getX(),pos.getY()/2)){
+                if(checkIfEmptyBlock(pos.getX(),pos.getY()/2-1)) {
+
+                    decorationFace.face = DecorationFace.Face.None;
+                    decorationFace.position = null;
+
+                } else {
+
+                    decorationFace.face = DecorationFace.Face.Up;
+                    decorationFace.position = getDecorationFacePosition(pos,1,0, XY.x);
+                }
+            }
+            else if(checkIfEmptyBlock(pos.getX(),pos.getY()/2-1)){
+
+                decorationFace.face = DecorationFace.Face.Down;
+                decorationFace.position = getDecorationFacePosition(pos,1,1, XY.x);
+
+            }
+            else
+            {
+                decorationFace.face = DecorationFace.Face.Horizontal;
+                DecorationFace.Position posUpper = getDecorationFacePosition(pos,1,1, XY.x); //Ordinalet (nr) i Position Enumet svarer til hvor mange blokke der er nær decorationen, dvs. den vælger den med færrest hvilket oversætter til en prioritering af Solo>Left>Right>Center
+                DecorationFace.Position posLower = getDecorationFacePosition(pos,1,0, XY.x);
+                decorationFace.position = posUpper.ordinal() > posLower.ordinal() ? posUpper : posLower;
+            }
+        }
+        else                //Vertical
+        {
+            if(checkIfEmptyBlock(pos.getX(),(pos.getY()-1)/2)){
+                if(checkIfEmptyBlock(pos.getX()-1,(pos.getY()-1)/2)) {
+
+                    decorationFace.face = DecorationFace.Face.None;
+                    decorationFace.position = null;
+
+                } else {
+
+                    decorationFace.face = DecorationFace.Face.Right;
+                    decorationFace.position = getDecorationFacePosition(pos,0,1, XY.y);
+                }
+            }
+            else if(checkIfEmptyBlock(pos.getX()-1,(pos.getY()-1)/2)){
+
+                decorationFace.face = DecorationFace.Face.Left;
+                decorationFace.position = getDecorationFacePosition(pos,-1,1, XY.x);
+
+            }
+            else
+            {
+                decorationFace.face = DecorationFace.Face.Vertical;
+                DecorationFace.Position posUpper = getDecorationFacePosition(pos,-1,1, XY.y); //Ordinalet (nr) i Position Enumet svarer til hvor mange blokke der er nær decorationen, dvs. den vælger den med færrest hvilket oversætter til en prioritering af Solo>Left>Right>Center
+                DecorationFace.Position posLower = getDecorationFacePosition(pos,0,1, XY.y);
+                decorationFace.position = posUpper.ordinal() > posLower.ordinal() ? posUpper : posLower;
+            }
+        }
+
+        if(decorationFace.face == null)
+        {
+            throw new RuntimeException("Was unable to find a matching DecorationFace!");
+        }
+
+        return decorationFace;
+    }
+
+    private DecorationFace.Position getDecorationFacePosition(Vector pos,int dx,int dy,XY xy)
+    {
+        int y = (pos.getY()-(xy==XY.y?1:0))/2;
+        int x = pos.getX();
+        int rdx = (xy==XY.x?-dx:dx);
+        int rdy = (xy==XY.y?-dy:dy);
+        if(checkIfEmptyBlock(x+dx+dy,y+dx+dy))
+        {
+            if(checkIfEmptyBlock(x+rdx+rdy,y+rdx+rdy))
+            {
+                return DecorationFace.Position.Solo;
+            }
+            else
+            {
+                return DecorationFace.Position.Right;
+            }
+        }
+        else if(checkIfEmptyBlock(x+rdx+rdy,y+rdx+rdy))
+        {
+            return DecorationFace.Position.Left;
+        }
+        else
+        {
+            return DecorationFace.Position.Center;
+        }
+    }
+
+    private enum XY
+    {
+        x,
+        y
     }
 
     private boolean sameBlockType(Block block, Block target)

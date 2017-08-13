@@ -244,13 +244,13 @@ public class EditorState implements IState {
 
             if(keyboardController.getKeyJustPressed(KeyCode.Y))
             {
-                DynamicVector t = worldTarget.multiply(1,2);
+                DynamicVector t = worldTarget.multiply(1.0,2.0);
                 System.out.println("TARGET : " + t + " | " + worldTarget);
                 createWorldObject(Grass.class,world,t);
             }
             if(keyboardController.getKeyJustPressed(KeyCode.U))
             {
-                DynamicVector t = worldTarget.multiply(1,2).add(0,0.5);
+                DynamicVector t = worldTarget.multiply(1.0,2.0).add(0,0.5);
                 System.out.println("TARGET : " + t + " | " + worldTarget);
                 createWorldObject(Grass.class,world,t);
             }
