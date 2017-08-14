@@ -487,7 +487,7 @@ public class World implements Serializable {
         }
     }
 
-    public DecorationFace getFace(Vector pos){
+    public DecorationFace getFace(Vector pos){ //Pos is the position of the decoration NOT the block pos!
 
         DecorationFace decorationFace = new DecorationFace();
 
@@ -558,13 +558,13 @@ public class World implements Serializable {
 
     private DecorationFace.Position getDecorationFacePosition(Vector pos,int dx,int dy,XY xy)
     {
-        int y = (pos.getY()-(xy==XY.y?1:0))/2;
+        int y = pos.getY();//(pos.getY()-(xy==XY.y?1:0))/2;
         int x = pos.getX();
         int rdx = (xy==XY.x?-dx:dx);
         int rdy = (xy==XY.y?-dy:dy);
-        if(checkIfEmptyBlock(x+dx+dy,y+dx+dy))
+        if(checkIfEmptyDecoration(x+dx+dy,y+dx+dy))
         {
-            if(checkIfEmptyBlock(x+rdx+rdy,y+rdx+rdy))
+            if(checkIfEmptyDecoration(x+rdx+rdy,y+rdx+rdy))
             {
                 return DecorationFace.Position.Solo;
             }
@@ -573,7 +573,7 @@ public class World implements Serializable {
                 return DecorationFace.Position.Right;
             }
         }
-        else if(checkIfEmptyBlock(x+rdx+rdy,y+rdx+rdy))
+        else if(checkIfEmptyDecoration(x+rdx+rdy,y+rdx+rdy))
         {
             return DecorationFace.Position.Left;
         }
