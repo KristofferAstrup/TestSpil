@@ -213,7 +213,7 @@ public class World implements Serializable {
         }
         else if(worldObject instanceof Decoration)
         {
-            success = addDecoration((Decoration)worldObject);
+            success = addDecoration((Decoration)worldObject,true);
         }
         else if(worldObject instanceof DynamicObject)
         {
@@ -294,6 +294,16 @@ public class World implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public boolean addDecoration(Decoration decoration, boolean updateImages)
+    {
+        boolean succes = addDecoration(decoration);
+        if(succes && updateImages)
+        {
+            updateAdjacentDecorations(decoration);
+        }
+        return succes;
     }
 
     public void deleteDecoration(Vector pos)
@@ -487,6 +497,32 @@ public class World implements Serializable {
         }
     }
 
+    public void updateAdjacentDecorations(Decoration decoration)
+    {
+        DecorationFace dface = decoration.getDecorationFace();
+
+        if(dface == null) throw new RuntimeException("Trying to update adjacent decorations via a decoration with a decorationface with a value of null!");
+        if(dface.face == null) throw new RuntimeException("Trying to update adjacent decorations via a decoration with a face with a value of null!");
+        if(dface.face == DecorationFace.Face.None) throw new RuntimeException("Trying to update adjacent decorations via a decoration with a face of value Face.None!");
+
+        if(dface.face == DecorationFace.Face.Up || dface.face == DecorationFace.Face.Down || dface.face == DecorationFace.Face.Horizontal)
+        {
+            Vector leftPos = decoration.getPos().add(-1,0);
+            if(!checkIfEmptyDecoration(leftPos)) updateDecoration(leftPos);
+
+            Vector rightPos = decoration.getPos().add(1,0);
+            if(!checkIfEmptyDecoration(rightPos)) updateDecoration(rightPos);
+        }
+        else
+        {
+            Vector leftPos = decoration.getPos().add(0,-2);
+            if(!checkIfEmptyDecoration(leftPos)) updateDecoration(leftPos);
+
+            Vector rightPos = decoration.getPos().add(0,2);
+            if(!checkIfEmptyDecoration(rightPos)) updateDecoration(rightPos);
+        }
+    }
+
     public DecorationFace getFace(Vector pos){ //Pos is the position of the decoration NOT the block pos!
 
         DecorationFace decorationFace = new DecorationFace();
@@ -508,7 +544,7 @@ public class World implements Serializable {
             else if(checkIfEmptyBlock(pos.getX(),pos.getY()/2-1)){
 
                 decorationFace.face = DecorationFace.Face.Down;
-                decorationFace.position = getDecorationFacePosition(pos,1,1, XY.x);
+                decorationFace.position = getDecorationFacePosition(pos,1,0, XY.x);
 
             }
             else
@@ -558,27 +594,32 @@ public class World implements Serializable {
 
     private DecorationFace.Position getDecorationFacePosition(Vector pos,int dx,int dy,XY xy)
     {
-        int y = pos.getY();//(pos.getY()-(xy==XY.y?1:0))/2;
-        int x = pos.getX();
-        int rdx = (xy==XY.x?-dx:dx);
-        int rdy = (xy==XY.y?-dy:dy);
-        if(checkIfEmptyDecoration(x+dx+dy,y+dx+dy))
+        int x = pos.getX() + (xy!=XY.x?dx:0);
+        int y = pos.getY() + (xy!=XY.y?dy:0);
+        dx = xy==XY.x?dx:0;
+        dy = xy==XY.y?dy:0;
+
+        if(checkIfEmptyDecoration(x+dx,y+dy))
         {
-            if(checkIfEmptyDecoration(x+rdx+rdy,y+rdx+rdy))
+            if(checkIfEmptyDecoration(x-dx,y-dy))
             {
+                System.out.println("Solo");
                 return DecorationFace.Position.Solo;
             }
             else
             {
+                System.out.println("Right");
                 return DecorationFace.Position.Right;
             }
         }
-        else if(checkIfEmptyDecoration(x+rdx+rdy,y+rdx+rdy))
+        else if(checkIfEmptyDecoration(x-dx,y-dy))
         {
+            System.out.println("Left");
             return DecorationFace.Position.Left;
         }
         else
         {
+            System.out.println("Center");
             return DecorationFace.Position.Center;
         }
     }

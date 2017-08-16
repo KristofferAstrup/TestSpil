@@ -10,6 +10,7 @@ public abstract class Decoration extends WorldObject {
     protected Vector pos;
     protected transient boolean flipped;
     protected transient Image lastImage;
+    protected transient DecorationFace lastFace;
 
     public Decoration(World world, Vector pos) {
         super(world,pos);
@@ -30,6 +31,8 @@ public abstract class Decoration extends WorldObject {
     public Image getImage() {
         return lastImage;
     }
+
+    public DecorationFace getDecorationFace() {return lastFace;}
 
     public abstract void updateImage();
 

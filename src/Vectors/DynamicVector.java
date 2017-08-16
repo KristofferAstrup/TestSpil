@@ -146,8 +146,8 @@ public class DynamicVector extends Vector implements Serializable {
     public void set(Vector pos)
     {
         super.set(pos);
-        x_dyn = pos.getX();
-        y_dyn = pos.getY();
+        x_dyn = pos.getX_dyn();
+        y_dyn = pos.getY_dyn();
     }
 
     @Override

@@ -17,6 +17,7 @@ public class Grass extends Decoration {
     @Override
     public void updateImage() {
         DecorationFace decorationFace = world.getFace(getPos().getDynamicVector());
+        lastFace = decorationFace;
         switch(decorationFace.face)
         {
             case Up:

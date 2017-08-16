@@ -47,7 +47,8 @@ public class EditorState implements IState {
     private double mousePanSpeedBase = 20;
     private double mousePanSpeedFast = 40;
 
-    private DynamicVector gridSize = new DynamicVector(1,1);
+    private DynamicVector gridSize = new DynamicVector(1,1).multiply(0.5);
+    private boolean gridEnabled = true;
 
     private double zoomScale = 2;
 
@@ -68,7 +69,7 @@ public class EditorState implements IState {
     public Vector getObjectMenuSelected(){return objectMenuSelected;}
     public DynamicVector getCameraPivot(){return cameraPivot;}
     public EditorMode getEditorMode(){return mode;}
-
+    public boolean getGridEnabled(){return gridEnabled;}
 
     public EditorState(KeyboardController keyboardController,MouseController mouseController,View view)
     {
@@ -232,14 +233,21 @@ public class EditorState implements IState {
         {
             if((!mouseController.getMouseMovement().equals(Vector.ZERO) || !mousePanDir.equals(Vector.ZERO))) {
 
-                worldTarget.set(view.getWorldPositionFromScreen(world,mouseController.getMousePosition()));
-                worldTarget = getVectorInWorldBounds(worldTarget).getDynamicVector();
+                DynamicVector worldPos = view.getWorldPositionFromScreen(world,mouseController.getMousePosition());
+                if(gridEnabled)worldPos.set(Math.round(worldPos.getX_dyn()*(1/gridSize.getX_dyn()))*gridSize.getX_dyn(),Math.round(worldPos.getY_dyn()*(1/gridSize.getY_dyn()))*gridSize.getY_dyn());
+                worldTarget.set(worldPos);
+                worldTarget = getVectorInWorldBounds(worldTarget);
 
                 panType = PanType.mouse;
             }
             else if (!movement.equals(Vector.ZERO)){
                 moveWorldTarget(movement);
                 panType = PanType.keyboard;
+            }
+
+            if(keyboardController.getKeyJustPressed(KeyCode.G))
+            {
+                gridEnabled = !gridEnabled;
             }
 
             if(keyboardController.getKeyJustPressed(KeyCode.Y))
@@ -292,10 +300,6 @@ public class EditorState implements IState {
                     fillBlock(world,worldTarget,editorClassSelected.getClasss());
                 }
             }
-            if(keyboardController.getKeyJustPressed(KeyCode.G))
-            {
-                createWorldObject(Goal.class,world,worldTarget);
-            }
             if(keyboardController.getKeyJustPressed(KeyCode.L))
             {
                 Controller.setWorld((World)SaveLoadController.loadFile("MyWorld"));
@@ -328,15 +332,10 @@ public class EditorState implements IState {
         }
         else if(panType == PanType.mouse){
 
-            if(mouseController.getButtonPressed(MouseButton.MIDDLE)) {
-                //cameraPivot.setAdd(new DynamicVector(2*delta,2*delta));
-            }
-            else {
-                double speed = keyboardController.getKeyPressed(KeyCode.ALT) ? mousePanSpeedFast : mousePanSpeedBase;
-                DynamicVector cameraPivotAdd = new DynamicVector(mousePanDir.getX_dyn() * delta * speed, mousePanDir.getY_dyn() * delta * speed);
-                cameraPivot.setAdd(cameraPivotAdd);
-                cameraPivot = view.getMinimumCornerCenterVector(world, cameraPivot);
-            }
+            double speed = keyboardController.getKeyPressed(KeyCode.ALT) ? mousePanSpeedFast : mousePanSpeedBase;
+            DynamicVector cameraPivotAdd = new DynamicVector(mousePanDir.getX_dyn() * delta * speed, mousePanDir.getY_dyn() * delta * speed);
+            cameraPivot.setAdd(cameraPivotAdd);
+            cameraPivot = view.getMinimumCornerCenterVector(world, cameraPivot);
         }
 
         if(keyboardController.getKeyJustPressed(KeyCode.SHIFT))
@@ -360,8 +359,8 @@ public class EditorState implements IState {
 
     private void moveWorldTarget(Vector movement)
     {
-        worldTarget.set(Math.min(world.getWorldWidth()-1,Math.max(0,roundScaled(worldTarget.getX_dyn()+gridSize.getX_dyn()*movement.getX(),gridSize.getX_dyn()))),
-                Math.min(world.getWorldHeight()-1,Math.max(0,roundScaled(worldTarget.getY_dyn()+gridSize.getY_dyn()*movement.getY(),gridSize.getY_dyn()))));
+        worldTarget.set(Math.min(world.getWorldWidth()-1,Math.max(0,roundScaled(worldTarget.getX_dyn()+gridSize.getX_dyn()*movement.getX_dyn(),gridSize.getX_dyn()))),
+                Math.min(world.getWorldHeight()-1,Math.max(0,roundScaled(worldTarget.getY_dyn()+gridSize.getY_dyn()*movement.getY_dyn(),gridSize.getY_dyn()))));
     }
 
     private double roundScaled(double value,double scale)

@@ -9,6 +9,7 @@ public class Goal extends DynamicObject {
 
     public Goal(World world, DynamicVector pos) {
         super(world, pos);
+        System.out.println("YY"+pos.getY_dyn());
     }
 
     @Override

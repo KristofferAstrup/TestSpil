@@ -13,6 +13,8 @@ public class KeyboardController extends KeyAdapter implements IUpdate {
 
     HashMap<KeyCode,Key> keys = new HashMap<>();
     Scene scene;
+    boolean anyKeyPressed = false;
+    boolean anyKeyJustPressed = false;
 
     public KeyboardController(Scene scene) {
 
@@ -54,8 +56,13 @@ public class KeyboardController extends KeyAdapter implements IUpdate {
         return false;
     }
 
+    public boolean getAnyPressed() {return anyKeyPressed;}
+    public boolean getAnyJustPressed() {return anyKeyJustPressed;}
+
     public void update(double delta)
     {
+        anyKeyJustPressed = false;
+        anyKeyPressed = false;
         for(Key key : keys.values())
         {
             key.update(delta);
@@ -75,7 +82,9 @@ public class KeyboardController extends KeyAdapter implements IUpdate {
         private void updatePressed(boolean pressed)
         {
             justPressed = !this.pressed && pressed;
+            if(justPressed)anyKeyJustPressed=true;
             this.pressed = pressed;
+            if(this.pressed)anyKeyPressed=true;
         }
         private void update(double delta)
         {

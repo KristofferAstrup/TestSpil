@@ -27,9 +27,12 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.*;
+import javafx.scene.text.Font;
 import javafx.scene.transform.Affine;
 import javafx.stage.*;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
 
 import static javafx.application.Application.launch;
@@ -53,6 +56,8 @@ public class View {
     Group root = new Group();
 
     boolean targetEffect = false;
+
+    DecimalFormat timeDecimalFormat = new DecimalFormat("0.0");
 
     public View(Stage theStage)
     {
@@ -140,7 +145,7 @@ public class View {
 
     public DynamicVector getWorldPositionFromScreen(World world, DynamicVector screenPos)
     {
-        return new DynamicVector(Math.round((-cameraPan.getX_dyn()+screenPos.getX_dyn())/objectSize),cameraPan.getY_dyn()/objectSize+world.getWorldHeight()-screenPos.getY_dyn()/objectSize-1);
+        return new DynamicVector((-cameraPan.getX_dyn()+screenPos.getX_dyn())/objectSize,cameraPan.getY_dyn()/objectSize+world.getWorldHeight()-screenPos.getY_dyn()/objectSize-1);
     }
 
     public void update(IState state)
@@ -160,10 +165,10 @@ public class View {
         gc.restore();
         stage.show();
 
-        for(int i=0;i<paths.length;i++)
+        /*for(int i=0;i<paths.length;i++)
         {
             gc.fillText(paths[i],25,25+i*25);
-        }
+        }*/
     }
 
     private void drawGameState(GameState gameState)
@@ -173,13 +178,20 @@ public class View {
         drawSky(gameState.getWorld());
         drawBackground(gameState.getWorld());
         drawBlocks(gameState.getWorld());
-        drawDecorations(gameState.getWorld());
         drawDynamics(gameState.getWorld());
+        drawDecorations(gameState.getWorld());
         drawGlobalParticleSystem(gameState.getWorld());
         drawImageParticleSystem(gameState.getWorld());
         drawDetails(gameState.getWorld());
 
-        gc.setTransform(new Affine());
+        Affine a = new Affine();
+        a.appendTranslation(50,50);
+        gc.setTransform(a);
+
+        gc.setFont(new Font("Verdana",24));
+        gc.fillText(timeDecimalFormat.format(gameState.getTime()),0,0);
+
+        /*gc.setTransform(new Affine());
         gc.setStroke(Color.LIGHTBLUE);
         gc.setGlobalAlpha(0.6);
 
@@ -191,18 +203,18 @@ public class View {
                 gc.strokeLine(x,y,
                         x-globalParticleSystem.getSpeed().getX_dyn()*25,
                         y+globalParticleSystem.getSpeed().getY_dyn()*25);
-            }
+            }*/
 
     }
 
-    private void drawEditorState(EditorState editorState) {
+    private void drawEditorState(EditorState editorState)
+    {
         setWinScale(editorState.getZoomScale(),editorState.getWorld());
         panCamera(editorState.getWorld(), editorState.getCameraPivot());
-        //panCamera(editorState.getWorld(),new DynamicVector(0,-editorState.getWorld().getWorldHeight()));
-        drawGrid(editorState.getWorld(),editorState.getGridSize());
+        if(editorState.getGridEnabled())drawGrid(editorState.getWorld(),editorState.getGridSize());
         drawBlocks(editorState.getWorld());
-        drawDecorations(editorState.getWorld());
         drawDynamics(editorState.getWorld());
+        drawDecorations(editorState.getWorld());
         drawDetails(editorState.getWorld());
 
         drawTarget(editorState.getWorld(), editorState.getWorldTarget(),editorState.getTime(),editorState.getObjTypeSelected());
