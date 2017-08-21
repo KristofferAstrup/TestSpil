@@ -250,6 +250,11 @@ public class EditorState implements IState {
                 gridEnabled = !gridEnabled;
             }
 
+            if(keyboardController.getKeyJustPressed(KeyCode.N))
+            {
+                world.addWorldObject(createWorldObject(Goal.class,world,worldTarget.add(0.0,0.5)));
+            }
+
             if(keyboardController.getKeyJustPressed(KeyCode.Y))
             {
                 DynamicVector t = worldTarget.multiply(1.0,2.0);

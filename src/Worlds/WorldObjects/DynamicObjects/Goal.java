@@ -7,6 +7,9 @@ import javafx.scene.image.Image;
 
 public class Goal extends DynamicObject {
 
+    public static final double enterDistance = 0.5;
+    public static final DynamicVector enterOffset = new DynamicVector(0,-0.5);
+
     public Goal(World world, DynamicVector pos) {
         super(world, pos);
         System.out.println("YY"+pos.getY_dyn());
@@ -25,6 +28,5 @@ public class Goal extends DynamicObject {
 
     @Override
     public void update(double delta) {
-
     }
 }

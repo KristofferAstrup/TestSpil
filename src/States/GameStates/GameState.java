@@ -6,6 +6,7 @@ import Vectors.DynamicVector;
 import Worlds.ParticleSystems.GlobalParticleSystem;
 import Worlds.World;
 import Worlds.WorldObjects.DynamicObjects.DynamicObject;
+import Worlds.WorldObjects.DynamicObjects.Goal;
 import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Mobs.Player;
 import javafx.scene.input.KeyCode;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -61,6 +62,7 @@ public class GameState implements IState {
         world.addPlayer(player);
         destroyedDynamicObjects = new ArrayList<>();
         world.worldStart();
+        levelComplete = false;
     }
 
     public World getWorld()
@@ -108,7 +110,13 @@ public class GameState implements IState {
                 for(DynamicObject dynamicObject : destroyedDynamicObjects){
                     world.deleteDynamicObject(dynamicObject);
                 }
-                destroyedDynamicObjects = new ArrayList<>();
+                destroyedDynamicObjects = new ArrayList<>(1);
+            }
+
+            //SHOULD BE REWRITTEN!!
+            if(world.getGoal().getPos().dist(world.getPlayerTarget(world.getGoal()).getPos().add(Goal.enterOffset)) < Goal.enterDistance)
+            {
+                completeLevel();
             }
         }
         for(GlobalParticleSystem globalParticleSystem : world.getGlobalParticleSystems())
@@ -116,6 +124,11 @@ public class GameState implements IState {
             globalParticleSystem.update(delta);
         }
         world.getImageParticleSystem().update(delta);
+    }
+
+    private void completeLevel()
+    {
+        levelComplete = true;
     }
 
 }

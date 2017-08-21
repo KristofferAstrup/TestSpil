@@ -101,6 +101,7 @@ public class World implements Serializable {
         details = new ArrayList<>(world.details);
         gravity = world.gravity;
         playerSpawnPoint = world.playerSpawnPoint;
+        goal = world.goal;
         backgroundElements = new ArrayList<>(world.backgroundElements);
         globalParticleSystems = new ArrayList<>(world.getGlobalParticleSystems());
         for(GlobalParticleSystem globalParticleSystem : globalParticleSystems)
@@ -141,6 +142,8 @@ public class World implements Serializable {
     public ImageParticleSystem getImageParticleSystem(){return imageParticleSystem;}
 
     public double getWindForce(){return windForce;}
+
+    public Goal getGoal(){return goal;}
 
     public void reset(){
         ArrayList<WorldObject> temporaryWorldObjects = new ArrayList<>();
