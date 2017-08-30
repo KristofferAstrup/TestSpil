@@ -9,9 +9,9 @@ import java.io.Serializable;
 public abstract class Projectile extends PhysicObject implements Serializable
 {
 
-    protected float angle = 0;
+    protected double angle = 0;
 
-    public Projectile(World world, DynamicVector pos, float angle) {
+    public Projectile(World world, DynamicVector pos, double angle) {
         super(world, pos);
         this.angle = angle;
     }

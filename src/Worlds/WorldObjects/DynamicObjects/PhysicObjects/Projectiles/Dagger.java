@@ -14,7 +14,7 @@ public class Dagger extends Projectile implements Serializable {
 
     private static double baseSpeed = 10;
 
-    public Dagger(World world, DynamicVector pos, float angle) {
+    public Dagger(World world, DynamicVector pos, double angle) {
         super(world, pos, angle);
 
     }

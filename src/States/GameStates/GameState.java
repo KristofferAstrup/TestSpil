@@ -3,13 +3,17 @@ package States.GameStates;
 import Controllers.*;
 import States.IState;
 import Vectors.DynamicVector;
+import Vectors.Vector;
+import Views.View;
 import Worlds.Dir;
 import Worlds.ParticleSystems.GlobalParticleSystem;
 import Worlds.World;
 import Worlds.WorldObjects.DynamicObjects.DynamicObject;
 import Worlds.WorldObjects.DynamicObjects.Goal;
 import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Mobs.Player;
+import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Projectiles.Dagger;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
@@ -24,6 +28,8 @@ public class GameState implements IState {
     private Player player;
     private PlayerController playerController;
     private KeyboardController keyboardController;
+    private MouseController mouseController;
+    private View view;
 
     private boolean playerWait = false;
     private boolean levelComplete = false;
@@ -34,9 +40,11 @@ public class GameState implements IState {
         throw new NotImplementedException();
     }
 
-    public GameState(KeyboardController keyboardController)
+    public GameState(KeyboardController keyboardController,MouseController mouseController,View view)
     {
         this.keyboardController = keyboardController;
+        this.mouseController = mouseController;
+        this.view = view;
     }
 
     public State getState(){return State.Game;}
@@ -96,6 +104,16 @@ public class GameState implements IState {
         else
         {
             time += delta;
+
+            if(mouseController.getButtonJustPressed(MouseButton.PRIMARY))
+            {
+                double angle = Vector.angle(world.getGoal().getPos(),player.getPos());
+                angle = java.lang.Math.toDegrees(angle);
+                System.out.println(angle);
+                Dagger dagger = new Dagger(world,player.getPos(),angle);
+                world.addDynamicObject(dagger);
+            }
+
             if(keyboardController.getKeyPressed(KeyCode.R))
             {
                 reset();

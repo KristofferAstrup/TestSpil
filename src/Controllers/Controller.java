@@ -43,7 +43,7 @@ public class Controller {
         world = new World(60,30);
         states = new HashMap<IState.State,IState>(){
         {
-            put(IState.State.Game, new GameState(keyboardController));
+            put(IState.State.Game, new GameState(keyboardController,mouseController,view));
             put(IState.State.Editor, new EditorState(keyboardController,mouseController,view));
         }};
 

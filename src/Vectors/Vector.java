@@ -153,5 +153,12 @@ public class Vector implements Serializable {
         return new Vector(getX(),getY());
     }
 
+    public static final double angle(Vector v1,Vector v2)
+    {
+        double dot = v1.getX_dyn()*v2.getX_dyn() + v1.getY_dyn()*v2.getY_dyn();      // dot product
+        double det = v1.getX_dyn()*v2.getY_dyn() - v1.getY_dyn()*v2.getX_dyn();     // determinant
+        return java.lang.StrictMath.atan2(det, dot);  // atan2(y, x) or atan2(sin, cos)
+    }
+
 }
 
