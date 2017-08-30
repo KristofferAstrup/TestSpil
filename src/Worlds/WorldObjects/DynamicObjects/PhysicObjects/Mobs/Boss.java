@@ -122,7 +122,7 @@ public class Boss  extends Mob implements Serializable {
     @Override
     public void worldStart()
     {
-        eyeDetail = new Detail(pos,imgs.get("eye"));
+        eyeDetail = new Detail(pos.add(0,0.56),imgs.get("eye"));
         eyeLight = new Detail(pos,imgs.get("eyeLight"));
         eyeLidDetail = new Detail(pos);
         eyeLidDetail.setVisible(false);

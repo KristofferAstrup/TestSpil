@@ -3,6 +3,7 @@ package States.GameStates;
 import Controllers.*;
 import States.IState;
 import Vectors.DynamicVector;
+import Worlds.Dir;
 import Worlds.ParticleSystems.GlobalParticleSystem;
 import Worlds.World;
 import Worlds.WorldObjects.DynamicObjects.DynamicObject;
@@ -114,9 +115,11 @@ public class GameState implements IState {
             }
 
             //SHOULD BE REWRITTEN!!
-            if(world.getGoal().getPos().dist(world.getPlayerTarget(world.getGoal()).getPos().add(Goal.enterOffset)) < Goal.enterDistance)
+            if(!levelComplete && player.getBlockedDirs().get(Dir.Down) && world.getGoal().getPos().dist(world.getPlayerTarget(world.getGoal()).getPos().add(Goal.enterOffset)) < Goal.enterDistance)
             {
                 completeLevel();
+                player.getPos().set(world.getGoal().getPos().add(0,player.getSize().getY_dyn()/2-world.getGoal().getSize().getY_dyn()/2));
+                player.setDestroyed(true);
             }
         }
         for(GlobalParticleSystem globalParticleSystem : world.getGlobalParticleSystems())

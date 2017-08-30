@@ -3,6 +3,7 @@ package Controllers;
 import States.EditorStates.EditorState;
 import States.GameStates.GameState;
 import States.IState;
+import Views.Groups.DebugGroup;
 import Worlds.World;
 import Worlds.Dir;
 import Views.*;
@@ -125,7 +126,7 @@ public class Controller {
 
             //if(debugging){debugController.update(delta);}
             states.get(state).update(delta*timescale);
-            view.update(states.get(state));
+            view.update(states.get(state),delta);
             keyboardController.update(delta);
             mouseController.update(delta);
         }

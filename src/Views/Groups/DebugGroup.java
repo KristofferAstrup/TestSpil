@@ -1,4 +1,4 @@
-package Views;
+package Views.Groups;
 
 import Controllers.Controller;
 import Vectors.Vector;

@@ -7,8 +7,10 @@ public class SaveLoadController {
     private static final SaveLoadController saveLoadController = new SaveLoadController();
 
     private static String rootFolder = "TestSpil";
-    
-    private static String worldSuffix = ".boi";
+
+    private static String defaultSuffix = ".dat";
+    private static String worldSuffix = ".wor";
+    private static String infoSuffix = ".inf";
 
     public static void saveFile(String filename,Object obj)
     {

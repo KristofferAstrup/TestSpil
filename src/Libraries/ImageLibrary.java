@@ -47,6 +47,11 @@ public class ImageLibrary {
                 "/Images/Mobs/Char/char_run_2.png#" +
                 "/Images/Mobs/Char/char_run_3.png#" +
                 "/Images/Mobs/Char/char_wallslide.png#" +
+                "/Images/Mobs/Char/char_win.png#" +
+                "/Images/Mobs/Char/char_back.png#" +
+                "/Images/Mobs/Char/char_back_walk0.png#" +
+                "/Images/Mobs/Char/char_back_walk1.png#" +
+
                 "/Images/DirtBgn.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_Z.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_E.png#" +

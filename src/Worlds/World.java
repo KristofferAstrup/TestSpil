@@ -515,6 +515,7 @@ public class World implements Serializable {
 
             Vector rightPos = decoration.getPos().add(1,0);
             if(!checkIfEmptyDecoration(rightPos)) updateDecoration(rightPos);
+
         }
         else
         {
