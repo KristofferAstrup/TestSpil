@@ -153,11 +153,13 @@ public class Vector implements Serializable {
         return new Vector(getX(),getY());
     }
 
-    public static final double angle(Vector v1,Vector v2)
+    public static final double angle(DynamicVector v1,DynamicVector v2)
     {
-        double dot = v1.getX_dyn()*v2.getX_dyn() + v1.getY_dyn()*v2.getY_dyn();      // dot product
-        double det = v1.getX_dyn()*v2.getY_dyn() - v1.getY_dyn()*v2.getX_dyn();     // determinant
-        return java.lang.StrictMath.atan2(det, dot);  // atan2(y, x) or atan2(sin, cos)
+        v2 = v2.subtract(v1);
+        v1 = DynamicVector.ZERO;
+        double rad = java.lang.StrictMath.atan2(v1.getY_dyn(), v1.getX_dyn()) - java.lang.StrictMath.atan2(v2.getY_dyn(), v2.getX_dyn());
+        double deg = java.lang.Math.toDegrees(rad);
+        return -deg;
     }
 
 }

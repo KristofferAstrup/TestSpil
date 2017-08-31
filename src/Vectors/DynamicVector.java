@@ -8,6 +8,7 @@ import java.io.Serializable;
  */
 public class DynamicVector extends Vector implements Serializable {
 
+    public static DynamicVector ZERO = new DynamicVector(0,0);
     private double x_dyn;
     private double y_dyn;
 

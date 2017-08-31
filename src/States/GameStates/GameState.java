@@ -16,6 +16,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -107,9 +108,9 @@ public class GameState implements IState {
 
             if(mouseController.getButtonJustPressed(MouseButton.PRIMARY))
             {
-                double angle = Vector.angle(world.getGoal().getPos(),player.getPos());
-                angle = java.lang.Math.toDegrees(angle);
-                System.out.println(angle);
+                DynamicVector mousePos = view.getWorldPositionFromScreen(world,mouseController.getMousePosition());
+                double angle = Vector.angle(player.getPos(), mousePos);
+                System.out.println(player.getPos() + " | " + mousePos);
                 Dagger dagger = new Dagger(world,player.getPos(),angle);
                 world.addDynamicObject(dagger);
             }
