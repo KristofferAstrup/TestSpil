@@ -68,7 +68,7 @@ public class GameState implements IState {
         this.world = new World(Controller.getWorld());
         getWorld().endInit(); //COULD PROBABLY BE RELOCATED TO PARTS OF THE CONTROLLER, AS IT IS THE ONE THAT CREATES THE WORLD.
         player = new Player(world,new DynamicVector(world.getPlayerSpawnPoint().getX_dyn(),world.getPlayerSpawnPoint().getY_dyn()));
-        playerController = new PlayerController(player,world,keyboardController);
+        playerController = new PlayerController(player,world,keyboardController,mouseController,view);
         world.addPlayer(player);
         destroyedDynamicObjects = new ArrayList<>();
         world.worldStart();
@@ -94,10 +94,10 @@ public class GameState implements IState {
     public void update(double delta)
     {
         if(playerWait || levelComplete){
-            if(keyboardController.getKeyJustPressed(KeyCode.LEFT) ||
-                    keyboardController.getKeyJustPressed(KeyCode.RIGHT) ||
-                    keyboardController.getKeyJustPressed(KeyCode.UP) ||
-                    keyboardController.getKeyJustPressed(KeyCode.DOWN) ||
+            if(keyboardController.getKeyJustPressed(KeyCode.A) ||
+                    keyboardController.getKeyJustPressed(KeyCode.D) ||
+                    keyboardController.getKeyJustPressed(KeyCode.W) ||
+                    keyboardController.getKeyJustPressed(KeyCode.S) ||
                     keyboardController.getKeyJustPressed(KeyCode.SPACE)){
                 playerWait = false;
             }
@@ -105,15 +105,6 @@ public class GameState implements IState {
         else
         {
             time += delta;
-
-            if(mouseController.getButtonJustPressed(MouseButton.PRIMARY))
-            {
-                DynamicVector mousePos = view.getWorldPositionFromScreen(world,mouseController.getMousePosition());
-                double angle = Vector.angle(player.getPos(), mousePos);
-                System.out.println(player.getPos() + " | " + mousePos);
-                Dagger dagger = new Dagger(world,player.getPos(),angle);
-                world.addDynamicObject(dagger);
-            }
 
             if(keyboardController.getKeyPressed(KeyCode.R))
             {

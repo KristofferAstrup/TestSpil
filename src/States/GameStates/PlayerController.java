@@ -1,10 +1,17 @@
 package States.GameStates;
 
 import Controllers.KeyboardController;
+import Controllers.MouseController;
+import Vectors.DynamicVector;
+import Vectors.Vector;
+import Views.View;
 import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Mobs.Player;
 import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Projectiles.Dagger;
+import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Projectiles.Fist;
+import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Projectiles.Projectile;
 import javafx.scene.input.KeyCode;
 import Worlds.*;
+import javafx.scene.input.MouseButton;
 
 /**
  * Created by Kris on 21-02-2017.
@@ -12,24 +19,35 @@ import Worlds.*;
 public class PlayerController {
 
     KeyboardController keyboardController;
+    MouseController mouseController;
+    View view;
 
-    double moveAcc = 20;
-    double deAccGround = 20;
-    double deAccAir = 8;
-    double moveSpeed = 6;
-    double sprintSpeed = 11;
-    double jumpSpeed = 7;
-    double jumpTimeTotal = 0.275;
-    double jumpTime = 0;
-    boolean sprinting;
+    private double moveAcc = 20;
+    private double deAccGround = 20;
+    private double deAccAir = 8;
+    private double moveSpeed = 4;
+    private double sprintSpeed = 8;
+    private double jumpSpeed = 7;
+    private double jumpTimeTotal = 0.275;
+    private double jumpTime = 0;
+    private boolean sprinting;
     private Player player;
     private World world;
 
-    public PlayerController(Player player,World world, KeyboardController keyboardController)
+    private Projectile fist;
+    private boolean fistLaunched = false;
+    private double fistSpeedBase = 8;
+    private double fistSpeedCharge = 8;
+    private double chargeTime = 0;
+    private double chargeTimeBound = 1;
+
+    public PlayerController(Player player, World world, KeyboardController keyboardController, MouseController mouseController, View view)
     {
         this.keyboardController = keyboardController;
+        this.mouseController = mouseController;
         this.world = world;
         this.player = player;
+        this.view = view;
     }
 
     public void update(double delta)
@@ -39,13 +57,36 @@ public class PlayerController {
         sprinting = keyboardController.getKeyPressed(KeyCode.SHIFT);
         double maxSpeed = sprinting?sprintSpeed:moveSpeed;
 
-        if(keyboardController.getKeyJustPressed(KeyCode.A))
+        if(mouseController.getButtonPressed(MouseButton.PRIMARY))
         {
-            Dagger dagger = new Dagger(world,player.getPos(),player.getFlipped()?180:0);
-            world.addDynamicObject(dagger);
+            if ((fist == null) && !fistLaunched) {
+                chargeTime += delta;
+            }
+            else if(fist != null)
+            {
+                player.getPos().set(fist.getPos());
+                player.getSpeed().set(fist.getSpeed());
+                world.destroyWorldObject(fist);
+                fist = null;
+            }
+        }
+        else if(chargeTime > 0)
+        {
+            DynamicVector mousePos = view.getWorldPositionFromScreen(world, mouseController.getMousePosition());
+            double angle = Vector.angle(player.getPos(), mousePos);
+            fist = new Fist(world, player.getPos(), angle, fistSpeedBase+fistSpeedCharge*Math.min(chargeTime,chargeTimeBound)/chargeTimeBound);
+            world.addDynamicObject(fist);
+            chargeTime = 0;
+            fistLaunched = true;
+        }
+        else if((fist == null || fist.isDestroyed()) && player.getBlockedDirs().get(Dir.Down))
+        {
+            fistLaunched = false;
+            fist = null;
         }
 
-        if(keyboardController.getKeyPressed(KeyCode.RIGHT) && (player.getSpeed().getX_dyn() <= maxSpeed || !player.getBlockedDirs().get(Dir.Down)))
+
+        if(keyboardController.getKeyPressed(KeyCode.D) && (player.getSpeed().getX_dyn() <= maxSpeed || !player.getBlockedDirs().get(Dir.Down)))
         {
             if(player.getSpeed().getX_dyn() < maxSpeed) {
                 player.getSpeed().setX_dyn(Math.min(maxSpeed,player.getSpeed().getX_dyn()+moveAcc*delta));
@@ -53,7 +94,7 @@ public class PlayerController {
                 player.setBraking(player.getSpeed().getX_dyn() < 0);
             }
         }
-        else if(keyboardController.getKeyPressed(KeyCode.LEFT) && (player.getSpeed().getX_dyn() >= -maxSpeed || !player.getBlockedDirs().get(Dir.Down)))
+        else if(keyboardController.getKeyPressed(KeyCode.A) && (player.getSpeed().getX_dyn() >= -maxSpeed || !player.getBlockedDirs().get(Dir.Down)))
         {
             if(player.getSpeed().getX_dyn() > -maxSpeed) {
                 player.getSpeed().setX_dyn(Math.max(-maxSpeed,player.getSpeed().getX_dyn()-moveAcc*delta));
@@ -105,8 +146,8 @@ public class PlayerController {
 
         if(player.getBlockedDirs().get(Dir.Right) && !player.getBlockedDirs().get(Dir.Down)){player.setFlipped(true);}
         else if(player.getBlockedDirs().get(Dir.Left) && !player.getBlockedDirs().get(Dir.Down)){player.setFlipped(false);}
-        else if(keyboardController.getKeyPressed(KeyCode.RIGHT)){player.setFlipped(false);}
-        else if(keyboardController.getKeyPressed(KeyCode.LEFT)){player.setFlipped(true);}
+        else if(keyboardController.getKeyPressed(KeyCode.D)){player.setFlipped(false);}
+        else if(keyboardController.getKeyPressed(KeyCode.A)){player.setFlipped(true);}
 
     }
 
