@@ -19,6 +19,7 @@ import Worlds.WorldObjects.WorldObject;
 import javafx.scene.paint.Color;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -328,7 +329,7 @@ public class World implements Serializable {
     {
         if(!checkIfEmptyDecoration(pos.getX(),pos.getY())){
             worldObjects.remove(decorations[pos.getX()][pos.getY()]);
-            decorations[pos.getX()][pos.getY()].die();
+            decorations[pos.getX()][pos.getY()].uponDestroyed();
             decorations[pos.getX()][pos.getY()] = null;
         }
     }
@@ -340,6 +341,10 @@ public class World implements Serializable {
         else if(worldObject instanceof DynamicObject)
         {
             deleteDynamicObject((DynamicObject)worldObject);
+        }
+        else if(worldObject instanceof Decoration)
+        {
+            deleteDecoration((Decoration) worldObject);
         }
         else
         {
@@ -358,7 +363,7 @@ public class World implements Serializable {
     public void deleteBlock(Vector pos,boolean updateImage){
         if(!checkIfEmptyBlock(pos.getX(),pos.getY())){
             worldObjects.remove(blocks[pos.getX()][pos.getY()]);
-            blocks[pos.getX()][pos.getY()].die();
+            blocks[pos.getX()][pos.getY()].uponDestroyed();
             blocks[pos.getX()][pos.getY()] = null;
 
             updateDecorations(pos);
@@ -429,6 +434,7 @@ public class World implements Serializable {
     {
         dynamicObjects.remove(dynamicObject);
         worldObjects.remove(dynamicObject);
+        dynamicObject.uponDestroyed();
         if(dynamicObject instanceof Mob){
             mobs.remove(dynamicObject);
         }

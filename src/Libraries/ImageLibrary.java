@@ -52,6 +52,10 @@ public class ImageLibrary {
                 "/Images/Mobs/Char/char_back_walk0.png#" +
                 "/Images/Mobs/Char/char_back_walk1.png#" +
 
+                "/Images/Projectiles/Fist.png#" +
+                "/Images/RedParticle.png#" +
+                "/Images/RedDot.png#" +
+
                 "/Images/DirtBgn.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_Z.png#" +
                 "/Images/Blocks/DirtBlock/Dirt_E.png#" +

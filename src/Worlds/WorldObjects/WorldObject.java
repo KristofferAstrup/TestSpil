@@ -48,4 +48,6 @@ public abstract class WorldObject implements Serializable {
 
     public boolean isDestroyed(){return destroyed;}
 
+    public void uponDestroyed(){}
+
 }

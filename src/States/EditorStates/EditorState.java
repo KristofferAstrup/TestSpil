@@ -170,9 +170,14 @@ public class EditorState implements IState {
             {
                 world.deleteBlock(target,true);
             }
+            case dynamics:
             case mobs:
             {
                 world.deleteDynamicObjects(target);
+            }
+            case decorations:
+            {
+                world.deleteDecoration(getDecorationWorldTarget(target));
             }
         }
     }
@@ -298,7 +303,7 @@ public class EditorState implements IState {
 
                     if(editorClassGroup == EditorClassGroup.decorations)
                     {
-                        DynamicVector newTarget = worldTarget.multiply(1.0,2.0).add(0,1.0);
+                        DynamicVector newTarget = getDecorationWorldTarget(worldTarget);
                         if(newTarget.getY_dyn()%2<0.5)newTarget.add(0.5,0);
                         createWorldObject(editorClassSelected.getClasss(),world,newTarget);
                     }
@@ -372,6 +377,11 @@ public class EditorState implements IState {
         {
             mode = mode==EditorMode.ObjectSelect?EditorMode.World:EditorMode.ObjectSelect;
         }
+    }
+
+    private static DynamicVector getDecorationWorldTarget(Vector worldTarget)
+    {
+        return new DynamicVector(worldTarget.getX_dyn(),worldTarget.getY_dyn()).multiply(1.0,2.0).add(0,1.0);
     }
 
     private DynamicVector getVectorInWorldBounds(DynamicVector dynamicVector)

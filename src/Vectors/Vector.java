@@ -159,7 +159,12 @@ public class Vector implements Serializable {
         v1 = DynamicVector.ZERO;
         double rad = java.lang.StrictMath.atan2(v1.getY_dyn(), v1.getX_dyn()) - java.lang.StrictMath.atan2(v2.getY_dyn(), v2.getX_dyn());
         double deg = java.lang.Math.toDegrees(rad);
-        return -deg;
+        return deg;
+    }
+
+    public static final DynamicVector angleToVector(double angle)
+    {
+        return new DynamicVector(Math.cos(Math.toRadians(angle)),Math.sin(Math.toRadians(angle)));
     }
 
 }

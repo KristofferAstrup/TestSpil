@@ -49,7 +49,7 @@ public class GameStateView extends StateView {
         GameState gameState = (GameState)state;
 
         view.setWinScale(2,gameState.getWorld());
-        panCamera(gameState.getWorld(),gameState.getPlayer().getPos());
+        panCamera(gameState.getWorld(),gameState.getPlayer().getPos(),delta);
         drawSky(gameState.getWorld());
         drawBackground(gameState.getWorld());
         drawBlocks(gameState.getWorld());

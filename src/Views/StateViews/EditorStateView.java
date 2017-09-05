@@ -25,7 +25,7 @@ public class EditorStateView extends StateView {
         EditorState editorState = (EditorState)state;
 
         view.setWinScale(editorState.getZoomScale(),editorState.getWorld());
-        panCamera(editorState.getWorld(), editorState.getCameraPivot());
+        panCamera(editorState.getWorld(), editorState.getCameraPivot(),delta);
         if(editorState.getGridEnabled())drawGrid(editorState.getWorld(),editorState.getGridSize());
         drawBlocks(editorState.getWorld());
         drawDynamics(editorState.getWorld());

@@ -63,9 +63,4 @@ public class Grass extends Decoration {
         }
     }
 
-    @Override
-    public void die() {
-
-    }
-
 }

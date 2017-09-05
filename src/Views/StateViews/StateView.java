@@ -147,7 +147,7 @@ public abstract class StateView {
             affine.appendRotation(particle.getRot());
             gc.setTransform(affine);
             System.out.println(width);
-            gc.drawImage(particle.getImage(),-width,-height,width,height);
+            gc.drawImage(particle.getImage(),-width*0.5,-height*0.5,width,height);
         }
     }
 
@@ -207,7 +207,7 @@ public abstract class StateView {
         gc.fillRect(0,0,view.getCanvasDim().getX(),view.getCanvasDim().getY());
     }
 
-    void panCamera(World world, DynamicVector target)
+    void panCamera(World world, DynamicVector target,double delta)
     {
         DynamicVector panTarget = getPanTarget(world,target);
 
@@ -215,8 +215,8 @@ public abstract class StateView {
         double transy = -panTarget.getY_dyn()+view.getCanvasDim().getY()/2;
 
         //Reason for it being view.getObjectSize()/2 as the min is that blocks are drawn from their center, meaning they would be halfed, if view.getObjectSize()/2 was not there.
-        view.getCameraPan().setX_dyn(Math.max(Math.min(view.getObjectSize()/2,transx),-view.getCameraPanBoundaries().getX()+view.getObjectSize()/2+view.getObjectSize()));
-        view.getCameraPan().setY_dyn(Math.max(Math.min(view.getObjectSize()/2,transy-view.getObjectSize()),-view.getCameraPanBoundaries().getY()+view.getObjectSize()/2));
+        view.getCameraPan().setX_dyn(Math.max(Math.min(view.getObjectSize()/2,view.getCameraPan().getX_dyn()+(transx-view.getCameraPan().getX_dyn())*7*delta),-view.getCameraPanBoundaries().getX()+view.getObjectSize()/2+view.getObjectSize()));
+        view.getCameraPan().setY_dyn(Math.max(Math.min(view.getObjectSize()/2,view.getCameraPan().getY_dyn()+(transy-view.getCameraPan().getY_dyn())*7*delta),-view.getCameraPanBoundaries().getY()+view.getObjectSize()/2));
     }
 
     DynamicVector getPanTarget(World world, DynamicVector target)

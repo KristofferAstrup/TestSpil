@@ -40,7 +40,7 @@ public class BricksBlock extends Block implements Serializable {
     }
 
     @Override
-    public void die()
+    public void uponDestroyed()
     {
         int quantity = Controller.random.nextInt(3)+5;
         for(int i=0;i<quantity;i++) {

@@ -35,10 +35,10 @@ public class KeybindLibrary {
     }
 
     private static HashMap<KeybindType,IKeyBind[]> keybinds = new HashMap<KeybindType,IKeyBind[]>(){{
-        put(KeybindType.Left,new IKeyBind[]{new KeyboardKeybind(KeyCode.LEFT)});
-        put(KeybindType.Right,new IKeyBind[]{new KeyboardKeybind(KeyCode.RIGHT)});
-        put(KeybindType.Up,new IKeyBind[]{new KeyboardKeybind(KeyCode.UP)});
-        put(KeybindType.Down,new IKeyBind[]{new KeyboardKeybind(KeyCode.DOWN)});
+        put(KeybindType.Left,new IKeyBind[]{new KeyboardKeybind(KeyCode.A),new KeyboardKeybind(KeyCode.LEFT)});
+        put(KeybindType.Right,new IKeyBind[]{new KeyboardKeybind(KeyCode.D),new KeyboardKeybind(KeyCode.RIGHT)});
+        put(KeybindType.Up,new IKeyBind[]{new KeyboardKeybind(KeyCode.W),new KeyboardKeybind(KeyCode.UP)});
+        put(KeybindType.Down,new IKeyBind[]{new KeyboardKeybind(KeyCode.S),new KeyboardKeybind(KeyCode.DOWN)});
         put(KeybindType.Jump,new IKeyBind[]{new KeyboardKeybind(KeyCode.SPACE)});
         put(KeybindType.Fire,new IKeyBind[]{new MouseKeybind(MouseButton.PRIMARY)});
         put(KeybindType.Sprint,new IKeyBind[]{new KeyboardKeybind(KeyCode.SHIFT)});

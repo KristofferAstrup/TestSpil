@@ -67,9 +67,4 @@ public class PlankwallBlock extends Block implements Serializable {
         return "Plankwall";
     }
 
-    @Override
-    public void die()
-    {
-
-    }
 }

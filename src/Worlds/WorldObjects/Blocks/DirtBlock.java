@@ -43,7 +43,7 @@ public class DirtBlock extends Block implements Serializable {
     }
 
     @Override
-    public void die()
+    public void uponDestroyed()
     {
         Image img = ImageLibrary.getImage("DirtChunk_0.png");
         int quantity = Controller.random.nextInt(10)+5;

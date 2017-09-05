@@ -73,7 +73,7 @@ public class PlayerController {
         else if(chargeTime > 0)
         {
             DynamicVector mousePos = view.getWorldPositionFromScreen(world, inputController.getMouseController().getMousePosition());
-            double angle = Vector.angle(player.getPos(), mousePos);
+            double angle = -Vector.angle(player.getPos(), mousePos);
             fist = new Fist(world, player.getPos(), angle, fistSpeedBase+fistSpeedCharge*Math.min(chargeTime,chargeTimeBound)/chargeTimeBound);
             world.addDynamicObject(fist);
             chargeTime = 0;

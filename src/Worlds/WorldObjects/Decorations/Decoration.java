@@ -49,6 +49,4 @@ public abstract class Decoration extends WorldObject {
         pos.set(getOrigin());
     }
 
-    public abstract void die();
-
 }
