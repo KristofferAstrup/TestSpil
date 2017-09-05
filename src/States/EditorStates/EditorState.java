@@ -5,6 +5,7 @@ import Factories.EditorClassGroup;
 import Libraries.EditorClass;
 import Libraries.ImageLibrary;
 import Libraries.EditorLibrary;
+import Libraries.KeybindLibrary;
 import States.IState;
 import Vectors.DynamicVector;
 import Vectors.Vector;
@@ -21,6 +22,8 @@ import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Mobs.Pig;
 import Worlds.WorldObjects.WorldObject;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import java.util.HashMap;
+import java.util.Arrays;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -31,11 +34,11 @@ import java.util.HashSet;
  */
 public class EditorState implements IState {
 
-    private KeyboardController keyboardController;
-    private MouseController mouseController;
+    private InputController inputController;
     private World world;
     public double time = 0;
     private DynamicVector worldTarget;
+    private DynamicVector worldTargetLastCreation = new DynamicVector(-1,-1); //Not to be true when comparing!
     private DynamicVector cameraPivot;
     private DynamicVector mousePanCameraPivot;
     private Vector objectMenuTarget;
@@ -47,15 +50,29 @@ public class EditorState implements IState {
     private double mousePanSpeedBase = 20;
     private double mousePanSpeedFast = 40;
 
-    private DynamicVector gridSize = new DynamicVector(1,1).multiply(0.5);
+    private final DynamicVector[] gridSizeBases = new DynamicVector[]{
+            new DynamicVector(4,4),
+            new DynamicVector(2,2),
+            new DynamicVector(1,1),
+            new DynamicVector(0.5,0.5),
+            new DynamicVector(0.25,0.25)
+    };
+
+    private DynamicVector gridSize = new DynamicVector(1,1);
+    private HashMap<EditorClassGroup,DynamicVector[]> gridSizes = new HashMap<EditorClassGroup,DynamicVector[]>(){{
+        put(EditorClassGroup.blocks,Arrays.copyOfRange(gridSizeBases,0,3));
+        put(EditorClassGroup.dynamics,Arrays.copyOfRange(gridSizeBases,0,gridSizeBases.length));
+        put(EditorClassGroup.mobs,Arrays.copyOfRange(gridSizeBases,0,gridSizeBases.length));
+        put(EditorClassGroup.decorations,new DynamicVector[]{new DynamicVector(0.5,0.5)});
+    }};
+    private EditorClass editorClassSelected;
+    private EditorClassGroup editorClassGroup;
+
     private boolean gridEnabled = true;
 
     private double zoomScale = 2;
 
     private View view;
-
-    private EditorClass editorClassSelected;
-    private EditorClassGroup editorClassGroup;
 
     private EditorMode mode;
 
@@ -71,10 +88,9 @@ public class EditorState implements IState {
     public EditorMode getEditorMode(){return mode;}
     public boolean getGridEnabled(){return gridEnabled;}
 
-    public EditorState(KeyboardController keyboardController,MouseController mouseController,View view)
+    public EditorState(InputController inputController,View view)
     {
-        this.keyboardController = keyboardController;
-        this.mouseController = mouseController;
+        this.inputController = inputController;
         this.view = view;
         mode = EditorMode.World;
         objectMenuTarget = new Vector(0,0);
@@ -88,6 +104,7 @@ public class EditorState implements IState {
     {
         this.editorClassGroup = objTypeGroup;
         editorClassSelected = EditorLibrary.getEditorClasses(editorClassGroup)[0];
+        gridSize = gridSizes.get(this.editorClassGroup)[gridSizes.get(this.editorClassGroup).length-1];
     }
 
     public void changeObjTypeSelected(int index)
@@ -221,19 +238,19 @@ public class EditorState implements IState {
 
     private void control(double delta)
     {
-        zoomScale += 0.25*mouseController.getMouseScrollDir();
+        zoomScale += 0.25*inputController.getMouseController().getMouseScrollDir();
         if(!Controller.debugging()){
             zoomScale = Math.min(4,Math.max(zoomScale,1));
         }
 
-        Vector movement = getMovement(KeyCode.RIGHT,KeyCode.LEFT,KeyCode.UP,KeyCode.DOWN,keyboardController.getKeyPressed(KeyCode.ALT)?moveDelayFast:moveDelayBase);
-        DynamicVector mousePanDir = view.getPanDirectionVector(mouseController.getMousePosition(),200,150);
+        Vector movement = getMovement(KeyCode.RIGHT,KeyCode.LEFT,KeyCode.UP,KeyCode.DOWN, KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.EditorFastPan,inputController)?moveDelayFast:moveDelayBase);
+        DynamicVector mousePanDir = view.getPanDirectionVector(inputController.getMouseController().getMousePosition(),200,150);
 
         if(mode == EditorMode.World)
         {
-            if((!mouseController.getMouseMovement().equals(Vector.ZERO) || !mousePanDir.equals(Vector.ZERO))) {
+            if((!inputController.getMouseController().getMouseMovement().equals(Vector.ZERO) || !mousePanDir.equals(Vector.ZERO))) {
 
-                DynamicVector worldPos = view.getWorldPositionFromScreen(world,mouseController.getMousePosition());
+                DynamicVector worldPos = view.getWorldPositionFromScreen(world,inputController.getMouseController().getMousePosition());
                 if(gridEnabled)worldPos.set(Math.round(worldPos.getX_dyn()*(1/gridSize.getX_dyn()))*gridSize.getX_dyn(),Math.round(worldPos.getY_dyn()*(1/gridSize.getY_dyn()))*gridSize.getY_dyn());
                 worldTarget.set(worldPos);
                 worldTarget = getVectorInWorldBounds(worldTarget);
@@ -245,90 +262,98 @@ public class EditorState implements IState {
                 panType = PanType.keyboard;
             }
 
-            if(keyboardController.getKeyJustPressed(KeyCode.G))
+            if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.SwitchGrid,inputController))
             {
                 gridEnabled = !gridEnabled;
             }
 
-            if(keyboardController.getKeyJustPressed(KeyCode.N))
+            if(inputController.getKeyboardController().getKeyJustPressed(KeyCode.N))
             {
                 world.addWorldObject(createWorldObject(Goal.class,world,worldTarget.add(0.0,0.5)));
             }
 
-            if(keyboardController.getKeyJustPressed(KeyCode.Y))
+            if(inputController.getKeyboardController().getKeyJustPressed(KeyCode.Y))
             {
                 DynamicVector t = worldTarget.multiply(1.0,2.0);
                 System.out.println("TARGET : " + t + " | " + worldTarget);
                 createWorldObject(Grass.class,world,t);
             }
-            if(keyboardController.getKeyJustPressed(KeyCode.U))
+            if(inputController.getKeyboardController().getKeyJustPressed(KeyCode.U))
             {
                 DynamicVector t = worldTarget.multiply(1.0,2.0).add(0,0.5);
                 System.out.println("TARGET : " + t + " | " + worldTarget);
                 createWorldObject(Grass.class,world,t);
             }
 
-            if(keyboardController.getKeyPressed(KeyCode.BACK_SPACE) || mouseController.getButtonPressed(MouseButton.MIDDLE))
+            if(KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.EditorDelete,inputController))
             {
                 deleteObj(world,worldTarget,editorClassGroup);
                 view.setTargetEffect(true);
             }
-            else if(((keyboardController.getKeyPressed(KeyCode.SPACE) || mouseController.getButtonPressed(MouseButton.PRIMARY)) && editorClassGroup==EditorClassGroup.blocks) || keyboardController.getKeyJustPressed(KeyCode.SPACE))
+            else if(KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.EditorCreate,inputController))
             {
-                view.setTargetEffect(false);
-                createWorldObject(editorClassSelected.getClasss(),world,worldTarget);
+                if(!worldTarget.equals(worldTargetLastCreation)){
+                    view.setTargetEffect(false);
+                    worldTargetLastCreation.set(worldTarget);
+
+                    if(editorClassGroup == EditorClassGroup.decorations)
+                    {
+                        DynamicVector newTarget = worldTarget.multiply(1.0,2.0).add(0,1.0);
+                        if(newTarget.getY_dyn()%2<0.5)newTarget.add(0.5,0);
+                        createWorldObject(editorClassSelected.getClasss(),world,newTarget);
+                    }
+                    else
+                    {
+                        createWorldObject(editorClassSelected.getClasss(),world,worldTarget);
+                    }
+                }
             }
             else
             {
                 view.setTargetEffect(false);
             }
 
-            if(keyboardController.getKeyPressed(KeyCode.ENTER))
+            if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.EditorSetSpawn,inputController))
             {
                 world.setPlayerSpawnPoint(worldTarget.getDynamicVector());
             }
-            if(keyboardController.getKeyJustPressed(KeyCode.P))
-            {
-                System.out.println(worldTarget);
-            }
-            if(keyboardController.getKeyJustPressed(KeyCode.M))
-            {
-                world.addDynamicObject(new Pig(world, worldTarget.getDynamicVector()));
-            }
-            if(keyboardController.getKeyJustPressed(KeyCode.S))
-            {
-                SaveLoadController.saveFile("MyWorld",world);
-            }
-            if(keyboardController.getKeyJustPressed(KeyCode.F))
+            if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.EditorFill,inputController))
             {
                 if(Block.class.isAssignableFrom(editorClassSelected.getClasss())){
                     fillBlock(world,worldTarget,editorClassSelected.getClasss());
                 }
             }
-            if(keyboardController.getKeyJustPressed(KeyCode.L))
-            {
-                Controller.setWorld((World)SaveLoadController.loadFile("MyWorld"));
-                world = Controller.getWorld();
-            }
-
+            /*
             if((keyboardController.getKeyPressed(KeyCode.V)))
             {
                 Detail detail = new Detail(new DynamicVector(getWorldTarget()).add(0,0.5), ImageLibrary.getImage("Grasstop.png"));
                 world.addDetail(detail);
-            }
+            }*/
         }
         else if(mode == EditorMode.ObjectSelect)
         {
             moveObjectMenuTarget(movement);
 
-            if(keyboardController.getKeyJustPressed(KeyCode.SPACE))
+            if(KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.EditorCreate,inputController))
             {
                 changeObjTypeSelected(objectMenuTarget.getX()+objectMenuTarget.getY()*ObjTypesPerLine);
                 menuObjectSelect(objectMenuTarget.getX(),objectMenuTarget.getY());
             }
-            if(keyboardController.getKeyJustPressed(KeyCode.ALT))
+            if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.EditorSwitchObjectGroup,inputController))
             {
-                changeObjTypeGroup(editorClassGroup==EditorClassGroup.blocks ?EditorClassGroup.mobs :EditorClassGroup.blocks);
+                if(editorClassGroup==EditorClassGroup.blocks){
+                    changeObjTypeGroup(EditorClassGroup.dynamics);
+                }
+                else if(editorClassGroup==EditorClassGroup.dynamics){
+                    changeObjTypeGroup(EditorClassGroup.mobs);
+                }
+                else if(editorClassGroup==EditorClassGroup.mobs){
+                    changeObjTypeGroup(EditorClassGroup.decorations);
+                }
+                else if(editorClassGroup==EditorClassGroup.decorations){
+                    changeObjTypeGroup(EditorClassGroup.blocks);
+                }
+
             }
         }
 
@@ -337,13 +362,13 @@ public class EditorState implements IState {
         }
         else if(panType == PanType.mouse){
 
-            double speed = keyboardController.getKeyPressed(KeyCode.ALT) ? mousePanSpeedFast : mousePanSpeedBase;
+            double speed = KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.EditorFastPan,inputController) ? mousePanSpeedFast : mousePanSpeedBase;
             DynamicVector cameraPivotAdd = new DynamicVector(mousePanDir.getX_dyn() * delta * speed, mousePanDir.getY_dyn() * delta * speed);
             cameraPivot.setAdd(cameraPivotAdd);
             cameraPivot = view.getMinimumCornerCenterVector(world, cameraPivot);
         }
 
-        if(keyboardController.getKeyJustPressed(KeyCode.SHIFT))
+        if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.EditorObjectSelect,inputController))
         {
             mode = mode==EditorMode.ObjectSelect?EditorMode.World:EditorMode.ObjectSelect;
         }
@@ -413,22 +438,22 @@ public class EditorState implements IState {
     private Vector getMovement(KeyCode right,KeyCode left,KeyCode up,KeyCode down,double delay)
     {
         Vector movement = new Vector(0,0);
-        if(keyboardController.getKeyJustPressed(right) || (keyboardController.getKeyPressed(right) && time >= moveDelays[0]+delay))
+        if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.Right,inputController) || (KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.Right,inputController) && time >= moveDelays[0]+delay))
         {
             movement.setX(1);
             moveDelays[0] = time;
         }
-        else if(keyboardController.getKeyJustPressed(left) || (keyboardController.getKeyPressed(left) && time >= moveDelays[1]+delay))
+        else if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.Left,inputController) || (KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.Left,inputController) && time >= moveDelays[1]+delay))
         {
             movement.setX(-1);
             moveDelays[1] = time;
         }
-        if(keyboardController.getKeyJustPressed(up) || (keyboardController.getKeyPressed(up) && time >= moveDelays[2]+delay))
+        if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.Up,inputController) || (KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.Up,inputController) && time >= moveDelays[2]+delay))
         {
             movement.setY(1);
             moveDelays[2] = time;
         }
-        else if(keyboardController.getKeyJustPressed(down) || (keyboardController.getKeyPressed(down) && time >= moveDelays[3]+delay))
+        else if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.Down,inputController) || (KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.Down,inputController) && time >= moveDelays[3]+delay))
         {
             movement.setY(-1);
             moveDelays[3] = time;

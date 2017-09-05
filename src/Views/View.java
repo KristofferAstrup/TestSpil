@@ -26,6 +26,7 @@ import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Affine;
@@ -54,7 +55,7 @@ public class View {
     boolean debugGroupsVisible = false;
 
     String[] paths;
-    Group root = new Group();
+    BorderPane root = new BorderPane();
 
     boolean targetEffect = false;
 
@@ -66,13 +67,14 @@ public class View {
         theStage.setTitle("TS");
         stage = theStage;
 
-        scene = new Scene( root );
+        canvasDim = new Vector(900,600);
+
+        scene = new Scene(root,canvasDim.getX_dyn(),canvasDim.getY_dyn());
 
         //root.setEffect(new ColorAdjust(0,-0.75,0.0,0)); //Black and White
 
         stage.setScene( scene );
 
-        canvasDim = new Vector(900,600);
         canvas = new Canvas( canvasDim.getX(), canvasDim.getY() );
 
         root.getChildren().add( canvas );
@@ -98,7 +100,7 @@ public class View {
 
     public DynamicVector getCameraPanBoundaries() {return cameraPanBoundaries;}
 
-    public Group getRoot() {return root;}
+    public BorderPane getRoot() {return root;}
 
     public Scene getScene()
     {

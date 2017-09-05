@@ -41,7 +41,7 @@ public class Pig extends Mob implements Serializable {
     {
         super.init();
         healthMax = 1;
-        size = new DynamicVector(0.9,0.6);
+        size = new DynamicVector(0.7,0.6);
     }
 
     @Override

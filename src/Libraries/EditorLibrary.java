@@ -3,6 +3,8 @@ package Libraries;
 import Factories.EditorClassGroup;
 import Worlds.WorldObjects.Blocks.*;
 import Worlds.WorldObjects.DynamicObjects.PhysicObjects.Mobs.*;
+import Worlds.WorldObjects.DynamicObjects.*;
+import Worlds.WorldObjects.Decorations.*;
 
 import java.util.HashMap;
 
@@ -16,10 +18,16 @@ public class EditorLibrary {
                 new EditorClass(WoodlogBlock.class,ImageLibrary.getImage("Woodlog.png")),
                 new EditorClass(BricksBlock.class,ImageLibrary.getImage("Bricks_O.png")),
         });
+        put(EditorClassGroup.dynamics,new EditorClass[]{
+                new EditorClass(Goal.class,ImageLibrary.getImage("Gate.png")),
+        });
         put(EditorClassGroup.mobs,new EditorClass[]{
                 new EditorClass(Pig.class,ImageLibrary.getImage("pig_0.png")),
                 new EditorClass(Bat.class,ImageLibrary.getImage("bat_0.png")),
                 new EditorClass(Boss.class,ImageLibrary.getImage("BossBody.png")),
+        });
+        put(EditorClassGroup.decorations,new EditorClass[]{
+                new EditorClass(Grass.class,ImageLibrary.getImage("grass_up_center0.png")),
         });
     }};
 
@@ -30,7 +38,7 @@ public class EditorLibrary {
 
     public static EditorClassGroup findEditorClassGroup(String editorClassGroupName){
         for(EditorClassGroup editorClassGroup : EditorClassGroup.values()) {
-            if(editorClassGroup.name() == editorClassGroupName && editorClassGroups.containsKey(editorClassGroup))
+            if(editorClassGroup.name().equals(editorClassGroupName) && editorClassGroups.containsKey(editorClassGroup))
             {
                 return editorClassGroup;
             }

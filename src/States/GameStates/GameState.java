@@ -1,6 +1,7 @@
 package States.GameStates;
 
 import Controllers.*;
+import Libraries.KeybindLibrary;
 import States.IState;
 import Vectors.DynamicVector;
 import Vectors.Vector;
@@ -28,8 +29,7 @@ public class GameState implements IState {
     private World world;
     private Player player;
     private PlayerController playerController;
-    private KeyboardController keyboardController;
-    private MouseController mouseController;
+    private InputController inputController;
     private View view;
 
     private boolean playerWait = false;
@@ -41,10 +41,9 @@ public class GameState implements IState {
         throw new NotImplementedException();
     }
 
-    public GameState(KeyboardController keyboardController,MouseController mouseController,View view)
+    public GameState(InputController inputController,View view)
     {
-        this.keyboardController = keyboardController;
-        this.mouseController = mouseController;
+        this.inputController = inputController;
         this.view = view;
     }
 
@@ -68,7 +67,7 @@ public class GameState implements IState {
         this.world = new World(Controller.getWorld());
         getWorld().endInit(); //COULD PROBABLY BE RELOCATED TO PARTS OF THE CONTROLLER, AS IT IS THE ONE THAT CREATES THE WORLD.
         player = new Player(world,new DynamicVector(world.getPlayerSpawnPoint().getX_dyn(),world.getPlayerSpawnPoint().getY_dyn()));
-        playerController = new PlayerController(player,world,keyboardController,mouseController,view);
+        playerController = new PlayerController(player,world,inputController,view);
         world.addPlayer(player);
         destroyedDynamicObjects = new ArrayList<>();
         world.worldStart();
@@ -94,11 +93,11 @@ public class GameState implements IState {
     public void update(double delta)
     {
         if(playerWait || levelComplete){
-            if(keyboardController.getKeyJustPressed(KeyCode.A) ||
-                    keyboardController.getKeyJustPressed(KeyCode.D) ||
-                    keyboardController.getKeyJustPressed(KeyCode.W) ||
-                    keyboardController.getKeyJustPressed(KeyCode.S) ||
-                    keyboardController.getKeyJustPressed(KeyCode.SPACE)){
+            if(KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.Left,inputController) ||
+                    KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.Right,inputController) ||
+                    KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.Up,inputController) ||
+                    KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.Down,inputController) ||
+                    KeybindLibrary.getKeybindPressed(KeybindLibrary.KeybindType.Jump,inputController)){
                 playerWait = false;
             }
         }
@@ -106,7 +105,7 @@ public class GameState implements IState {
         {
             time += delta;
 
-            if(keyboardController.getKeyPressed(KeyCode.R))
+            if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.Reset,inputController))
             {
                 reset();
             }

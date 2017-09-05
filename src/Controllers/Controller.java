@@ -1,5 +1,6 @@
 package Controllers;
 
+import Libraries.KeybindLibrary;
 import States.EditorStates.EditorState;
 import States.GameStates.GameState;
 import States.IState;
@@ -20,8 +21,7 @@ public class Controller {
     private View view;
     private IState.State state;
     private HashMap<IState.State,IState> states;
-    private KeyboardController keyboardController;
-    private MouseController mouseController;
+    private InputController inputController;
     private boolean gameRunning = false;
     private static World world;
     private static boolean editing = true;
@@ -34,17 +34,16 @@ public class Controller {
     {
         Dir.init();
         this.view = view;
-        keyboardController = new KeyboardController(this.view.getScene());
-        mouseController = new MouseController(this.view.getScene());
-        debugController = new DebugController(this,keyboardController);
+        inputController = new InputController(this.view.getScene());
+        debugController = new DebugController(this,inputController.getKeyboardController());
         random = new Random();
 
         state = IState.State.None;
         world = new World(60,30);
         states = new HashMap<IState.State,IState>(){
         {
-            put(IState.State.Game, new GameState(keyboardController,mouseController,view));
-            put(IState.State.Editor, new EditorState(keyboardController,mouseController,view));
+            put(IState.State.Game, new GameState(inputController,view));
+            put(IState.State.Editor, new EditorState(inputController,view));
         }};
 
         DebugGroup debugGroup = new DebugGroup();
@@ -110,16 +109,16 @@ public class Controller {
     {
         if(gameRunning) {
 
-            if(keyboardController.getKeyJustPressed(KeyCode.TAB) && editing)
+            if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.SwitchState,inputController) && editing)
             {
                 changeState(state==IState.State.Game?IState.State.Editor:IState.State.Game);
             }
-            if(keyboardController.getKeyJustPressed(KeyCode.F5) && debugging)
+            if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.SwitchDebug,inputController) && debugging)
             {
                 consoleOpen = !consoleOpen;
                 view.setVisibleDebugGroup(consoleOpen);
             }
-            if(keyboardController.getKeyJustPressed(KeyCode.F12))
+            if(KeybindLibrary.getKeybindJustPressed(KeybindLibrary.KeybindType.SwitchDebugConsole,inputController))
             {
                 toggleDebugging();
             }
@@ -127,8 +126,7 @@ public class Controller {
             //if(debugging){debugController.update(delta);}
             states.get(state).update(delta*timescale);
             view.update(states.get(state),delta);
-            keyboardController.update(delta);
-            mouseController.update(delta);
+            inputController.update(delta);
         }
     }
 
